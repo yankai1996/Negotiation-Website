@@ -1,9 +1,39 @@
 <html>
-  <head>
-    <title>Admin</title>
-    <link rel='stylesheet' href='/css/admin.css' />
-  </head>
-  <body>
-    <h1><%= content %></h1>
-  </body>
+<head>
+	<meta charset="UTF-8">
+	<title>Admin</title>
+	<link href="/css/admin.css" type="text/css" rel="stylesheet">
+</head>
+<body>
+
+<h1><%= content %></h1>
+<div class="box">
+	<div class="tabs">
+		<button class="tab-button active" onclick="openTab(event, 'Games')">Games</button>
+		<button class="tab-button" onclick="openTab(event, 'Participants')">Participants</button>
+	</div>
+	<div class="tab-container">
+		<div id="Games" class="tab-content">
+			<h3>Games</h3>
+			<p>London is the capital city of England.</p>
+		</div>
+		<div id="Participants" class="tab-content">
+			<h3>Participants</h3>
+			<p>Paris is the capital of France.</p> 
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript" src="/js/jquery.min.js"></script>
+<script>
+	$("#Games").show();
+	function openTab(event, tabId) {
+    $(".tab-content").hide();
+    $("#"+tabId).show();
+    $(".tab-button").removeClass("active");
+    event.currentTarget.className += " active";
+}
+</script>
+
+</body>
 </html>

@@ -3,7 +3,7 @@
 .form {
   position: relative;
   z-index: 3;
-  background: #FFFFFF;
+  background: #fff;
   max-width: 300px;
   margin: auto auto;
   padding: 45px;
@@ -31,7 +31,7 @@
   width: 90%;
   border: 0;
   padding: 15px;
-  color: #FFFFFF;
+  color: #fff;
   font-size: 14px;
   margin: 0 0 20px;
   -webkit-transition: all 0.3 ease;

@@ -84,9 +84,9 @@ exports.getGames = function(){
 }
 
 // add a group of games
-exports.addGames = function(game){
+exports.addGames = async function(game){
     for (var i = 0; i < game.n; i++) {
-        Game.create({
+        await Game.create({
             id:     Date.now() + ("0" + i).slice(-2),
             alpha:  game.alpha,
             beta:   game.beta,
@@ -94,6 +94,37 @@ exports.addGames = function(game){
             t:      game.t,
             w:      game.w
         });
+    }
+}
+
+// delete a group of games
+exports.deleteGames = function(game){
+    return Game.destroy({
+        where: {
+            alpha: game.alpha,
+            beta:  game.beta,
+            gamma: game.gamma,
+            t:     game.t,
+            w:     game.w
+        }
+    })
+}
+
+// parse data from string to number
+exports.parseInput = function(raw){
+    var alpha = parseFloat(raw.alpha),
+        beta = parseFloat(raw.beta),
+        gamma = parseFloat(raw.gamma),
+        t = parseInt(raw.t),
+        w = parseFloat(raw.w),
+        n = parseInt(raw.n);
+    return {
+        alpha: alpha,
+        beta:  beta,
+        gamma: gamma,
+        t:     t,
+        w:     w,
+        n:     n 
     }
 }
 

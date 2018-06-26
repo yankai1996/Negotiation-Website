@@ -30,7 +30,7 @@
 						<th></th>
 					</thead>
 
-					<tbody>
+					<tbody id="table-body">
 						<% games.forEach(function(game) { %>
 						<tr>
 							<td><%= game.alpha %></td>
@@ -47,17 +47,17 @@
 					</tbody>
 					
 					<tfoot>
-						<td><input class="param" type="text" id="alpha" placeholder="alpha" onkeypress='floatOnly(event)'></td>
-						<td><input class="param" type="text" id="beat" placeholder="beta" onkeypress='floatOnly(event)'></td>
-						<td><input class="param" type="text" id="gamma" placeholder="gamma" onkeypress='floatOnly(event)'></td>
-						<td><input class="param" type="text" id="T" placeholder="T" onkeypress='intOnly(event)'></td>
-						<td><input class="param" type="text" id="w" placeholder="w" onkeypress='floatOnly(event)'></td>
-						<td><input class="param" type="text" id="n" placeholder="n" onkeypress='intOnly(event)'></td>
+						<td><input class="param" type="text" id="alpha" placeholder="alpha" onkeypress="floatOnly(event)"></td>
+						<td><input class="param" type="text" id="beta" placeholder="beta" onkeypress="floatOnly(event)"></td>
+						<td><input class="param" type="text" id="gamma" placeholder="gamma" onkeypress="floatOnly(event)"></td>
+						<td><input class="param" type="text" id="t" placeholder="T" onkeypress="intOnly(event)"></td>
+						<td><input class="param" type="text" id="w" placeholder="w" onkeypress="floatOnly(event)"></td>
+						<td><input class="param" type="text" id="n" placeholder="n" onkeypress="intOnly(event)"></td>
 						<td>
 							<button onclick="addGames()">ADD</button>
 						</td>
 					</tfoot>
-
+`
 				</table>
 			</div>
 
@@ -79,44 +79,56 @@
 			event.currentTarget.className += " active";
 		}
 
-		function removeBorder(){
-			$(".param").each(function(index){
-				if (!$(this).val()) {
-					$(this).css('box-shadow', '0 0 1px 1px rgb(255, 128, 128)');
-					$(this).css('border', '2px groove rgb(255, 128, 128)');
-				}
-			});
-		}
-
 		function addGames(){
+			var isEmpty = false;
 			$(".param").each(function(index){
 				if (!$(this).val()) {
-					$(this).css('box-shadow', '0 0 1px 1px rgb(255, 128, 128)');
-					$(this).css('border', '2px groove rgb(255, 128, 128)');
+					isEmpty = true;
 				}
 			});
-			var alpha = $('#alpha').val(),
-					beta 	= $('#beta').val(),
-					gamma =	$('#gamma').val(),
-					t 		=	$('#t').val(),
-					w			=	$('#w').val(),
-					n 		=	$('#n').val();
-			var game = {
-				alpha: 	$('#alpha').val(),
-				beta: 	$('#beta').val(),
-				gamma: 	$('#gamma').val(),
-				t: 			$('#t').val(),
-				w: 			$('#w').val(),
-				n: 			$('#n').val(),
+			if (isEmpty) {
+				alert("Parameter cannot be null!");
+				return;
 			}
-			// $.ajax({
-   //          url: 	"/admin/addGames",
-   //          type: "POST",
-   //          data: game,
-   //          success : function(response) {
-   //              $('#content-main').html(response);
-   //          },
-   //      });
+
+			var alpha = parseFloat($('#alpha').val()),
+					beta 	= parseFloat($('#beta').val()),
+					gamma =	parseFloat($('#gamma').val()),
+					t 		=	parseInt($('#t').val()),
+					w			=	parseFloat($('#w').val()),
+					n 		=	parseInt($('#n').val());
+
+			if (n == 0) {
+				alert("n cannot be 0!");
+				$('#n').val('');
+				return;
+			}
+
+			$.ajax({
+            url: 	"/admin/add_games",
+            type: "POST",
+            data: {
+            	"alpha": alpha,
+            	"beta":  beta, 
+            	"gamma": gamma,
+            	"t":     t,
+            	"w":     w,
+            	"n":     n  
+            },
+            success : function(response) {
+                $(".param").val('');
+                $("#table-body").append(
+		                	"<tr>" +
+												"<td>" + response.alpha + "</td>"+
+												"<td>" + response.beta + "</td>"+
+												"<td>" + response.gamma + "</td>"+
+												"<td>" + response.t + "</td>"+
+												"<td>" + response.w + "</td>"+
+												"<td>" + response.n + "</td>"+
+												"<td><button>DELETE</button></td>"+
+											"</tr>");
+            }
+        });
 		}
 
 

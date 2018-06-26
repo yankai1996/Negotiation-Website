@@ -1,26 +1,25 @@
 @import url(https://fonts.googleapis.com/css?family=Roboto:300);
-
 body {
     font-family: "Roboto", sans-serif;
 }
 
 .box {
     position: relative;
+    top: 20px;
+    height: 100%;
     z-index: 3;
     background: #fff;
     max-width: 800px;
     margin: auto auto;
-    padding: 30px;
     box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
 }
 
-/* Style the tab */
 .tabs {
     overflow: hidden;
+    margin-bottom: 14px;
     background-color: #f1f1f1;
 }
 
-/* Style the buttons that are used to open the tab content */
 .tabs button {
     background-color: inherit;
     float: left;
@@ -32,20 +31,92 @@ body {
     font-size: 16;
 }
 
-/* Change background color of buttons on hover */
 .tabs button:hover {
     background-color: #ddd;
 }
 
-/* Create an active/current tablink class */
 .tabs button.active {
     background-color: #fff;
 }
 
-/* Style the tab content */
 .tab-content {
     display: none;
     padding: 6px 12px;
-    /* border: 1px solid #ccc; */
     border-top: none;
 }
+
+.logout {
+    position: absolute;
+    right: 0;
+    background:  #159287;
+    text-transform: uppercase;
+    padding: 15px;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.logout:hover {
+    background: #11746b;
+  }
+
+.game-table {
+    margin: auto;
+    margin-top: 20px;
+    margin-bottom: 30px;
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 90%;
+    display: table
+}
+
+.game-border {
+    border: 1px solid #ccc!important
+}
+
+.game-border tbody {
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc
+}
+
+.game-striped tbody tr:nth-child(odd) {
+    background-color: #f1f1f1
+}
+
+.game-table td, .game-table th {
+    max-width: 15%;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    padding-left: 16px;
+    display: table-cell;
+    text-align: left;
+    vertical-align: middle
+}
+
+.game-table tr > td:last-child {
+    padding-left: 0px;
+}
+
+.game-table input {
+    max-width: 70px;
+    height: 27px;
+    font-size: 16px
+}
+
+.game-table input::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    /* color: #000; */
+    opacity: 0.75; /* Firefox */
+}
+
+.game-table tfoot td {
+    padding-left: 12px
+}
+
+
+
+
+
+/* .game-table th:first-child, .game-table td:first-child {
+    padding-left: 16px
+} */

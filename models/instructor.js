@@ -1,68 +1,8 @@
 const Sequelize = require('sequelize');
-const config = require('./config');
+const db = require('./db');
 
-var sequelize = new Sequelize(
-    config.database, 
-    config.username, 
-    config.password, 
-    {
-        host: config.host,
-        dialect: 'mysql',
-        pool: {
-            max: 5,
-            min: 0,
-            idle: 30000
-        }
-    });
-
-var Game = sequelize.define('game', {
-    id: {
-        type: Sequelize.STRING(20),
-        allowNull: false,
-        primaryKey: true
-    },
-    buyer_id: Sequelize.STRING(4),
-    seller_id: Sequelize.STRING(4),
-    alpha: {
-        type: Sequelize.FLOAT(3,2),
-        allowNull: false
-    },
-    beta: {
-        type: Sequelize.FLOAT(3,2),
-        allowNull: false
-    },
-    gamma: {
-        type: Sequelize.FLOAT(3,2),
-        allowNull: false
-    },
-    t: {
-        type: Sequelize.INTEGER(4),
-        allowNull: false
-    },
-    w: {
-        type: Sequelize.FLOAT(6,2),
-        allowNull: false
-    },
-    exists_2nd_buyer: Sequelize.BOOLEAN
-}, {
-    timestamps: false
-});
-
-
-var Participant = sequelize.define('participant', {
-    id: {
-        type: Sequelize.STRING(4),
-        allowNull: false,
-        primaryKey: true
-    },
-    pin: {
-        type: Sequelize.STRING(4),
-        allowNull: false
-    }
-}, {
-    timestamps: false
-});
-
+let Game = db.Game,
+    Participant = db.Participant;
 
 var testData = [
     {alpha:1,   beta:1,   gamma:1,   t:1,  w:1,  n:3},
@@ -91,17 +31,12 @@ function createGames(games) {
 // createGames(testData);
 
 
-exports.initDB = function(){
-    Game.sync();
-    Participant.sync();
-}
-
 // get games by groups with the count of duplications
 // return type: Promise
 exports.getGames = function(){ 
     return Game.findAll({
         attributes: ['alpha', 'beta', 'gamma', 't', 'w', 
-            [sequelize.fn('COUNT', sequelize.col('id')), 'n']
+            [Sequelize.fn('COUNT', Sequelize.col('id')), 'n']
         ],
         group: ['alpha', 'beta', 'gamma', 't', 'w'],
         raw: true
@@ -184,8 +119,17 @@ exports.countParticipants = function(){
 
 exports.addParticipants = async function(n){
     try {
-        for (var i = 0; i < n; i++){
-
+        for (var i = 0; i < n; ){
+            var randomID = ("000" + (Math.random() * 1000)).slice(-4);
+            var randomPIN = Math.random().toString(18).substring(2, 6);
+            await Participant.create({
+                id: randomID,
+                pin: randomPIN
+            }).then(function(result){
+                i++;
+            }).catch(function(error){
+                console.log(error);
+            })
         }
         return n;
     } catch (error) {

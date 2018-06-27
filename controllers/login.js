@@ -16,6 +16,7 @@ postRouter.post('/login', function(req, res){
         res.cookie('authorized', req.body.username);
         res.redirect('/admin');
     } else if (req.body.username == 'hi') {
+        res.cookie('loggedIn', req.body.username);
         res.redirect('/welcome');
     } else {
         res.render('login', {flag: 1});

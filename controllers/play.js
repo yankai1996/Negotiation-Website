@@ -4,7 +4,11 @@ var postRouter = express.Router();
 
 
 getRouter.get('/welcome', function(req, res, next){
-    res.render('welcome', {participantID: '1007'});
+    if (req.cookies.loggedIn) {
+        res.render('welcome', {participantID: '1007'});
+    } else {
+        res.redirect('/login');
+    }
 });
 
 

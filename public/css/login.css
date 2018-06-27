@@ -1,11 +1,16 @@
 @import url(https://fonts.googleapis.com/css?family=Roboto:300);
+h1 {
+  font-family: "Roboto", sans-serif;
+  font-weight: 100;
+  color: #159287;
+}
 
 .form {
   position: relative;
   z-index: 3;
   background: #fff;
   max-width: 300px;
-  margin: auto auto;
+  margin: 100px auto;
   padding: 45px;
   text-align: center;
   box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
@@ -38,6 +43,14 @@
   transition: all 0.3 ease;
   cursor: pointer;
 }
-.form button:hover,.form button:active,.form button:focus {
+
+.form button:hover, .form button:active, .form button:focus {
   background: #11746b;
+}
+
+#show {
+  font-family: "Roboto", sans-serif;
+  height: 14px;
+  font-size: 14px;
+  color: red
 }

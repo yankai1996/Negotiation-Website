@@ -1,4 +1,5 @@
 <html>
+
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
@@ -6,22 +7,24 @@
 </head>
 
 <body>
-<div class="form">
-    <form method="post">
-        <input name="action" value="login" type="hidden">
-        <input name="username" placeholder="username" required="" type="text">
-        <input name="password" placeholder="password" required="" type="password">
-        <button type="submit">Log in</button>
-        <div id="show" align="center"></div>
-    </form>
-</div>
+    <div class="form">
+        <h1>Website</h1>
+        <form method="post">
+            <input name="action" value="login" type="hidden">
+            <input name="username" placeholder="username" required="" type="text">
+            <input name="password" placeholder="password" required="" type="password">
+            <button type="submit">Log in</button>
+            <div id="show" align="center"></div>
+        </form>
+    </div>
 
-<script type="text/javascript" src="/js/jquery.min.js"></script>
-<script>
-    var failure = <%= flag %>;
-    if (failure == 1) {
-        $("#show").append("登陆失败！");
-    }
-</script>
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script>
+        var failure = <%= flag %>;
+        if (failure == 1) {
+            $("#show").append("Incorrect username or password!");
+        }
+    </script>
 </body>
+
 </html>

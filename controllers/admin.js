@@ -1,12 +1,20 @@
-var express = require('express');
-var getRouter = express.Router();
-var postRouter = express.Router();
+const express = require('express');
+const getRouter = express.Router();
+const postRouter = express.Router();
 
-var Instructor = require('../models/instructor');
-var System = require('../models/system');
+const Instructor = require('../models/instructor');
+const System = require('../models/system');
 
-getRouter.get('/admin', function (req, res) {
-    if (req.cookies.authorized) {
+function checkAuth(req, res, next){
+    if (!req.cookies.instructor) {
+        res.redirect('/login')
+    } else {
+        next();
+    }
+}
+
+getRouter.get('/admin', checkAuth, function(req, res){
+    // if (req.cookies.authorized) {
         Instructor.getGames().then(function(games){
             Instructor.countParticipants().then(function(number){
                 res.render('admin', {
@@ -21,9 +29,9 @@ getRouter.get('/admin', function (req, res) {
             console.log(err);
             res.send(err);
         });
-    } else {
-        res.redirect('/login');
-    }
+    // } else {
+    //     res.redirect('/login');
+    // }
 });
 
 postRouter.post('/admin/add_games', function(req, res){

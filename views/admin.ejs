@@ -17,7 +17,7 @@
 		</div>
 
 		<div class="tab-container">
-
+			
 			<div id="Games" class="tab-content">
 				<table class="game-table game-striped game-border">
 					<thead>
@@ -30,17 +30,17 @@
 						<th></th>
 					</thead>
 
-					<tbody id="table-body">
+					<tbody id="game-table-body">
 						<% games.forEach(function(game) { %>
 						<tr>
-							<td><%= game.alpha %></td>
-							<td><%= game.beta %></td>
-							<td><%= game.gamma %></td>
-							<td><%= game.t %></td>
-							<td><%= game.w %></td>
-							<td><%= game.n %></td>
+							<td class="alpha"><%= game.alpha %></td>
+							<td class="beta"> <%= game.beta  %></td>
+							<td class="gamma"><%= game.gamma %></td>
+							<td class="t">	  <%= game.t 	 %></td>
+							<td class="w">    <%= game.w 	 %></td>
+							<td class="n">    <%= game.n 	 %></td>
 							<td>
-								<button>DELETE</button>
+								<button class="delete" onclick="deleteGames(this)">DELETE</button>
 							</td>
 						</tr>
 						<% }); %>
@@ -48,16 +48,15 @@
 					
 					<tfoot>
 						<td><input class="param" type="text" id="alpha" placeholder="alpha" onkeypress="floatOnly(event)"></td>
-						<td><input class="param" type="text" id="beta" placeholder="beta" onkeypress="floatOnly(event)"></td>
+						<td><input class="param" type="text" id="beta" 	placeholder="beta" 	onkeypress="floatOnly(event)"></td>
 						<td><input class="param" type="text" id="gamma" placeholder="gamma" onkeypress="floatOnly(event)"></td>
-						<td><input class="param" type="text" id="t" placeholder="T" onkeypress="intOnly(event)"></td>
-						<td><input class="param" type="text" id="w" placeholder="w" onkeypress="floatOnly(event)"></td>
-						<td><input class="param" type="text" id="n" placeholder="n" onkeypress="intOnly(event)"></td>
+						<td><input class="param" type="text" id="t" 	placeholder="T" 	onkeypress="intOnly(event)"  ></td>
+						<td><input class="param" type="text" id="w" 	placeholder="w" 	onkeypress="floatOnly(event)"></td>
+						<td><input class="param" type="text" id="n" 	placeholder="n" 	onkeypress="intOnly(event)"  ></td>
 						<td>
 							<button onclick="addGames()">ADD</button>
 						</td>
 					</tfoot>
-`
 				</table>
 			</div>
 
@@ -68,71 +67,114 @@
 		</div>
 	</div>
 
-	<script type="text/javascript" src="/js/jquery.min.js"></script>
-	<script type="text/javascript" src="/js/common.js"></script>
-	<script>
-		$("#Games").show();
-		function openTab(event, tabId) {
-			$(".tab-content").hide();
-			$("#" + tabId).show();
-			$(".tab-button").removeClass("active");
-			event.currentTarget.className += " active";
-		}
+<script type="text/javascript" src="/js/jquery.min.js"></script>
+<script type="text/javascript" src="/js/common.js"></script>
+<script>
 
-		function addGames(){
-			var isEmpty = false;
-			$(".param").each(function(index){
-				if (!$(this).val()) {
-					isEmpty = true;
-				}
-			});
-			if (isEmpty) {
-				alert("Parameter cannot be null!");
+// show the Games tab
+$("#Games").show();
+
+// switch tabs between Games and Participants
+function openTab(event, tabId) {
+	$(".tab-content").hide();
+	$("#" + tabId).show();
+	$(".tab-button").removeClass("active");
+	event.currentTarget.className += " active";
+}
+
+// click ADD button to add games
+function addGames(){
+
+	// check if empty input
+	var isEmpty = false;
+	$(".param").each(function(index){
+		isEmpty = isEmpty || !$(this).val();
+	});
+	if (isEmpty) {
+		alert("Please enter all parameters!");
+		return;
+	}
+
+	// format the input to numbers
+	var data = {
+		alpha: parseFloat($('#alpha').val()),
+		beta : parseFloat($('#beta') .val()),
+		gamma: parseFloat($('#gamma').val()),
+		t 	 : parseInt  ($('#t')	 .val()),
+		w	 : parseFloat($('#w')	 .val()),
+		n  	 : parseInt  ($('#n')	 .val())
+	};
+
+	// check if invalid number
+	for (var i in data) {
+		if (i == 'alpha' || i == 'beta' || i == 'gamma') {
+			if (data[i] < 0 || data[i] > 1) {
+				alert(i+" must be between 0-1!");
 				return;
 			}
-
-			var alpha = parseFloat($('#alpha').val()),
-					beta 	= parseFloat($('#beta').val()),
-					gamma =	parseFloat($('#gamma').val()),
-					t 		=	parseInt($('#t').val()),
-					w			=	parseFloat($('#w').val()),
-					n 		=	parseInt($('#n').val());
-
-			if (n == 0) {
-				alert("n cannot be 0!");
-				$('#n').val('');
-				return;
-			}
-
-			$.ajax({
-            url: 	"/admin/add_games",
-            type: "POST",
-            data: {
-            	"alpha": alpha,
-            	"beta":  beta, 
-            	"gamma": gamma,
-            	"t":     t,
-            	"w":     w,
-            	"n":     n  
-            },
-            success : function(response) {
-                $(".param").val('');
-                $("#table-body").append(
-		                	"<tr>" +
-												"<td>" + response.alpha + "</td>"+
-												"<td>" + response.beta + "</td>"+
-												"<td>" + response.gamma + "</td>"+
-												"<td>" + response.t + "</td>"+
-												"<td>" + response.w + "</td>"+
-												"<td>" + response.n + "</td>"+
-												"<td><button>DELETE</button></td>"+
-											"</tr>");
-            }
-        });
 		}
+	}
+	if (data.n == 0) {
+		alert("n cannot be 0!");
+		$('#n').val('');
+		return;
+	}
 
+	// post request for adding games
+	$.ajax({
+		url:  "/admin/add_games",
+		type: "POST",
+		data: data,
+		success : function(response) {
+			if (response.success) {
+				$(".param").val('');
+				$("#game-table-body").append(
+					"<tr>" +
+						"<td class='alpha'>"+ response.game.alpha+ "</td>"+
+						"<td class='beta'>" + response.game.beta + "</td>"+
+						"<td class='gamma'>"+ response.game.gamma+ "</td>"+
+						"<td class='t'>" 	+ response.game.t 	 + "</td>"+
+						"<td class='w'>" 	+ response.game.w 	 + "</td>"+
+						"<td class='n'>" 	+ response.game.n 	 + "</td>"+
+						"<td><button class='delete' onclick='deleteGames(this)'>DELETE</button></td>"+
+					"</tr>");
+			} else {
+				alert(response.errMsg);
+			}	
+		}
+	});
+}
 
-	</script>
+// click DELETE button to delete games
+function deleteGames(element) {
+	// get the index of the row to be deleted
+	var i = $(".delete").index(element);
+
+	var data = {
+		alpha: parseFloat($('.alpha').eq(i).text()),
+		beta : parseFloat($('.beta') .eq(i).text()),
+		gamma: parseFloat($('.gamma').eq(i).text()),
+		t 	 : parseInt  ($('.t')	 .eq(i).text()),
+		w	 : parseFloat($('.w')	 .eq(i).text()),
+		n  	 : parseInt  ($('.n')	 .eq(i).text())
+	};
+
+	// post request for deleting games
+	$.ajax({
+		url:  "/admin/delete_games",
+		type: "POST",
+		data: data,
+		success : function(response){
+			if (response.success){
+				$("#game-table-body > tr").eq(i).remove();
+			} else {
+				alert(response.errMsg);
+			}
+		}
+	});
+}
+
+</script>
 
 </body>
 

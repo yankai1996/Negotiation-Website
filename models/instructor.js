@@ -20,15 +20,15 @@ var Game = sequelize.define('game', {
     buyer_id: Sequelize.STRING(4),
     seller_id: Sequelize.STRING(4),
     alpha: {
-        type: Sequelize.FLOAT,
+        type: Sequelize.FLOAT(3,2),
         allowNull: false
     },
     beta: {
-        type: Sequelize.FLOAT,
+        type: Sequelize.FLOAT(3,2),
         allowNull: false
     },
     gamma: {
-        type: Sequelize.FLOAT,
+        type: Sequelize.FLOAT(3,2),
         allowNull: false
     },
     t: {
@@ -36,13 +36,14 @@ var Game = sequelize.define('game', {
         allowNull: false
     },
     w: {
-        type: Sequelize.FLOAT,
+        type: Sequelize.FLOAT(6,2),
         allowNull: false
     },
     exists_2nd_buyer: Sequelize.BOOLEAN
 }, {
     timestamps: false
 });
+Game.sync();
 
 var testData = [
     {alpha:1,   beta:1,   gamma:1,   t:1,  w:1,  n:3},
@@ -53,13 +54,12 @@ var testData = [
 
 // create n games in DB
 function createGames(games) {
-    Game.sync();
     var seed = 0;
     for (var i = 0; i < games.length; i++) {
         var game = games[i];
         for (var j = 0; j < game.n; j++) {
             Game.create({
-                id:     Date.now() + ("0" + (seed++)).slice(-2),
+                id:     ("0" + (seed++)).slice(-2) + Date.now(),
                 alpha:  game.alpha,
                 beta:   game.beta,
                 gamma:  game.gamma,
@@ -70,6 +70,7 @@ function createGames(games) {
     }
 }
 // createGames(testData);
+
 
 // get games by groups with the count of duplications
 // return type: Promise
@@ -85,15 +86,20 @@ exports.getGames = function(){
 
 // add a group of games
 exports.addGames = async function(game){
-    for (var i = 0; i < game.n; i++) {
-        await Game.create({
-            id:     Date.now() + ("0" + i).slice(-2),
-            alpha:  game.alpha,
-            beta:   game.beta,
-            gamma:  game.gamma,
-            t:      game.t,
-            w:      game.w
-        });
+    try {
+        for (var i = 0; i < game.n; i++) {
+            await Game.create({
+                id:     ("0" + i).slice(-2) + Date.now(),
+                alpha:  game.alpha,
+                beta:   game.beta,
+                gamma:  game.gamma,
+                t:      game.t,
+                w:      game.w
+            });
+        }
+    } catch (error) {
+        console.log(error);
+        return error;
     }
 }
 
@@ -107,17 +113,32 @@ exports.deleteGames = function(game){
             t:     game.t,
             w:     game.w
         }
-    })
+    });
+}
+
+// check if exist games with the same parameters
+exports.existGames = function(game){
+    return Game.findOne({
+        where: {
+            alpha: game.alpha,
+            beta:  game.beta,
+            gamma: game.gamma,
+            t:     game.t,
+            w:     game.w
+        }
+    }).then(function(result){
+        return result !== null;
+    });
 }
 
 // parse data from string to number
 exports.parseInput = function(raw){
     var alpha = parseFloat(raw.alpha),
-        beta = parseFloat(raw.beta),
+        beta  = parseFloat(raw.beta),
         gamma = parseFloat(raw.gamma),
-        t = parseInt(raw.t),
-        w = parseFloat(raw.w),
-        n = parseInt(raw.n);
+        t     = parseInt  (raw.t),
+        w     = parseFloat(raw.w),
+        n     = parseInt  (raw.n);
     return {
         alpha: alpha,
         beta:  beta,

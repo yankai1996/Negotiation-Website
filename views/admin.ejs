@@ -40,7 +40,7 @@
 							<td class="w">    <%= game.w 	 %></td>
 							<td class="n">    <%= game.n 	 %></td>
 							<td>
-								<button class="delete" onclick="deleteGames(this)">DELETE</button>
+								<button class="delete alt small" onclick="deleteGames(this)">DELETE</button>
 							</td>
 						</tr>
 						<% }); %>
@@ -54,19 +54,24 @@
 						<td><input class="param" type="text" id="w" 	placeholder="w" 	onkeypress="floatOnly(event)"></td>
 						<td><input class="param" type="text" id="n" 	placeholder="n" 	onkeypress="intOnly(event)"  ></td>
 						<td>
-							<button onclick="addGames()">ADD</button>
+							<button class="alt small" onclick="addGames()">ADD</button>
 						</td>
 					</tfoot>
 				</table>
 			</div>
 
 			<div id="Participants" class="tab-content">
-				<h3 id="count">Participants: <%= participants %></h3>
-				<div>
-					<input id="addParticipants" type="text" placeholder="even" onkeypress="intOnly(event)">
-					<button onclick="addParticipants()">add participants</button>
+				<div class="content">
+					<h3 id="count">Participants: count</h3>
+					<div class="input-board">
+						<input class="alt" id="addParticipants" type="text" placeholder="1~100" onkeypress="intOnly(event)">
+						<button class="alt" onclick="addParticipants()">ADD</button>
+					</div>
+					<div class="line"></div>
 				</div>
+				
 			</div>
+			
 		</div>
 	</div>
 
@@ -76,6 +81,10 @@
 
 // show the Games tab
 $("#Games").show();
+
+// load the count of participants
+window.count = <%= participants %>;
+$("#count").html("Participants: " + window.count);
 
 // switch tabs between Games and Participants
 function openTab(event, tabId) {
@@ -150,7 +159,8 @@ function mergeRow(game) {
 			$('.gamma').eq(i).text() == game.gamma && 
 			$('.t')	   .eq(i).text() == game.t 	   && 
 			$('.w')	   .eq(i).text() == game.w ){
-			$('.n').eq(i).text(parseInt($('.n').eq(i).text()) + game.n);
+			var cell = $('.n').eq(i);
+			cell.text(parseInt(cell.text()) + game.n);
 			return true;
 		}
 	}
@@ -167,7 +177,7 @@ function appendRow(game) {
 			"<td class='t'>" 	 + game.t 	  + "</td>" +
 			"<td class='w'>" 	 + game.w 	  + "</td>" +
 			"<td class='n'>" 	 + game.n 	  + "</td>" +
-			"<td><button class='delete' onclick='deleteGames(this)'>DELETE</button></td>" +
+			"<td><button class='delete alt small' onclick='deleteGames(this)'>DELETE</button></td>" +
 		"</tr>");
 }
 
@@ -206,8 +216,8 @@ function addParticipants(){
 	$("#addParticipants").val('');
 
 	// check if invalid input 
-	if (!n || n % 2 == 1){
-		alert("Please enter an even number!");
+	if (!n || n > 100){
+		alert("Please enter an number in 1~100!");
 		return;
 	}
 
@@ -218,7 +228,8 @@ function addParticipants(){
 		data: {n: n},
 		success : function(response){
 			if (response.success){
-				$("#count").html("Participants: "+response.number);
+				window.count += parseInt(response.number);
+				$("#count").html("Participants: " + window.count);
 			} else {
 				alert(response.errMsg);
 			}

@@ -6,8 +6,9 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
-var login = require('./routers/login');
-var admin = require('./routers/admin');
+var login = require('./controllers/login');
+var admin = require('./controllers/admin');
+var play  = require('./controllers/play');
 
 var app = express();
 
@@ -23,12 +24,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(login.get);
 app.use(login.post);
 app.use(admin.get);
-
-// app.use(function(req, res){
-//     console.log('404 '+req.url);
-//     res.writeHead(404);
-//     res.end('404 Not Found');
-// });
+app.use(admin.post);
+app.use(play.get);
 
 app.listen(8888, function(){
     console.log("App is running on port 8888!")

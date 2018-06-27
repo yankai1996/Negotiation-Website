@@ -16,6 +16,7 @@ var sequelize = new Sequelize(
     }
 );
 
+// define table 'games'
 var Game = sequelize.define('game', {
     id: {
         type: Sequelize.STRING(20),
@@ -49,6 +50,7 @@ var Game = sequelize.define('game', {
     timestamps: false
 });
 
+// define table 'participants'
 var Participant = sequelize.define('participant', {
     id: {
         type: Sequelize.STRING(4),

@@ -21,3 +21,19 @@ exports.parseGame = function(raw){
         n:     n 
     }
 }
+
+exports.verifyInstructor = function(username, password){
+    return (username == 'hello' 
+        &&  password == 'world');
+}
+
+exports.verifyParticipant = function(username, password){
+    return Participant.findOne({
+        where: {
+            id: username,
+            pin: password
+        }
+    }).then(function(result){
+        return result !== null;
+    });
+}

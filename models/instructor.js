@@ -1,15 +1,19 @@
 const Sequelize = require('sequelize');
 const config = require('./config');
 
-var sequelize = new Sequelize(config.database, config.username, config.password, {
-    host: config.host,
-    dialect: 'mysql',
-    pool: {
-        max: 5,
-        min: 0,
-        idle: 30000
-    }
-});
+var sequelize = new Sequelize(
+    config.database, 
+    config.username, 
+    config.password, 
+    {
+        host: config.host,
+        dialect: 'mysql',
+        pool: {
+            max: 5,
+            min: 0,
+            idle: 30000
+        }
+    });
 
 var Game = sequelize.define('game', {
     id: {
@@ -43,7 +47,22 @@ var Game = sequelize.define('game', {
 }, {
     timestamps: false
 });
-Game.sync();
+
+
+var Participant = sequelize.define('participant', {
+    id: {
+        type: Sequelize.STRING(4),
+        allowNull: false,
+        primaryKey: true
+    },
+    pin: {
+        type: Sequelize.STRING(4),
+        allowNull: false
+    }
+}, {
+    timestamps: false
+});
+
 
 var testData = [
     {alpha:1,   beta:1,   gamma:1,   t:1,  w:1,  n:3},
@@ -72,6 +91,11 @@ function createGames(games) {
 // createGames(testData);
 
 
+exports.initDB = function(){
+    Game.sync();
+    Participant.sync();
+}
+
 // get games by groups with the count of duplications
 // return type: Promise
 exports.getGames = function(){ 
@@ -97,6 +121,7 @@ exports.addGames = async function(game){
                 w:      game.w
             });
         }
+        return game;
     } catch (error) {
         console.log(error);
         return error;
@@ -150,3 +175,21 @@ exports.parseInput = function(raw){
 }
 
 exports.testData = testData
+
+
+// count the number of participants
+exports.countParticipants = function(){ 
+    return Participant.count();
+}
+
+exports.addParticipants = async function(n){
+    try {
+        for (var i = 0; i < n; i++){
+
+        }
+        return n;
+    } catch (error) {
+        console.log(error)
+        return error;
+    }
+}

@@ -61,8 +61,11 @@
 			</div>
 
 			<div id="Participants" class="tab-content">
-				<h3>Participants</h3>
-				<p>Paris is the capital of France.</p>
+				<h3 id="count">Participants: <%= participants %></h3>
+				<div>
+					<input id="addParticipants" type="text" placeholder="even" onkeypress="intOnly(event)">
+					<button onclick="addParticipants()">add participants</button>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -109,7 +112,8 @@ function addGames(){
 	for (var i in data) {
 		if (i == 'alpha' || i == 'beta' || i == 'gamma') {
 			if (data[i] < 0 || data[i] > 1) {
-				alert(i+" must be between 0-1!");
+				alert(i + " must be between 0-1!");
+				$('#'+i).val('');
 				return;
 			}
 		}
@@ -128,21 +132,43 @@ function addGames(){
 		success : function(response) {
 			if (response.success) {
 				$(".param").val('');
-				$("#game-table-body").append(
-					"<tr>" +
-						"<td class='alpha'>"+ response.game.alpha+ "</td>"+
-						"<td class='beta'>" + response.game.beta + "</td>"+
-						"<td class='gamma'>"+ response.game.gamma+ "</td>"+
-						"<td class='t'>" 	+ response.game.t 	 + "</td>"+
-						"<td class='w'>" 	+ response.game.w 	 + "</td>"+
-						"<td class='n'>" 	+ response.game.n 	 + "</td>"+
-						"<td><button class='delete' onclick='deleteGames(this)'>DELETE</button></td>"+
-					"</tr>");
+				if (!mergeRow(response.game)){
+					appendRow(response.game);
+				}
 			} else {
 				alert(response.errMsg);
 			}	
 		}
 	});
+}
+
+// update n if newly added games have the same parameters as the existing ones
+function mergeRow(game) {
+	for (var i = 0; i < $(".alpha").length; i++) {
+		if ($('.alpha').eq(i).text() == game.alpha && 
+			$('.beta') .eq(i).text() == game.beta  && 
+			$('.gamma').eq(i).text() == game.gamma && 
+			$('.t')	   .eq(i).text() == game.t 	   && 
+			$('.w')	   .eq(i).text() == game.w ){
+			$('.n').eq(i).text(parseInt($('.n').eq(i).text()) + game.n);
+			return true;
+		}
+	}
+	return false;
+}
+
+// append a row of games
+function appendRow(game) {
+	$("#game-table-body").append(
+		"<tr>" +
+			"<td class='alpha'>" + game.alpha + "</td>" +
+			"<td class='beta'>"  + game.beta  + "</td>" +
+			"<td class='gamma'>" + game.gamma + "</td>" +
+			"<td class='t'>" 	 + game.t 	  + "</td>" +
+			"<td class='w'>" 	 + game.w 	  + "</td>" +
+			"<td class='n'>" 	 + game.n 	  + "</td>" +
+			"<td><button class='delete' onclick='deleteGames(this)'>DELETE</button></td>" +
+		"</tr>");
 }
 
 // click DELETE button to delete games
@@ -172,6 +198,33 @@ function deleteGames(element) {
 			}
 		}
 	});
+}
+
+// click "add particpants"
+function addParticipants(){
+	var n = parseInt($("#addParticipants").val());
+	$("#addParticipants").val('');
+
+	// check if invalid input 
+	if (!n || n % 2 == 1){
+		alert("Please enter an even number!");
+		return;
+	}
+
+	// post request for adding participants
+	$.ajax({
+		url:  "/admin/add_participants",
+		type: "POST",
+		data: {n: n},
+		success : function(response){
+			if (response.success){
+				$("#count").html("Participants: "+response.number);
+			} else {
+				alert(response.errMsg);
+			}
+		}
+	});
+
 }
 
 </script>

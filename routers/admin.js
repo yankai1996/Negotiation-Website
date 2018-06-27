@@ -6,8 +6,16 @@ var Instructor = require('../models/instructor')
 
 getRouter.get('/admin', function (req, res) {
     if (req.cookies.authorized) {
-        Instructor.getGames().then(function(result){
-            res.render('admin', {games: result});
+        Instructor.getGames().then(function(games){
+            Instructor.countParticipants().then(function(number){
+                res.render('admin', {
+                    games: games,
+                    participants: number
+                });
+            }).catch(function(err){
+                console.log(err);
+                res.send(err);
+            });
         }).catch(function(err){
             console.log(err);
             res.send(err);
@@ -29,8 +37,8 @@ postRouter.post('/admin/add_games', function(req, res){
     }
     Instructor.addGames(game).then(function(result){
         res.send({
-            success: '1',
-            game: game
+            success: 1,
+            game: result
         });
     }).catch(function(err){
         console.log(err);
@@ -44,7 +52,7 @@ postRouter.post('/admin/delete_games', function(req, res){
     var game = Instructor.parseInput(req.body);
     Instructor.deleteGames(game).then(function(result){
         res.send({
-            success: '1',
+            success: 1,
             game: game
         });
     }).catch(function(err){
@@ -53,11 +61,22 @@ postRouter.post('/admin/delete_games', function(req, res){
             errMsg: err
         });
     });
-    // Instructor.existGames(game).then(function(exist){
-    //     res.send({
-    //         success: exist ? '1':'0'
-    //     })
-    // })
+});
+
+postRouter.post('/admin/add_participants', function(req, res){
+    var n = parseInt(req.body.n);
+
+    Instructor.countParticipants().then(function(number){
+        res.send({
+            success: 1,
+            number: number
+        });
+    }).catch(function(err){
+        console.log(err);
+        res.send({
+            errMsg: err
+        })
+    })
 });
 
 exports.get = getRouter;

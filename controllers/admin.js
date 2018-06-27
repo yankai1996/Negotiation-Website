@@ -2,7 +2,8 @@ var express = require('express');
 var getRouter = express.Router();
 var postRouter = express.Router();
 
-var Instructor = require('../models/instructor')
+var Instructor = require('../models/instructor');
+var System = require('../models/system');
 
 getRouter.get('/admin', function (req, res) {
     if (req.cookies.authorized) {
@@ -26,7 +27,7 @@ getRouter.get('/admin', function (req, res) {
 });
 
 postRouter.post('/admin/add_games', function(req, res){
-    var game = Instructor.parseInput(req.body);
+    var game = System.parseGame(req.body);
     for (var i in game){
         if (isNaN(game[i])){
             res.send({
@@ -49,7 +50,7 @@ postRouter.post('/admin/add_games', function(req, res){
 });
 
 postRouter.post('/admin/delete_games', function(req, res){
-    var game = Instructor.parseInput(req.body);
+    var game = System.parseGame(req.body);
     Instructor.deleteGames(game).then(function(result){
         res.send({
             success: 1,
@@ -65,11 +66,17 @@ postRouter.post('/admin/delete_games', function(req, res){
 
 postRouter.post('/admin/add_participants', function(req, res){
     var n = parseInt(req.body.n);
+    if (n <= 0 || n > 100) {
+        res.send({
+            errMsg: "Please enter an number in 1~100!"
+        })
+        return;
+    }
 
-    Instructor.countParticipants().then(function(number){
+    Instructor.addParticipants(n).then(function(result){
         res.send({
             success: 1,
-            number: number
+            number: result
         });
     }).catch(function(err){
         console.log(err);

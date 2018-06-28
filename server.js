@@ -6,9 +6,10 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
-var login = require('./controllers/login');
-var admin = require('./controllers/admin');
-var play  = require('./controllers/play');
+var login  = require('./controllers/login');
+var logout = require('./controllers/logout');
+var admin  = require('./controllers/admin');
+var play   = require('./controllers/play');
 
 var app = express();
 
@@ -23,6 +24,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(login.get);
 app.use(login.post);
+app.use(logout.get);
 app.use(admin.get);
 app.use(admin.post);
 app.use(play.get);

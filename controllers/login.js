@@ -7,10 +7,11 @@ getRouter.get('/', function(req, res){
     res.redirect('/login');
 });
 
-getRouter.get('/login', function(req, res, next){
+getRouter.get('/login', function(req, res){
     res.render('login', {flag: 0});
 });
 
+// authentication of instructor
 function authInstructor(req, res, next){
     let username = req.body.username,
         password = req.body.password;
@@ -22,6 +23,7 @@ function authInstructor(req, res, next){
     }
 }
 
+// authentication of participant
 function authParticipant(req, res, next){
     let username = req.body.username,
         password = req.body.password;
@@ -38,13 +40,16 @@ function authParticipant(req, res, next){
     });
 }
 
-postRouter.post('/login', 
-    authInstructor, 
-    authParticipant,
-    function(req, res){
-        res.render('login', {flag: 1});
-    }   
-);
+// set log-in failure flag
+function authFail(req, res) {
+    res.render('login', {flag: 1});
+}
+
+postRouter.post('/login', authInstructor);
+postRouter.post('/login', authParticipant);
+postRouter.post('/login', authFail);
+
+
 
 exports.get = getRouter;
 exports.post = postRouter;

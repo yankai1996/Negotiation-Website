@@ -145,7 +145,7 @@ function addGames(){
 					appendRow(response.game);
 				}
 			} else {
-				alert(response.errMsg);
+				alert(response);
 			}	
 		}
 	});
@@ -204,7 +204,7 @@ function deleteGames(element) {
 			if (response.success){
 				$("#game-table-body > tr").eq(i).remove();
 			} else {
-				alert(response.errMsg);
+				alert(response);
 			}
 		}
 	});
@@ -212,11 +212,11 @@ function deleteGames(element) {
 
 // click "add particpants"
 function addParticipants(){
-	var n = parseInt($("#addParticipants").val());
+	var number = parseInt($("#addParticipants").val());
 	$("#addParticipants").val('');
 
 	// check if invalid input 
-	if (!n || n > 100){
+	if (!number || number > 100){
 		alert("Please enter an number in 1~100!");
 		return;
 	}
@@ -225,13 +225,13 @@ function addParticipants(){
 	$.ajax({
 		url:  "/admin/add_participants",
 		type: "POST",
-		data: {n: n},
+		data: {number: number},
 		success : function(response){
 			if (response.success){
 				window.count += parseInt(response.number);
 				$("#count").html("Participants: " + window.count);
 			} else {
-				alert(response.errMsg);
+				alert(response);
 			}
 		}
 	});

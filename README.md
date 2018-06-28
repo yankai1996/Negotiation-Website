@@ -1,6 +1,6 @@
 # RA-Website
 
-A web app for experiment experiment on negotiation in supply chains.
+A web app for experiment on negotiation in supply chains.
 
 ## Requirements
 
@@ -17,3 +17,6 @@ The website is based on
 * Cookie-parser
 * Morgan 
 
+```
+npm install express mysql2 sequelize cookie-parser morgan
+```

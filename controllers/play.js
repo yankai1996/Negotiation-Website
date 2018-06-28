@@ -2,7 +2,9 @@ var express = require('express');
 var getRouter = express.Router();
 var postRouter = express.Router();
 
-function checkAuth(req, res, next){
+
+// check if the participant has logged in
+function checkAuth(req, res, next) {
     if (!req.cookies.participant) {
         res.redirect('/login')
     } else {
@@ -10,9 +12,15 @@ function checkAuth(req, res, next){
     }
 }
 
-getRouter.get('/welcome', checkAuth, function(req, res, next){
-    res.render('welcome', {participantID: req.cookies.participant});
-});
+// render the welcom page
+function renderWelcome(req, res) {
+    res.render('welcome', {
+        participantID: req.cookies.participant
+    });
+}
+
+getRouter.get('/welcome', checkAuth);
+getRouter.get('/welcome', renderWelcome);
 
 
 exports.get = getRouter;

@@ -6,19 +6,25 @@ let Game = db.Game,
 
 // parse game data to numbers
 exports.parseGame = function(raw){
-    var alpha = parseFloat(raw.alpha),
-        beta  = parseFloat(raw.beta),
-        gamma = parseFloat(raw.gamma),
-        t     = parseInt  (raw.t),
-        w     = parseFloat(raw.w),
-        n     = parseInt  (raw.n);
+    for (var key in raw) {
+        var temp;
+        if (key == 't' || key == 'n'){
+            temp = parseInt(raw[key]);
+        } else {
+            temp = parseFloat(raw[key]);
+            if (temp) {
+                temp = parseFloat(temp.toFixed(2))
+            }
+        }
+        raw[key] = temp;
+    }
     return {
-        alpha: alpha,
-        beta:  beta,
-        gamma: gamma,
-        t:     t,
-        w:     w,
-        n:     n 
+        alpha: raw.alpha,
+        beta:  raw.beta,
+        gamma: raw.gamma,
+        t:     raw.t,
+        w:     raw.w,
+        n:     raw.n 
     }
 }
 

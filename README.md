@@ -20,3 +20,11 @@ The website is based on
 ```
 npm install express mysql2 sequelize cookie-parser morgan
 ```
+
+## Functions 
+
+The following functions have been implemented:
+
+* Login/logout for the instructor and participants
+* The instructor can view/add/delete games
+* The instructor can view/add participants

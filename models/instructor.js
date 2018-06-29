@@ -4,8 +4,6 @@ const db = require('./db');
 let Game = db.Game,
     Participant = db.Participant;
 
-// db.init();
-
 // get games by groups with the count of duplications
 // return type: Promise
 exports.getGames = function(){ 
@@ -94,6 +92,7 @@ exports.addParticipants = async function(n){
     }
 }
 
+// get all participants
 exports.getParticipants = function(){
     return Participant.findAll({
         attributes: ['id', 'payoff'],

@@ -16,6 +16,23 @@ var sequelize = new Sequelize(
     }
 );
 
+// define table 'participants'
+var Participant = sequelize.define('participant', {
+    id: {
+        type: Sequelize.STRING(4),
+        allowNull: false,
+        primaryKey: true
+    },
+    pin: {
+        type: Sequelize.STRING(4),
+        allowNull: false
+    },
+    payoff: Sequelize.FLOAT(5,2)
+}, {
+    timestamps: false,
+    freezeTableName: true
+});
+
 // define table 'games'
 var Game = sequelize.define('game', {
     id: {
@@ -23,8 +40,16 @@ var Game = sequelize.define('game', {
         allowNull: false,
         primaryKey: true
     },
-    buyer_id: Sequelize.STRING(4),
-    seller_id: Sequelize.STRING(4),
+    buyer_id: {
+        type: Sequelize.STRING(4),
+        // references: 'participants',
+        // referencesKey: 'id'
+    },
+    seller_id:{
+        type: Sequelize.STRING(4),
+        // references: 'participants',
+        // referencesKey: 'id'
+    },
     alpha: {
         type: Sequelize.FLOAT(3,2),
         allowNull: false
@@ -47,28 +72,18 @@ var Game = sequelize.define('game', {
     },
     exists_2nd_buyer: Sequelize.BOOLEAN
 }, {
-    timestamps: false
+    timestamps: false,
+    freezeTableName: true
 });
 
-// define table 'participants'
-var Participant = sequelize.define('participant', {
-    id: {
-        type: Sequelize.STRING(4),
-        allowNull: false,
-        primaryKey: true
-    },
-    pin: {
-        type: Sequelize.STRING(4),
-        allowNull: false
-    }
-}, {
-    timestamps: false
-});
+
+function init() {
+    Game.sync();
+    Participant.sync();
+}
+// init();
 
 exports.Game = Game;
 exports.Participant = Participant;
 
-exports.init = function(){
-    Game.sync();
-    Participant.sync();
-}
+exports.init = init;

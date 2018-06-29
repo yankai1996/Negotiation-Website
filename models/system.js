@@ -29,8 +29,8 @@ exports.parseGame = function(raw){
 }
 
 exports.verifyInstructor = function(username, password){
-    return (username == 'hello' 
-        &&  password == 'world');
+    return (username == 'admin' 
+        &&  password == 'admin');
 }
 
 exports.verifyParticipant = function(username, password){

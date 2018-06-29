@@ -92,7 +92,7 @@ function deleteGames(req, res, next){
     Instructor.deleteGames(req.game).then(function(result){
         res.send({
             success: 1,
-            game: game
+            game: req.game
         });
     }).catch(function(err){
         req.err = err;

@@ -1,8 +1,12 @@
 @import url(https://fonts.googleapis.com/css?family=Roboto:300);
+button {
+    cursor: pointer;
+}
+
 .box {
     position: relative;
     top: 20px;
-    height: 100%;
+    /* height: 100%; */
     z-index: 3;
     background: #fff;
     max-width: 800px;
@@ -45,7 +49,7 @@ button.big {
     margin: auto;
     -webkit-transition: all 0.3 ease;
     transition: all 0.3 ease;
-    cursor: pointer;
+    cursor: pointer!important;
 }
 
 button.big:hover {

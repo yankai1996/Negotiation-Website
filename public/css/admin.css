@@ -3,16 +3,7 @@ body {
     font-family: "Roboto", sans-serif;
 }
 
-.box {
-    position: relative;
-    top: 20px;
-    height: 100%;
-    z-index: 3;
-    background: #fff;
-    max-width: 800px;
-    margin: auto auto;
-    box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
-}
+/* Tabs */
 
 .tabs {
     overflow: hidden;
@@ -61,7 +52,9 @@ body {
     background: #11746b;
 }
 
-.game-table {
+/* Table Games */
+
+table.games {
     margin: auto;
     margin-top: 20px;
     margin-bottom: 30px;
@@ -71,20 +64,7 @@ body {
     display: table
 }
 
-.game-border {
-    border: 1px solid #ccc!important
-}
-
-.game-border tbody {
-    border-top: 1px solid #ccc;
-    border-bottom: 1px solid #ccc
-}
-
-.game-striped tbody tr:nth-child(odd) {
-    background-color: #f1f1f1
-}
-
-.game-table td, .game-table th {
+table.games td, table.games th {
     max-width: 15%;
     padding-top: 8px;
     padding-bottom: 8px;
@@ -92,22 +72,65 @@ body {
     display: table-cell;
     text-align: left;
     vertical-align: middle;
-    -webkit-transition: color 1s ease, background-color 1s ease;
-    -moz-transition: color 1s ease, background-color 1s ease;
-    -o-transition: color 1s ease, background-color 1s ease;
-    transition: color 1s ease, background-color 1s ease;
 }
 
-.game-table tr>td:last-child {
+table.games tr>td:last-child {
     /* padding: 0 16px; */
     padding-left: 8px;
     padding-right: 8px;
 }
 
-.game-table input {
+table.games input {
     max-width: 70px;
     height: 27px;
     font-size: 16px
+}
+
+table.games tfoot td {
+    padding-left: 12px
+}
+
+/* Table Bordered and Striped */
+
+table.bordered {
+    border: 1px solid #ccc!important
+}
+
+table.bordered tbody {
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc
+}
+
+table.striped tbody tr:nth-child(odd) {
+    background-color: #f1f1f1
+}
+
+/* Tabel Participants */
+
+table.participants {
+    /* margin: auto; */
+    margin-top: 20px;
+    margin-bottom: 30px;
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 30%;
+    display: table
+}
+
+table.participants td, table.participants th {
+    max-width: 15%;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    padding-left: 16px;
+    display: table-cell;
+    text-align: left;
+    vertical-align: middle;
+}
+
+/* Input */
+
+.input-board {
+    height: 35px;
 }
 
 input::placeholder {
@@ -116,13 +139,12 @@ input::placeholder {
     opacity: 0.75;
 }
 
-button {
-    cursor: pointer;
+input.alt {
+    height: 100%;
+    font-size: 16px;
 }
 
-.game-table tfoot td {
-    padding-left: 12px
-}
+/* Button */
 
 button.circular {
     /* width: 25px;
@@ -140,21 +162,13 @@ button.circular:hover {
     background: #11746b;
 }
 
-.input-board {
-    height: 35px;
-}
-
-input.alt {
-    height: 100%;
-    font-size: 16px;
-}
-
 button.alt {
     height: 100%;
     padding: 0px 25px;
     line-height: 30px;
     background-color: #fff;
     box-shadow: inset 0 0 0 2px #dfdfdf;
+    border-radius: 5%;
     border: none;
     font-size: 16px;
     color: #555;
@@ -172,17 +186,4 @@ button.alt.small {
     line-height: 22px;
     font-size: 13px;
     padding: 0px 10px;
-}
-
-.content {
-    width: 95%;
-    margin-bottom: 30px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.line {
-    width: 100%;
-    margin: 25px auto;
-    border-bottom: 1px solid #ddd
 }

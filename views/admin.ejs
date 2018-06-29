@@ -3,6 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Admin</title>
+	<link href="/css/common.css" type="text/css" rel="stylesheet">
 	<link href="/css/admin.css" type="text/css" rel="stylesheet">
 </head>
 
@@ -19,7 +20,7 @@
 		<div class="tab-container">
 			
 			<div id="Games" class="tab-content">
-				<table class="game-table game-striped game-border">
+				<table class="games striped bordered">
 					<thead>
 						<th>Alpha</th>
 						<th>Beta</th>
@@ -62,12 +63,27 @@
 
 			<div id="Participants" class="tab-content">
 				<div class="content">
-					<h3 id="count">Participants: count</h3>
+					<h3 id="count">Participants: <%= participants.length %></h3>
 					<div class="input-board">
 						<input class="alt" id="addParticipants" type="text" placeholder="1~100" onkeypress="intOnly(event)">
 						<button class="alt" onclick="addParticipants()">ADD</button>
 					</div>
 					<div class="line"></div>
+					<table class="participants striped bordered">
+						<thead>
+							<th>ID</th>
+							<th>Payoff</th>
+						</thead>
+
+						<tbody id="participant-table-body">
+						<% participants.forEach(function(p) { %>
+							<tr>
+								<td class="id">    <%= p.id  %>   </td>
+								<td class="payoff"><%= p.payoff %></td>
+							</tr>
+						<% }); %>
+					</tbody>
+					</table>
 				</div>
 				
 			</div>
@@ -81,10 +97,6 @@
 
 // show the Games tab
 $("#Games").show();
-
-// load the count of participants
-window.count = <%= participants %>;
-$("#count").html("Participants: " + window.count);
 
 // switch tabs between Games and Participants
 function openTab(event, tabId) {
@@ -141,8 +153,8 @@ function addGames(){
 		success : function(response) {
 			if (response.success) {
 				$(".param").val('');
-				if (!mergeRow(response.game)){
-					appendRow(response.game);
+				if (!mergeGameRow(response.game)){
+					appendGameRow(response.game);
 				}
 			} else {
 				alert(response);
@@ -152,7 +164,7 @@ function addGames(){
 }
 
 // update n if newly added games have the same parameters as the existing ones
-function mergeRow(game) {
+function mergeGameRow(game) {
 	for (var i = 0; i < $(".alpha").length; i++) {
 		if ($('.alpha').eq(i).text() == game.alpha && 
 			$('.beta') .eq(i).text() == game.beta  && 
@@ -168,7 +180,7 @@ function mergeRow(game) {
 }
 
 // append a row of games
-function appendRow(game) {
+function appendGameRow(game) {
 	$("#game-table-body").append(
 		"<tr>" +
 			"<td class='alpha'>" + game.alpha + "</td>" +
@@ -228,14 +240,25 @@ function addParticipants(){
 		data: {number: number},
 		success : function(response){
 			if (response.success){
-				window.count += parseInt(response.number);
-				$("#count").html("Participants: " + window.count);
+				updateParticipants(response.participants);
 			} else {
 				alert(response);
 			}
 		}
 	});
+}
 
+
+function updateParticipants(participants){
+	$("#count").html("Participants: " + participants.length);
+	$("#participant-table-body").html("");
+	participants.forEach(function(p){
+		$("#participant-table-body").append(
+			"<tr>" +
+				"<td class='id'>" 	  + p.id 	 + "</td>" +
+				"<td class='payoff'>" + p.payoff + "</td>" +
+			"</tr>");
+	});
 }
 
 </script>

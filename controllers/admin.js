@@ -1,33 +1,45 @@
 const express = require('express');
 const getRouter = express.Router();
 const postRouter = express.Router();
+const auth = require('./auth')
 
 const Instructor = require('../models/instructor');
 const System = require('../models/system');
 
 
-// check if the instructor has logged in
-function checkAuth(req, res, next){
-    if (!req.cookies.instructor) {
-        res.redirect('/login')
-    } else {
-        next();
-    }
-}
-
-// render admin page
-function renderAdmin(req, res, next){
+// add games to request
+function getGames(req, res, next){
     Instructor.getGames().then(function(games){
-        Instructor.countParticipants().then(function(number){
-            res.render('admin', {
-                games: games,
-                participants: number
-            });
-        });
+        req.games = games;
+        next();
     }).catch(function(err){
         req.err = err;
-        next();
+        sendError(req, res);
     });
+}
+
+// add participants to request
+function getParticipants(req, res, next){
+    Instructor.getParticipants().then(function(participants){
+        req.participants = participants;
+        next();
+    }).catch(function(err){
+        req.err = err;
+        sendError(req, res);
+    })
+}
+
+// render the admin page
+function renderAdmin(req, res, next){
+    try {
+        res.render('admin', {
+            games: req.games,
+            participants: req.participants
+        });
+    } catch (error) {
+        req.err = error;
+        next();
+    }
 }
 
 // send error message
@@ -36,10 +48,11 @@ function sendError(req, res){
     res.send("ERROR: " + req.err)
 }
 
-getRouter.get('/admin', checkAuth);
+getRouter.get('/admin', auth.checkAuthInstructor);
+getRouter.get('/admin', getGames);
+getRouter.get('/admin', getParticipants);
 getRouter.get('/admin', renderAdmin);
 getRouter.get('/admin', sendError);
-
 
 
 // format and check the received data of games
@@ -56,6 +69,7 @@ function checkGameData(req, res, next){
     next();
 }
 
+// add games and send the game data
 function addGames(req, res, next){
     Instructor.addGames(req.game).then(function(result){
         res.send({
@@ -73,8 +87,8 @@ postRouter.post('/admin/add_games', addGames);
 postRouter.post('/admin/add_games', sendError);
 
 
-
-function deleteGames(req, res ,next){
+// delete games and send the game data
+function deleteGames(req, res, next){
     Instructor.deleteGames(req.game).then(function(result){
         res.send({
             success: 1,
@@ -101,21 +115,35 @@ function checkNumber(req, res, next){
     next();
 }
 
+// add participants and send the number that has been added
 function addParticipants(req, res, next){
     Instructor.addParticipants(req.number).then(function(result){
-        res.send({
-            success: 1,
-            number: result
-        });
+        next()
     }).catch(function(err){
         req.err = err;
-        next();
+        sendError(req, res);
     })
+}
+
+// send the updated participant table
+function sendUpdatedParticipants(req, res, next){
+    try {
+        res.send({
+            success: 1,
+            participants: req.participants
+        });
+    } catch (error) {
+        req.err = err;
+        next()
+    }
 }
 
 postRouter.post('/admin/add_participants', checkNumber);
 postRouter.post('/admin/add_participants', addParticipants);
+postRouter.post('/admin/add_participants', getParticipants);
+postRouter.post('/admin/add_participants', sendUpdatedParticipants);
 postRouter.post('/admin/add_participants', sendError);
+
 
 exports.get = getRouter;
 exports.post = postRouter;

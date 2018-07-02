@@ -93,6 +93,12 @@
 								<% }); %>
 								</tbody>
 							</table>
+							<div class="turn-buttons">
+								<button class="alt turn" onclick="previousPage()"> < </button>
+								<div class="page">page 1/10</div>
+								<button class="alt turn" onclick="nextPage()"> > </button>
+							</div>
+							
 						</div>
 					
 						<div class="panel right">
@@ -287,14 +293,16 @@ function updateParticipants(participants, count){
 			"<tr>" + 
 				"<td>" +
 					 "<p class='first'>" + p.first + "</p>" + 
-					 "<p class='second'>"+ (p.second ? p.second : "") + 
+					 "<p class='second'>"+ (p.second ? p.second : "") + "</p>" +
 				"</td>" +
-				"<td>" + (p.second ? "<button class='alt'>View</button>" : "") + "</td>" + 
+				"<td>" + 
+					(p.second ? "<button class='alt small' onclick='viewPair(event)'>View</button>" : "" )+ 
+				"</td>" + 
 			"</tr>");
 	});
 }
 
-$(".panel.right").hide();
+// show the detail of the selected pair
 function viewPair(event){
 	var i = $("#participant-table-body button").index(event.currentTarget);
 	$("#participant-table-body tr").removeClass("focused");
@@ -303,6 +311,7 @@ function viewPair(event){
 	var first = $(".first").eq(i).text();
 	var second = $(".second").eq(i).text();
 
+	// post request for viewing a pair
 	$.ajax({
 		url:  "/admin/view_pair",
 		type: "POST",
@@ -310,15 +319,15 @@ function viewPair(event){
 		success : function(res){
 			if (res.success){
 				refreshPairTable(res.games);
+				$(".panel.right").animate({width:'show'}, 500);
 			} else {
 				alert(res);
 			}
 		}
 	});
-
-	$(".panel.right").animate({width:'show'});
 }
 
+// refresh games in the pair panel
 function refreshPairTable(games){
 	$("#pair-table-body").html("");
 	games.forEach(function(g){
@@ -335,6 +344,40 @@ function refreshPairTable(games){
 	})
 }
 
+const PAGE_SIZE = 10;
+displayParticipants(0, PAGE_SIZE);
+
+function displayParticipants(start, end){
+	$("#participant-table-body tr").hide();
+	for (var i = start; i < end; i++){
+		$("#participant-table-body tr").eq(i).show();
+	}
+	var pageCount = Math.ceil($("#participant-table-body tr").length / PAGE_SIZE);
+	$(".page").text("page " + Math.ceil((start + 1) / PAGE_SIZE) + "/" + pageCount);
+}
+
+function previousPage(){
+	var pageCount = Math.ceil($("#participant-table-body tr").length / PAGE_SIZE),
+		currentPage = parseInt($(".page").text().slice(4));
+	if (currentPage > 1){
+		var start = (currentPage - 2) * PAGE_SIZE,
+			end = start + PAGE_SIZE;
+		displayParticipants(start, end);
+	}
+}
+
+function nextPage(){
+	var pageCount = Math.ceil($("#participant-table-body tr").length / PAGE_SIZE),
+		currentPage = parseInt($(".page").text().slice(4));
+	if (currentPage < pageCount){
+		var start = currentPage * PAGE_SIZE,
+			end = Math.min(start + PAGE_SIZE, $("#participant-table-body tr").length);
+		displayParticipants(start, end);
+	}
+}
+
+// displayParticipants(0,4);
+// console.log($("#participant-table-body tr").length)
 
 </script>
 

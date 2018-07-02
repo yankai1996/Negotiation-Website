@@ -3,6 +3,10 @@ button {
     cursor: pointer;
 }
 
+button:focus {
+    outline: none;
+}
+
 .box {
     position: relative;
     top: 20px;
@@ -32,6 +36,7 @@ button {
 
 .content {
     width: 95%;
+    min-height: 500px;
     text-align: justify;
     margin-bottom: 30px;
     margin-left: auto;

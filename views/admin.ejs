@@ -348,7 +348,8 @@ function refreshPairTable(games){
 				"<td>" + g.t + "</td>" +
 				"<td>" + g.w + "</td>" +
 			"</tr>");
-	})
+	});
+	$("table.pair tfoot td").html("Total: " + games.length);
 }
 
 const PAGE_SIZE = 10;

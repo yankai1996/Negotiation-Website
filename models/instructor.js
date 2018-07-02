@@ -75,12 +75,26 @@ exports.addParticipants = async function(n){
         for (var i = 0; i < n; ){
             var randomID = ("000" + (Math.random() * 1000)).slice(-4);
             var randomPIN = Math.random().toString(18).substring(2, 6);
+            var opponent = await Participant.findOne({
+                where: {opponent: null}
+            });
+            var opponentID = opponent ? opponent.id : null;
+
             await Participant.create({
                 id: randomID,
                 pin: randomPIN,
-                payoff: 0
+                payoff: 0,
+                opponent: opponentID
             }).then(function(result){
                 i++;
+                // console.log(JSON.stringify(result));
+                if (opponent){
+                    Participant.update({
+                        opponent: randomID
+                    }, {
+                        where: {id: opponentID}
+                    });
+                }
             }).catch(function(error){
                 console.log(error);
             })
@@ -98,4 +112,27 @@ exports.getParticipants = function(){
         attributes: ['id', 'payoff'],
         raw: true
     });
+}
+
+// get all participants by pair
+exports.getPairedParticipants = async function(){
+    var participants = await Participant.findAll();
+    var pairs = {},
+        result = [],
+        single;
+    for (var i in participants) {
+        if (!(participants[i].opponent in pairs)){
+            var first = participants[i].id,
+                second = participants[i].opponent;
+            if (!second) {
+                single = first;
+                continue;
+            }
+            pairs[first] = second;
+            result.push({first:first, second:second});
+            // console.log(participants[i].id + " " + participants[i].opponent);
+        }
+    }
+    result.push({first:single, second:null});
+    return result;
 }

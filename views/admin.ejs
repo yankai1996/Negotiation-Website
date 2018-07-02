@@ -63,7 +63,7 @@
 
 			<div id="Participants" class="tab-content">
 				<div class="content">
-					<h3 id="count">Participants: <%= participants.length %></h3>
+					<h3 id="count">Participants: <%= count %></h3>
 					<div class="input-board">
 						<input class="alt" id="addParticipants" type="text" placeholder="1~100" onkeypress="intOnly(event)">
 						<button class="alt" onclick="addParticipants()">ADD</button>
@@ -72,14 +72,14 @@
 					<table class="participants striped bordered">
 						<thead>
 							<th>ID</th>
-							<th>Payoff</th>
+							<!-- <th>Payoff</th> -->
 						</thead>
 
 						<tbody id="participant-table-body">
 						<% participants.forEach(function(p) { %>
 							<tr>
-								<td class="id">    <%= p.id  %>   </td>
-								<td class="payoff"><%= p.payoff %></td>
+								<td class="id"><p><%= p.first %></p><p><%= p.second %></p></td>
+								<!-- <td></td> -->
 							</tr>
 						<% }); %>
 					</tbody>
@@ -150,14 +150,14 @@ function addGames(){
 		url:  "/admin/add_games",
 		type: "POST",
 		data: data,
-		success : function(response) {
-			if (response.success) {
+		success : function(res) {
+			if (res.success) {
 				$(".param").val('');
-				if (!mergeGameRow(response.game)){
-					appendGameRow(response.game);
+				if (!mergeGameRow(res.game)){
+					appendGameRow(res.game);
 				}
 			} else {
-				alert(response);
+				alert(res);
 			}	
 		}
 	});
@@ -212,17 +212,17 @@ function deleteGames(element) {
 		url:  "/admin/delete_games",
 		type: "POST",
 		data: data,
-		success : function(response){
-			if (response.success){
+		success : function(res){
+			if (res.success){
 				$("#game-table-body > tr").eq(i).remove();
 			} else {
-				alert(response);
+				alert(res);
 			}
 		}
 	});
 }
 
-// click "add particpants"
+// click ADD button to add participants
 function addParticipants(){
 	var number = parseInt($("#addParticipants").val());
 	$("#addParticipants").val('');
@@ -238,26 +238,24 @@ function addParticipants(){
 		url:  "/admin/add_participants",
 		type: "POST",
 		data: {number: number},
-		success : function(response){
-			if (response.success){
-				updateParticipants(response.participants);
+		success : function(res){
+			if (res.success){
+				updateParticipants(res.participants, res.count);
 			} else {
-				alert(response);
+				alert(res);
 			}
 		}
 	});
 }
 
-
-function updateParticipants(participants){
-	$("#count").html("Participants: " + participants.length);
+// update participant table
+function updateParticipants(participants, count){
+	$("#count").html("Participants: " + count);
 	$("#participant-table-body").html("");
 	participants.forEach(function(p){
 		$("#participant-table-body").append(
-			"<tr>" +
-				"<td class='id'>" 	  + p.id 	 + "</td>" +
-				"<td class='payoff'>" + p.payoff + "</td>" +
-			"</tr>");
+			"<tr><td class='id'><p>" + p.first + "</p><p>"+ (p.second ? p.second : "") + "</td></tr>"
+		);
 	});
 }
 

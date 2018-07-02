@@ -20,13 +20,23 @@ function getGames(req, res, next){
 
 // add participants to request
 function getParticipants(req, res, next){
-    Instructor.getParticipants().then(function(participants){
+    Instructor.getPairedParticipants().then(function(participants){
         req.participants = participants;
         next();
     }).catch(function(err){
         req.err = err;
         sendError(req, res);
-    })
+    });
+}
+
+function countParticipants(req, res, next){
+    Instructor.countParticipants().then(function(count){
+        req.count = count;
+        next();
+    }).catch(function(err){
+        req.err = err;
+        sendError(req, res);
+    });
 }
 
 // render the admin page
@@ -34,7 +44,8 @@ function renderAdmin(req, res, next){
     try {
         res.render('admin', {
             games: req.games,
-            participants: req.participants
+            participants: req.participants,
+            count: req.count
         });
     } catch (error) {
         req.err = error;
@@ -51,6 +62,7 @@ function sendError(req, res){
 getRouter.get('/admin', auth.checkAuthInstructor);
 getRouter.get('/admin', getGames);
 getRouter.get('/admin', getParticipants);
+getRouter.get('/admin', countParticipants);
 getRouter.get('/admin', renderAdmin);
 getRouter.get('/admin', sendError);
 
@@ -130,7 +142,8 @@ function sendUpdatedParticipants(req, res, next){
     try {
         res.send({
             success: 1,
-            participants: req.participants
+            participants: req.participants,
+            count: req.count
         });
     } catch (error) {
         req.err = err;
@@ -141,6 +154,7 @@ function sendUpdatedParticipants(req, res, next){
 postRouter.post('/admin/add_participants', checkNumber);
 postRouter.post('/admin/add_participants', addParticipants);
 postRouter.post('/admin/add_participants', getParticipants);
+postRouter.post('/admin/add_participants', countParticipants);
 postRouter.post('/admin/add_participants', sendUpdatedParticipants);
 postRouter.post('/admin/add_participants', sendError);
 

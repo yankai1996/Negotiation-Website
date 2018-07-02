@@ -69,21 +69,51 @@
 						<button class="alt" onclick="addParticipants()">ADD</button>
 					</div>
 					<div class="line"></div>
-					<table class="participants striped bordered">
-						<thead>
-							<th>ID</th>
-							<!-- <th>Payoff</th> -->
-						</thead>
+					<div class="flexbox">
+						<div class="panel left">
+							<table class="participants striped bordered">
+								<thead>
+									<th>Pairs</th>
+									<th></th>
+								</thead>
 
-						<tbody id="participant-table-body">
-						<% participants.forEach(function(p) { %>
-							<tr>
-								<td class="id"><p><%= p.first %></p><p><%= p.second %></p></td>
-								<!-- <td></td> -->
-							</tr>
-						<% }); %>
-					</tbody>
-					</table>
+								<tbody id="participant-table-body">
+								<% participants.forEach(function(p) { %>
+									<tr>
+										<td>
+											<p class="first"><%= p.first %></p>
+											<p class="second"><%= p.second %></p>
+										</td>
+										<td>
+										<% if (p.second) { %>
+										<button class="alt small" onclick="viewPair(event)">View</button>
+										<% } %>
+										</td>
+									</tr>
+								<% }); %>
+								</tbody>
+							</table>
+						</div>
+					
+						<div class="panel right">
+							<table class="pair bordered striped">
+								<thead>
+									<th>buyer</th>
+									<th>seller</th>
+									<th>alpha</th>
+									<th>beta</th>
+									<th>gamma</th>
+									<th>T</th>
+									<th>w</th>
+								</thead>
+								<tbody id="pair-table-body">
+								</tbody>
+								<tfoot>
+									<td colspan="7">Total: 0</td>
+								</tfoot>
+							</table>
+						</div>
+					</div>
 				</div>
 				
 			</div>
@@ -254,10 +284,57 @@ function updateParticipants(participants, count){
 	$("#participant-table-body").html("");
 	participants.forEach(function(p){
 		$("#participant-table-body").append(
-			"<tr><td class='id'><p>" + p.first + "</p><p>"+ (p.second ? p.second : "") + "</td></tr>"
-		);
+			"<tr>" + 
+				"<td>" +
+					 "<p class='first'>" + p.first + "</p>" + 
+					 "<p class='second'>"+ (p.second ? p.second : "") + 
+				"</td>" +
+				"<td>" + (p.second ? "<button class='alt'>View</button>" : "") + "</td>" + 
+			"</tr>");
 	});
 }
+
+$(".panel.right").hide();
+function viewPair(event){
+	var i = $("#participant-table-body button").index(event.currentTarget);
+	$("#participant-table-body tr").removeClass("focused");
+	$("#participant-table-body tr").eq(i).addClass("focused");
+
+	var first = $(".first").eq(i).text();
+	var second = $(".second").eq(i).text();
+
+	$.ajax({
+		url:  "/admin/view_pair",
+		type: "POST",
+		data: {id: first},
+		success : function(res){
+			if (res.success){
+				refreshPairTable(res.games);
+			} else {
+				alert(res);
+			}
+		}
+	});
+
+	$(".panel.right").animate({width:'show'});
+}
+
+function refreshPairTable(games){
+	$("#pair-table-body").html("");
+	games.forEach(function(g){
+		$("#pair-table-body").append(
+			"<tr>" +
+				"<td>" + g.buyer_id + "</td>" +
+				"<td>" + g.seller_id+ "</td>" +
+				"<td>" + g.alpha + "</td>" +
+				"<td>" + g.beta + "</td>" +
+				"<td>" + g.gamma + "</td>" +
+				"<td>" + g.t + "</td>" +
+				"<td>" + g.w + "</td>" +
+			"</tr>");
+	})
+}
+
 
 </script>
 

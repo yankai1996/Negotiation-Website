@@ -113,18 +113,45 @@ table.participants {
     margin-bottom: 30px;
     border-collapse: collapse;
     border-spacing: 0;
-    width: 30%;
+    width: 100%;
+    /* max-width: 360px; */
     display: table
 }
 
 table.participants td, table.participants th {
-    max-width: 15%;
+    /* max-width: 15%; */
     padding-top: 8px;
     padding-bottom: 8px;
-    padding-left: 16px;
+    /* padding-left: 16px; */
     display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.focused {
+    background-color: #ddd!important;
+}
+
+table.pair {
+    margin-top: 0px;
+    margin-bottom: 30px;
+    border-collapse: collapse;
+    border-spacing: 0;
+    /* width: 200px; */
+    /* max-width: 360px; */
+    display: inline-block
+}
+
+table.pair td, table.pair th {
+    padding: 8px 10px;
+    font-weight: normal;
     text-align: left;
     vertical-align: middle;
+}
+
+table.pair tfoot td {
+    text-align: right;
+    border-top: 1px solid #ccc;
 }
 
 /* Input */
@@ -186,4 +213,23 @@ button.alt.small {
     line-height: 22px;
     font-size: 13px;
     padding: 0px 10px;
+}
+
+.flexbox {
+    display: flex;
+    margin-top: -20px;
+}
+
+.panel.left {
+    width: 160px;
+}
+
+.panel.right {
+    padding: 12px;
+    margin-top: 20px !important;
+    margin-left: 20px;
+    border: 1px solid #ccc!important;
+    height: 200px;
+    /* max-width: 300px; */
+    /* width: auto; */
 }

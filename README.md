@@ -27,4 +27,6 @@ The following functions have been implemented:
 
 * Login/logout for the instructor and participants
 * The instructor can view/add/delete games
-* The instructor can view/add participants
+* The instructor can add participants
+* Automatically pair participants
+* The instructor can view games in each pair

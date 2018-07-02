@@ -159,5 +159,22 @@ postRouter.post('/admin/add_participants', sendUpdatedParticipants);
 postRouter.post('/admin/add_participants', sendError);
 
 
+// get and send games according to participant id
+function viewPair(req, res, next){
+    // console.log(req.body.id);
+    Instructor.getGamesByParticipant(req.body.id).then(function(result){
+        res.send({
+            success: 1,
+            games: result
+        });
+    }).catch(function(err){
+        req.err = err;
+        next();
+    })
+}
+
+postRouter.post('/admin/view_pair', viewPair);
+postRouter.post('/admin/view_pair', sendError);
+
 exports.get = getRouter;
 exports.post = postRouter;

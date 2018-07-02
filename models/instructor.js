@@ -130,9 +130,22 @@ exports.getPairedParticipants = async function(){
             }
             pairs[first] = second;
             result.push({first:first, second:second});
-            // console.log(participants[i].id + " " + participants[i].opponent);
         }
     }
-    result.push({first:single, second:null});
+    if (single) {
+        result.push({first:single, second:null});
+    }
     return result;
+}
+
+// get games by one participant id
+exports.getGamesByParticipant = function(id){
+    console.log(id);
+    return Game.findAll({
+        attributes: ['buyer_id', 'seller_id', 'alpha', 'beta', 'gamma', 't', 'w'], 
+        where: {
+            $or: [{buyer_id: id},
+                {seller_id: id}]
+        }
+    })
 }

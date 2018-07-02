@@ -48,11 +48,11 @@
 					</tbody>
 					
 					<tfoot>
-						<td><input class="param" type="text" id="alpha" placeholder="alpha" onkeypress="floatOnly(event)"></td>
-						<td><input class="param" type="text" id="beta" 	placeholder="beta" 	onkeypress="floatOnly(event)"></td>
-						<td><input class="param" type="text" id="gamma" placeholder="gamma" onkeypress="floatOnly(event)"></td>
-						<td><input class="param" type="text" id="t" 	placeholder="T" 	onkeypress="intOnly(event)"  ></td>
-						<td><input class="param" type="text" id="w" 	placeholder="w" 	onkeypress="floatOnly(event)"></td>
+						<td><input class="param" type="text" id="alpha" placeholder="0.5" onkeypress="floatOnly(event)"></td>
+						<td><input class="param" type="text" id="beta" 	placeholder="0.5" 	onkeypress="floatOnly(event)"></td>
+						<td><input class="param" type="text" id="gamma" placeholder="0.5" onkeypress="floatOnly(event)"></td>
+						<td><input class="param" type="text" id="t" 	placeholder="10" 	onkeypress="intOnly(event)"  ></td>
+						<td><input class="param" type="text" id="w" 	placeholder="15" 	onkeypress="floatOnly(event)"></td>
 						<td><input class="param" type="text" id="n" 	placeholder="n" 	onkeypress="intOnly(event)"  ></td>
 						<td>
 							<button class="alt small" onclick="addGames()">ADD</button>
@@ -146,12 +146,19 @@ function openTab(event, tabId) {
 function addGames(){
 
 	// check if empty input
-	var isEmpty = false;
+	var isEmpty = false
 	$(".param").each(function(index){
-		isEmpty = isEmpty || !$(this).val();
+		if (!$(this).val()) {
+			if ($(this).attr('id') == 'n') {
+				isEmpty = true;
+			} else {
+				$(this).val($(this).attr('placeholder'))
+			}
+		}
 	});
 	if (isEmpty) {
-		alert("Please enter all parameters!");
+		$(".param").val("")
+		alert("Please enter n!");
 		return;
 	}
 
@@ -376,8 +383,6 @@ function nextPage(){
 	}
 }
 
-// displayParticipants(0,4);
-// console.log($("#participant-table-body tr").length)
 
 </script>
 

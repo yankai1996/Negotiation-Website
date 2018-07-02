@@ -164,11 +164,11 @@ table.pair tfoot td {
 input::placeholder {
     /* Chrome, Firefox, Opera, Safari 10.1+ */
     /* color: #000; */
-    opacity: 0.65;
+    opacity: 0.5;
 }
 
 input:focus::-webkit-input-placeholder {
-    color: transparent;
+    opacity: 0;
 }
 
 input.alt {

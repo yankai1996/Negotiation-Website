@@ -27,7 +27,18 @@ var Participant = sequelize.define('participant', {
         type: Sequelize.STRING(4),
         allowNull: false
     },
-    payoff: Sequelize.FLOAT(5,2)
+    payoff: {
+        type: Sequelize.FLOAT(5,2),
+        defaultValue: 0
+    }, 
+    opponent: {
+        type: Sequelize.STRING(4),
+        unique: true,
+        references: {
+            model: 'participant',
+            key: 'id'
+        }
+    }
 }, {
     timestamps: false,
     freezeTableName: true
@@ -42,13 +53,17 @@ var Game = sequelize.define('game', {
     },
     buyer_id: {
         type: Sequelize.STRING(4),
-        // references: 'participants',
-        // referencesKey: 'id'
+        references: {
+            model: 'participant',
+            key: 'id'
+        }
     },
     seller_id:{
         type: Sequelize.STRING(4),
-        // references: 'participants',
-        // referencesKey: 'id'
+        references: {
+            model: 'participant',
+            key: 'id'
+        }
     },
     alpha: {
         type: Sequelize.FLOAT(3,2),
@@ -77,13 +92,11 @@ var Game = sequelize.define('game', {
 });
 
 
-function init() {
-    Game.sync();
+function init(){
     Participant.sync();
+    Game.sync();
 }
 // init();
 
 exports.Game = Game;
 exports.Participant = Participant;
-
-exports.init = init;

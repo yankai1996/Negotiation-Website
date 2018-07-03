@@ -61,6 +61,7 @@ table.games {
     border-collapse: collapse;
     border-spacing: 0;
     width: 90%;
+    background-color: #fff;
     display: table
 }
 
@@ -72,12 +73,33 @@ table.games td, table.games th {
     display: table-cell;
     text-align: left;
     vertical-align: middle;
+    cursor: pointer;
 }
 
-table.games tr>td:last-child {
-    /* padding: 0 16px; */
-    padding-left: 8px;
-    padding-right: 8px;
+table.games tr{
+    cursor: pointer;
+}
+
+table.games tbody tr>td:last-child {
+    width: 61px;
+    padding: 0;
+}
+
+.delete {
+    display: none;
+    width: 100%;
+    height: 35px;
+    margin-top: -8;
+    margin-bottom: -8;
+    border: none;
+    float: right;
+    text-align: center;
+    line-height: 35px;
+    font-size: 16px;
+    font-weight: 800;
+    color: #fff;
+    background-color: red;
+    cursor: pointer;
 }
 
 table.games input {
@@ -88,6 +110,11 @@ table.games input {
 
 table.games tfoot td {
     padding-left: 12px
+}
+
+table.games tfoot td:last-child {
+    padding-left: 6px;
+    padding-right: 6px;
 }
 
 /* Table Bordered and Striped */
@@ -129,19 +156,19 @@ table.participants tbody tr {
     display: none;
 }
 
-table.participants tbody tr td:first-child, table.participants th{
+table.participants tbody tr td:first-child, table.participants th {
     width: 80%;
     padding-left: 21px;
 }
 
-table.participants tbody tr td:last-child p{
+table.participants tbody tr td:last-child p {
     color: #ddd;
     font-size: 20px;
     display: none;
     transition: 0.3s;
 }
 
-table.participants tbody tr:hover > td:last-child p{
+table.participants tbody tr:hover>td:last-child p {
     display: table-cell;
 }
 
@@ -152,25 +179,71 @@ table.participants tbody tr:hover > td:last-child p{
 /* Tabel Pair */
 
 table.pair {
+    width: 500px;
     margin-top: 0px;
     margin-bottom: 30px;
     border-collapse: collapse;
     border-spacing: 0;
-    /* width: 200px; */
-    /* max-width: 360px; */
     display: inline-block
 }
 
 table.pair td, table.pair th {
+    /* width: 100%; */
+    display: table-cell;
+    padding: 8px 10px;
+    font-weight: normal;
+    text-align: left;
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+table.pair td:last-child, table.pair th:last-child {
+    width: 100%;
+}
+
+table.pair tbody td:last-child {
+    padding: 0;
+}
+
+table.pair .delete {
+    width: 70px;
+}
+
+table.pair tfoot td {
+    text-align: right;
+    border-top: 1px solid #ccc;
+}
+
+/* Table Assignment */
+
+table.assignment {
+    margin-top: 0px;
+    margin-bottom: 30px;
+    border-collapse: collapse;
+    border-spacing: 0;
+    display: block
+}
+
+table.assignment tbody {
+    border-top: 1px solid #ccc;
+    border-bottom: none;
+}
+
+table.assignment td, table.assignment th {
+    display: table-cell;
     padding: 8px 10px;
     font-weight: normal;
     text-align: left;
     vertical-align: middle;
 }
 
-table.pair tfoot td {
-    text-align: right;
-    border-top: 1px solid #ccc;
+table.assignment th:nth-child(2) {
+    padding-left: 30px;
+    padding-right: 0px;
+}
+
+table.assignment th:last-child {
+    width: 100%;
 }
 
 /* Input */
@@ -197,10 +270,6 @@ input.alt {
 /* Button */
 
 button.circular {
-    /* width: 25px;
-    height: 25px;
-    font-weight: 500;
-    font-size: 20; */
     color: #fff;
     background: #159287;
     border-radius: 50%;
@@ -214,6 +283,7 @@ button.circular:hover {
 
 button.alt {
     height: 100%;
+    max-height: 30px;
     padding: 0px 25px;
     line-height: 30px;
     background-color: #fff;
@@ -247,6 +317,7 @@ button.alt.small {
 
 .panel.left {
     width: 120px;
+    min-width: 120px;
 }
 
 .panel.right {
@@ -274,3 +345,61 @@ button.turn {
     width: 50px;
     display: inline-block;
 }
+
+/* Switch Button */
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 140px;
+    height: 30px;
+    border: 3px solid #eee;
+}
+
+.switch input {
+    display: none;
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /* text-align: center; */
+    vertical-align: middle;
+    background-color: #eee;
+}
+
+.slider p{
+    padding: 15px;
+    display: inline;
+    line-height: 30px;
+
+}
+
+.slider:before {
+    position: absolute;
+    content: "buyer";
+    text-align: center;
+    vertical-align: middle;
+    line-height: 30px;
+    height: 30px;
+    width: 70px;
+    top: 0px;
+    left: 0px;
+    background-color: #fff;
+    -webkit-transition: .3s;
+    transition: .3s;
+}
+
+input:checked+.slider:before {
+    -webkit-transform: translateX(70px);
+    -ms-transform: translateX(70px);
+    transform: translateX(70px);
+}
+

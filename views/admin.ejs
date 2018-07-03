@@ -33,7 +33,7 @@
 
 					<tbody id="game-table-body">
 						<% games.forEach(function(game) { %>
-						<tr>
+						<tr onclick="showDelete(event)">
 							<td class="alpha"><%= game.alpha %></td>
 							<td class="beta"> <%= game.beta  %></td>
 							<td class="gamma"><%= game.gamma %></td>
@@ -41,7 +41,7 @@
 							<td class="w">    <%= game.w 	 %></td>
 							<td class="n">    <%= game.n 	 %></td>
 							<td>
-								<button class="delete alt small" onclick="deleteGames(this)">DELETE</button>
+								<div class="delete" onclick="deleteGames(this)">Delete</div>
 							</td>
 						</tr>
 						<% }); %>
@@ -123,6 +123,40 @@
 									<td colspan="8">Total: 0</td>
 								</tfoot>
 							</table>
+
+							<button class="alt" style="height: 30px">Assign Games</button>
+
+							</table>
+
+							<table class="assignment bordered">
+								<!-- <thead>
+									<th colspan="8">Assign Games</th>
+								</thead> -->
+								<thead>
+									<th></th>
+									<th>buyer</th>
+									<th>seller</th>
+									<th>alpha</th>
+									<th>beta</th>
+									<th>gamma</th>
+									<th>T</th>
+									<th>w</th>
+								</thead>
+								<tbody id="assignment-table-body">
+									<tr>
+										<td><input type="checkbox" name=""></td>
+										<td colspan="2">
+											<label class="switch">
+										  		<input type="checkbox">
+										 		<div class="slider">
+										 			<p>seller</p>
+										 			<p>seller</p>
+										 		</div>
+											</label>
+										</td>
+									</tr>
+								</tbody>
+							</table>
 						</div>
 					</div>
 				</div>
@@ -139,7 +173,8 @@
 const PAGE_SIZE = 10;
 
 // show the Games tab
-$("#Games").show();
+// $("#Games").show();
+$("#Participants").show();
 
 // switch tabs between Games and Participants
 function openTab(event, tabId) {
@@ -147,6 +182,17 @@ function openTab(event, tabId) {
 	$("#" + tabId).show();
 	$(".tab-button").removeClass("active");
 	event.currentTarget.className += " active";
+}
+
+function showDelete(event){
+	var i = $("#game-table-body tr").index(event.currentTarget);
+	var button = $("#game-table-body .delete").eq(i);
+	if (button.css("display") == "none") {
+		$("#game-table-body .delete").animate({width:'hide'}, 500);
+		$("#game-table-body .delete").eq(i).animate({width:'show'}, 300);
+	} else {
+		$("#game-table-body .delete").animate({width:'hide'}, 500);
+	}
 }
 
 // click ADD button to add games
@@ -163,7 +209,6 @@ function addGames(){
 		}
 	});
 	if (isEmpty) {
-		$(".param").val("")
 		alert("Please enter n!");
 		return;
 	}
@@ -231,21 +276,21 @@ function mergeGameRow(game) {
 // append a row of games
 function appendGameRow(game) {
 	$("#game-table-body").append(
-		"<tr>" +
+		"<tr onclick='showDelete(event)'>" +
 			"<td class='alpha'>" + game.alpha + "</td>" +
 			"<td class='beta'>"  + game.beta  + "</td>" +
 			"<td class='gamma'>" + game.gamma + "</td>" +
 			"<td class='t'>" 	 + game.t 	  + "</td>" +
 			"<td class='w'>" 	 + game.w 	  + "</td>" +
 			"<td class='n'>" 	 + game.n 	  + "</td>" +
-			"<td><button class='delete alt small' onclick='deleteGames(this)'>DELETE</button></td>" +
+			"<td><div class='delete' onclick='deleteGames(this)'>Delete</div></td>" +
 		"</tr>");
 }
 
 // click DELETE button to delete games
 function deleteGames(element) {
 	// get the index of the row to be deleted
-	var i = $(".delete").index(element);
+	var i = $("#game-table-body .delete").index(element);
 
 	var data = {
 		alpha: parseFloat($('.alpha').eq(i).text()),
@@ -373,8 +418,10 @@ function viewPair(event){
 	$("#participant-table-body tr").eq(i).addClass("focused");
 	$(".panel.right").animate({width:'show'}, 500);
 
-	var first = $(".first").eq(i).text();
-	var second = $(".second").eq(i).text();
+	var first = $(".first").eq(i).text(),
+		second = $(".second").eq(i).text();
+	$("#first").text(first);
+	$("#second").text(second);
 
 	var games = getLocalPair(first, second)
 	if (games != null) {
@@ -401,7 +448,7 @@ function refreshPairTable(games){
 	$("#pair-table-body").html("");
 	games.forEach(function(g){
 		$("#pair-table-body").append(
-			"<tr id='" + g.id + "'>" +
+			"<tr id='" + g.id + "' onclick='showRemove(event)'>" +
 				"<td>" + g.buyer_id + "</td>" +
 				"<td>" + g.seller_id+ "</td>" +
 				"<td>" + g.alpha + "</td>" +
@@ -410,8 +457,8 @@ function refreshPairTable(games){
 				"<td>" + g.t + "</td>" +
 				"<td>" + g.w + "</td>" +
 				"<td>" +
-					"<button class='alt small' onclick='" + 
-						"removeGame(\"" + g.id + "\", \"" + g.buyer_id + "\")'>REMOVE</button>" +
+					"<div class='delete' onclick='" + 
+						"removeGame(\"" + g.id + "\", \"" + g.buyer_id + "\")'>Remove</div>" +
 				"</td>" +
 			"</tr>");
 	});
@@ -421,6 +468,18 @@ function refreshPairTable(games){
 		second = $("tr.focused td > .second").text();
 	setLocalPair(first, second, games);
 }
+
+function showRemove(event){
+	var i = $("#pair-table-body tr").index(event.currentTarget);
+	var button = $("#pair-table-body .delete").eq(i);
+	if (button.css("display") == "none") {
+		$("#pair-table-body .delete").animate({width:'hide'}, 500);
+		$("#pair-table-body .delete").eq(i).animate({width:'show'}, 300);
+	} else {
+		$("#pair-table-body .delete").animate({width:'hide'}, 500);
+	}
+}
+
 
 // remove game from pair
 function removeGame(gameId, buyerId){

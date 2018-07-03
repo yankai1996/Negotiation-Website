@@ -136,6 +136,8 @@
 <script type="text/javascript" src="/js/common.js"></script>
 <script>
 
+const PAGE_SIZE = 10;
+
 // show the Games tab
 $("#Games").show();
 
@@ -149,7 +151,6 @@ function openTab(event, tabId) {
 
 // click ADD button to add games
 function addGames(){
-
 	// check if empty input
 	var isEmpty = false
 	$(".param").each(function(index){
@@ -316,7 +317,6 @@ function updateParticipants(participants, count){
 }
 
 // page the participants list
-const PAGE_SIZE = 10;
 displayParticipants(0, PAGE_SIZE);
 
 function getCurrentPage(){
@@ -356,29 +356,44 @@ function nextPage(){
 	}
 }
 
+
+// local storage of pair information
+function setLocalPair(first, second, games){
+	window.sessionStorage.setItem(first + second, JSON.stringify(games));
+}
+
+function getLocalPair(first, second){
+	return JSON.parse(window.sessionStorage.getItem(first + second));
+}
+
 // show the detail of the selected pair
 function viewPair(event){
 	var i = $("#participant-table-body tr").index(event.currentTarget);
 	$("#participant-table-body tr").removeClass("focused");
 	$("#participant-table-body tr").eq(i).addClass("focused");
+	$(".panel.right").animate({width:'show'}, 500);
 
 	var first = $(".first").eq(i).text();
 	var second = $(".second").eq(i).text();
 
-	// post request for viewing a pair
-	$.ajax({
-		url:  "/admin/view_pair",
-		type: "POST",
-		data: {id: first},
-		success : function(res){
-			if (res.success){
-				refreshPairTable(res.games);
-				$(".panel.right").animate({width:'show'}, 500);
-			} else {
-				alert(res);
+	var games = getLocalPair(first, second)
+	if (games != null) {
+		refreshPairTable(games);
+	} else {
+		// post request for viewing a pair
+		$.ajax({
+			url:  "/admin/view_pair",
+			type: "POST",
+			data: {id: first},
+			success : function(res){
+				if (res.success){
+					refreshPairTable(res.games);
+				} else {
+					alert(res);
+				}
 			}
-		}
-	});
+		});
+	}
 }
 
 // refresh games in the pair panel
@@ -395,25 +410,31 @@ function refreshPairTable(games){
 				"<td>" + g.t + "</td>" +
 				"<td>" + g.w + "</td>" +
 				"<td>" +
-					"<button class='alt small' onclick='removeGame(\"" + g.id+ "\")'>REMOVE</button>" +
+					"<button class='alt small' onclick='" + 
+						"removeGame(\"" + g.id + "\", \"" + g.buyer_id + "\")'>REMOVE</button>" +
 				"</td>" +
 			"</tr>");
 	});
 	$("table.pair tfoot td").html("Total: " + games.length);
+
+	var first = $("tr.focused td > .first").text(),
+		second = $("tr.focused td > .second").text();
+	setLocalPair(first, second, games);
 }
 
 // remove game from pair
-function removeGame(id){
+function removeGame(gameId, buyerId){
 	// post request for removing a game
 	$.ajax({
 		url:  "/admin/remove_game",
 		type: "POST",
-		data: {id: id},
+		data: {
+			gameId: gameId,
+			buyerId: buyerId
+		},
 		success : function(res){
 			if (res.success){
-				$("#"+id).remove();
-				var n = parseInt($("table.pair tfoot td").html().slice(6));
-				$("table.pair tfoot td").html("Total: " + (--n));
+				refreshPairTable(res.games);
 			} else {
 				alert(res);
 			}

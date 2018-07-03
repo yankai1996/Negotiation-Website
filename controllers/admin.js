@@ -170,11 +170,28 @@ function viewPair(req, res, next){
     }).catch(function(err){
         req.err = err;
         next();
-    })
+    });
 }
 
 postRouter.post('/admin/view_pair', viewPair);
 postRouter.post('/admin/view_pair', sendError);
+
+
+// remove game from pair
+function removeGame(req, res, next){
+    Instructor.removePairFromGame(req.body.id).then(function(result){
+        res.send({ 
+            success: 1,
+            id: req.body.id
+        });
+    }).catch(function(err){
+        req.err = err;
+        next();
+    });
+}
+
+postRouter.post('/admin/remove_game', removeGame);
+postRouter.post('/admin/remove_game', sendError);
 
 exports.get = getRouter;
 exports.post = postRouter;

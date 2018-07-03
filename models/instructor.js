@@ -140,12 +140,22 @@ exports.getPairedParticipants = async function(){
 
 // get games by one participant id
 exports.getGamesByParticipant = function(id){
-    console.log(id);
     return Game.findAll({
-        attributes: ['buyer_id', 'seller_id', 'alpha', 'beta', 'gamma', 't', 'w'], 
+        attributes: ['id', 'buyer_id', 'seller_id', 
+            'alpha', 'beta', 'gamma', 't', 'w'], 
         where: {
             $or: [{buyer_id: id},
                 {seller_id: id}]
         }
     })
+}
+
+// remove the buyer and seller from a game
+exports.removePairFromGame = function(id){
+    return Game.update({
+        buyer_id: null,
+        seller_id: null
+    }, {
+        where: {id: id}
+    });
 }

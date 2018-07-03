@@ -159,3 +159,40 @@ exports.removePairFromGame = function(id){
         where: {id: id}
     });
 }
+
+// get all games that have not been assigned to pairs
+exports.getAvailableGames = function(){
+    return Game.findAll({
+        attributes: ['alpha', 'beta', 'gamma', 't', 'w', 
+            [Sequelize.fn('COUNT', Sequelize.col('id')), 'available']
+        ],
+        where: {
+            $and: [{buyer_id: null},
+                {seller_id: null}]
+        },
+        group: ['alpha', 'beta', 'gamma', 't', 'w'],
+        raw: true
+    })
+}
+
+exports.assignGamesToPair = async function(games){
+    for (var i = 0; i < games.length; i++) {
+        var g = games[i];
+        await Game.update({
+            buyer_id: g.buyer_id,
+            seller_id: g.seller_id
+        }, {
+            where: {
+                alpha: g.alpha,
+				beta: g.beta,
+				gamma: g.gamma,
+				t: g.t,
+                w: g.w,
+                $and: [{buyer_id: null},
+                    {seller_id: null}]
+            },
+            limit: 1
+        });
+    }
+    return games;
+}

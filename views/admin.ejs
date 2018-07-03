@@ -22,9 +22,9 @@
 			<div id="Games" class="tab-content">
 				<table class="games striped bordered">
 					<thead>
-						<th>Alpha</th>
-						<th>Beta</th>
-						<th>Gamma</th>
+						<th>&alpha;</th>
+						<th>&beta;</th>
+						<th>&gamma;</th>
 						<th>T</th>
 						<th>w</th>
 						<th>n</th>
@@ -111,9 +111,9 @@
 								<thead>
 									<th>buyer</th>
 									<th>seller</th>
-									<th>alpha</th>
-									<th>beta</th>
-									<th>gamma</th>
+									<th>&alpha;</th>
+									<th>&beta;</th>
+									<th>&gamma;</th>
 									<th>T</th>
 									<th>w</th>
 								</thead>
@@ -124,38 +124,26 @@
 								</tfoot>
 							</table>
 
-							<button class="alt" style="height: 30px">Assign Games</button>
-
-							</table>
+							<div style="white-space:nowrap;"><p>Assign Games</p></div>
 
 							<table class="assignment bordered">
-								<!-- <thead>
-									<th colspan="8">Assign Games</th>
-								</thead> -->
 								<thead>
 									<th></th>
-									<th>buyer</th>
-									<th>seller</th>
-									<th>alpha</th>
-									<th>beta</th>
-									<th>gamma</th>
+									<th id="buyer"></th>
+									<th id="seller"></th>
+									<th>&alpha;</th>
+									<th>&beta;</th>
+									<th>&gamma;</th>
 									<th>T</th>
 									<th>w</th>
 								</thead>
 								<tbody id="assignment-table-body">
-									<tr>
-										<td><input type="checkbox" name=""></td>
-										<td colspan="2">
-											<label class="switch">
-										  		<input type="checkbox">
-										 		<div class="slider">
-										 			<p>seller</p>
-										 			<p>seller</p>
-										 		</div>
-											</label>
-										</td>
-									</tr>
 								</tbody>
+								<tfoot>
+									<td colspan="9">
+										<button class="alt" onclick="assignGames()">Confirm</button>
+									</td>
+								</tfoot>
 							</table>
 						</div>
 					</div>
@@ -173,8 +161,8 @@
 const PAGE_SIZE = 10;
 
 // show the Games tab
-// $("#Games").show();
-$("#Participants").show();
+$("#Games").show();
+// $("#Participants").show();
 
 // switch tabs between Games and Participants
 function openTab(event, tabId) {
@@ -182,6 +170,9 @@ function openTab(event, tabId) {
 	$("#" + tabId).show();
 	$(".tab-button").removeClass("active");
 	event.currentTarget.className += " active";
+
+	$("#participant-table-body tr").removeClass("focused");
+	$(".panel.right").hide();
 }
 
 function showDelete(event){
@@ -215,12 +206,12 @@ function addGames(){
 
 	// format the input to numbers
 	var data = {
-		alpha: parseFloat($('#alpha').val()),
-		beta : parseFloat($('#beta') .val()),
-		gamma: parseFloat($('#gamma').val()),
-		t 	 : parseInt  ($('#t')	 .val()),
-		w	 : parseFloat($('#w')	 .val()),
-		n  	 : parseInt  ($('#n')	 .val())
+		alpha: parseFloat($('.param#alpha').val()),
+		beta : parseFloat($('.param#beta') .val()),
+		gamma: parseFloat($('.param#gamma').val()),
+		t 	 : parseInt  ($('.param#t')	   .val()),
+		w	 : parseFloat($('.param#w')	   .val()),
+		n  	 : parseInt  ($('.param#n')	   .val())
 	};
 
 	// check if invalid number
@@ -255,6 +246,8 @@ function addGames(){
 			}	
 		}
 	});
+
+	removeCachedAvailableGames();
 }
 
 // update n if newly added games have the same parameters as the existing ones
@@ -314,6 +307,8 @@ function deleteGames(element) {
 			}
 		}
 	});
+
+	removeCachedAvailableGames();
 }
 
 // click ADD button to add participants
@@ -403,12 +398,16 @@ function nextPage(){
 
 
 // local storage of pair information
-function setLocalPair(first, second, games){
+function cachePair(first, second, games){
 	window.sessionStorage.setItem(first + second, JSON.stringify(games));
 }
 
-function getLocalPair(first, second){
+function getCachedPair(first, second){
 	return JSON.parse(window.sessionStorage.getItem(first + second));
+}
+
+function removeCachedPair(first, second){
+	window.sessionStorage.removeItem(first + second);
 }
 
 // show the detail of the selected pair
@@ -420,10 +419,15 @@ function viewPair(event){
 
 	var first = $(".first").eq(i).text(),
 		second = $(".second").eq(i).text();
+	showPair(first, second);
+	
+}
+
+function showPair(first, second){
 	$("#first").text(first);
 	$("#second").text(second);
 
-	var games = getLocalPair(first, second)
+	var games = getCachedPair(first, second)
 	if (games != null) {
 		refreshPairTable(games);
 	} else {
@@ -441,6 +445,7 @@ function viewPair(event){
 			}
 		});
 	}
+	viewAvailableGames(first, second);
 }
 
 // refresh games in the pair panel
@@ -466,9 +471,10 @@ function refreshPairTable(games){
 
 	var first = $("tr.focused td > .first").text(),
 		second = $("tr.focused td > .second").text();
-	setLocalPair(first, second, games);
+	cachePair(first, second, games);
 }
 
+// show the Remove button
 function showRemove(event){
 	var i = $("#pair-table-body tr").index(event.currentTarget);
 	var button = $("#pair-table-body .delete").eq(i);
@@ -479,7 +485,6 @@ function showRemove(event){
 		$("#pair-table-body .delete").animate({width:'hide'}, 500);
 	}
 }
-
 
 // remove game from pair
 function removeGame(gameId, buyerId){
@@ -494,6 +499,50 @@ function removeGame(gameId, buyerId){
 		success : function(res){
 			if (res.success){
 				refreshPairTable(res.games);
+				getAvailableGames();
+			} else {
+				alert(res);
+			}
+		}
+	});
+
+	removeCachedAvailableGames();
+}
+
+function viewAvailableGames(first, second){
+	$("#buyer").html(first);
+	$("#seller").html(second);
+
+	if (getCachedAvailableGames() == null){
+		getAvailableGames();
+	} else {
+		showAvailableGames();
+	}
+}
+
+// cache available games locally
+function cacheAvailableGames(games){
+	window.sessionStorage.setItem("availableGames", JSON.stringify(games));
+}
+
+function getCachedAvailableGames(){
+	return JSON.parse(window.sessionStorage.getItem("availableGames"));
+}
+
+function removeCachedAvailableGames(){
+	window.sessionStorage.removeItem("availableGames");
+}
+
+// get all games that have not been assigned to pairs
+function getAvailableGames(){
+	$.ajax({
+		url:  "/admin/get_available_games",
+		type: "POST",
+		data: {},
+		success : function(res){
+			if (res.success){
+				cacheAvailableGames(res.games);
+				showAvailableGames();
 			} else {
 				alert(res);
 			}
@@ -501,6 +550,85 @@ function removeGame(gameId, buyerId){
 	});
 }
 
+// show available games in table
+function showAvailableGames(){
+	var games = getCachedAvailableGames();
+	$("#assignment-table-body").html("");
+	games.forEach(function(g){
+		$("#assignment-table-body").append(
+			"<tr>" +
+				"<td><input class='checked' type='checkbox'></td>" +
+				"<td colspan='2'>" +
+					"<label class='switch'>" +
+				  		"<input class='role' type='checkbox'>" +
+				 		"<div class='slider'>" +
+				 			"<p>seller</p>" +
+				 			"<p>seller</p>" +
+				 		"</div>" +
+					"</label>" +
+				"</td>" +
+				"<td class='assign' id='alpha'>" + g.alpha + "</td>" +
+				"<td class='assign' id='beta'>" + g.beta + "</td>" +
+				"<td class='assign' id='gamma'>" + g.gamma + "</td>" +
+				"<td class='assign' id='t'>" + g.t + "</td>" +
+				"<td class='assign' id='w'>" + g.w + "</td>" +
+			"</tr>");
+	});
+}
+
+// assign games to the pair
+function assignGames(){
+
+	var first = $("tr.focused td > .first").text(),
+		second = $("tr.focused td > .second").text();
+
+	var games = [];
+	$(".checked").each(function(){
+		if ($(this).prop("checked")){
+			var i = $(".checked").index(this);
+			var seller, buyer;
+			if ($(".role").eq(i).prop("checked")){
+				seller = first;
+				buyer = second;
+			} else {
+				seller = second;
+				buyer = first;
+			}
+			var alpha = $(".assign#alpha").eq(i).text(),
+				beta = $(".assign#beta").eq(i).text(),
+				gamma = $(".assign#gamma").eq(i).text(),
+				t = $(".assign#t").eq(i).text(),
+				w = $(".assign#w").eq(i).text();
+			games.push({
+				buyer_id: buyer,
+				seller_id: seller,
+				alpha: alpha,
+				beta: beta,
+				gamma: gamma,
+				t: t,
+				w: w
+			});
+		}
+	});
+
+	if (games) {
+		$.ajax({
+			url:  "/admin/assign_games_to_pair",
+			type: "POST",
+			data: {gamesString: JSON.stringify(games)},
+			success : function(res){
+				if (res.success){
+					removeCachedPair(first, second);
+					showPair(first, second);
+					removeCachedAvailableGames();
+					viewAvailableGames(first, second);
+				} else {
+					alert(res);
+				}
+			}
+		});
+	}
+}
 
 </script>
 

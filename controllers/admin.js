@@ -179,10 +179,26 @@ postRouter.post('/admin/view_pair', sendError);
 
 // remove game from pair
 function removeGame(req, res, next){
-    Instructor.removePairFromGame(req.body.id).then(function(result){
-        res.send({ 
+    Instructor.removePairFromGame(req.body.gameId).then(function(result){
+        // pass request to viewPair()
+        req.body.id = req.body.buyerId
+        next();
+    }).catch(function(err){
+        req.err = err;
+        sendError(req, res);
+    });
+}
+
+postRouter.post('/admin/remove_game', removeGame);
+postRouter.post('/admin/remove_game', viewPair);
+postRouter.post('/admin/remove_game', sendError);
+
+
+function getAvalibaleGames(req, res, next){
+    Instructor.getAvailableGames().then(function(games){
+        res.send({
             success: 1,
-            id: req.body.id
+            games: games
         });
     }).catch(function(err){
         req.err = err;
@@ -190,8 +206,24 @@ function removeGame(req, res, next){
     });
 }
 
-postRouter.post('/admin/remove_game', removeGame);
-postRouter.post('/admin/remove_game', sendError);
+postRouter.post('/admin/get_available_games', getAvalibaleGames);
+postRouter.post('/admin/get_available_games', sendError);
+
+
+function assignGamesToPair(req, res, next){
+    var games = JSON.parse(req.body.gamesString);
+    Instructor.assignGamesToPair(games).then(games => {
+        res.send({
+            success: 1,
+        });
+    }).catch(err => {
+        req.err = err;
+        next()
+    });
+}
+
+postRouter.post('/admin/assign_games_to_pair', assignGamesToPair);
+postRouter.post('/admin/assign_games_to_pair', sendError);
 
 exports.get = getRouter;
 exports.post = postRouter;

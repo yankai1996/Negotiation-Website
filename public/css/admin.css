@@ -116,10 +116,6 @@ table.participants {
     display: table
 }
 
-table.participants tr {
-    display: none;
-}
-
 table.participants td, table.participants th {
     padding-top: 8px;
     padding-bottom: 8px;
@@ -129,9 +125,31 @@ table.participants td, table.participants th {
     vertical-align: middle;
 }
 
+table.participants tbody tr {
+    display: none;
+}
+
+table.participants tbody tr td:first-child, table.participants th{
+    width: 80%;
+    padding-left: 21px;
+}
+
+table.participants tbody tr td:last-child p{
+    color: #ddd;
+    font-size: 20px;
+    display: none;
+    transition: 0.3s;
+}
+
+table.participants tbody tr:hover > td:last-child p{
+    display: table-cell;
+}
+
 .focused {
     background-color: #ddd!important;
 }
+
+/* Tabel Pair */
 
 table.pair {
     margin-top: 0px;
@@ -228,7 +246,7 @@ button.alt.small {
 }
 
 .panel.left {
-    width: 160px;
+    width: 120px;
 }
 
 .panel.right {
@@ -236,7 +254,6 @@ button.alt.small {
     margin-top: 20px !important;
     margin-left: 20px;
     border: 1px solid #ccc!important;
-    height: 200px;
     display: none;
 }
 
@@ -254,6 +271,6 @@ button.turn {
 }
 
 .page {
-    width: 92px;
+    width: 50px;
     display: inline-block;
 }

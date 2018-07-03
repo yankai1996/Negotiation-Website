@@ -7,6 +7,10 @@ button:focus {
     outline: none;
 }
 
+.button {
+    cursor: pointer;
+}
+
 .box {
     position: relative;
     top: 20px;

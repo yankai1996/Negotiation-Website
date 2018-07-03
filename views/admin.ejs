@@ -79,23 +79,28 @@
 
 								<tbody id="participant-table-body">
 								<% participants.forEach(function(p) { %>
+									<% if (p.second){ %>
+									<tr class="button" onclick="viewPair(event)">
+										<td>
+											<p class="first"><%= p.first %></p>
+											<p class="second"><%= p.second %></p>
+										</td>
+										<td><p> 》 </p></td>
+									<% } else { %>
 									<tr>
 										<td>
 											<p class="first"><%= p.first %></p>
 											<p class="second"><%= p.second %></p>
 										</td>
-										<td>
-										<% if (p.second) { %>
-										<button class="alt small" onclick="viewPair(event)">View</button>
-										<% } %>
-										</td>
+										<td></td>
+									<% } %>
 									</tr>
 								<% }); %>
 								</tbody>
 							</table>
 							<div class="turn-buttons">
 								<button class="alt turn" onclick="previousPage()"> < </button>
-								<div class="page">page 1/10</div>
+								<div class="page">1/10</div>
 								<button class="alt turn" onclick="nextPage()"> > </button>
 							</div>
 							
@@ -115,7 +120,7 @@
 								<tbody id="pair-table-body">
 								</tbody>
 								<tfoot>
-									<td colspan="7">Total: 0</td>
+									<td colspan="8">Total: 0</td>
 								</tfoot>
 							</table>
 						</div>
@@ -297,21 +302,63 @@ function updateParticipants(participants, count){
 	$("#participant-table-body").html("");
 	participants.forEach(function(p){
 		$("#participant-table-body").append(
-			"<tr>" + 
+			"<tr" + (p.second ? " class='button' onclick='viewPair(event)'>" : ">") +
 				"<td>" +
 					 "<p class='first'>" + p.first + "</p>" + 
 					 "<p class='second'>"+ (p.second ? p.second : "") + "</p>" +
 				"</td>" +
-				"<td>" + 
-					(p.second ? "<button class='alt small' onclick='viewPair(event)'>View</button>" : "" )+ 
-				"</td>" + 
+				"<td>" + (p.second ? "<p> 》 </p>" : "") + "</td>" + 
 			"</tr>");
 	});
+	var start = (getCurrentPage() - 1) * PAGE_SIZE,
+		end = Math.min(start + PAGE_SIZE, $("#participant-table-body tr").length);
+	displayParticipants(start, end);
+}
+
+// page the participants list
+const PAGE_SIZE = 10;
+displayParticipants(0, PAGE_SIZE);
+
+function getCurrentPage(){
+	return parseInt($(".page").text());
+}
+
+function getPageCount(){
+	return Math.ceil($("#participant-table-body tr").length / PAGE_SIZE);
+}
+
+function displayParticipants(start, end){
+	$("#participant-table-body tr").hide();
+	for (var i = start; i < end; i++){
+		$("#participant-table-body tr").eq(i).show();
+	}
+	var pageCount = Math.ceil($("#participant-table-body tr").length / PAGE_SIZE);
+	$(".page").text(Math.ceil((start + 1) / PAGE_SIZE) + "/" + pageCount);
+}
+
+function previousPage(){
+	var pageCount = getPageCount(),
+		currentPage = getCurrentPage();
+	if (currentPage > 1){
+		var start = (currentPage - 2) * PAGE_SIZE,
+			end = start + PAGE_SIZE;
+		displayParticipants(start, end);
+	}
+}
+
+function nextPage(){
+	var pageCount = getPageCount(),
+		currentPage = getCurrentPage();
+	if (currentPage < pageCount){
+		var start = currentPage * PAGE_SIZE,
+			end = Math.min(start + PAGE_SIZE, $("#participant-table-body tr").length);
+		displayParticipants(start, end);
+	}
 }
 
 // show the detail of the selected pair
 function viewPair(event){
-	var i = $("#participant-table-body button").index(event.currentTarget);
+	var i = $("#participant-table-body tr").index(event.currentTarget);
 	$("#participant-table-body tr").removeClass("focused");
 	$("#participant-table-body tr").eq(i).addClass("focused");
 
@@ -339,7 +386,7 @@ function refreshPairTable(games){
 	$("#pair-table-body").html("");
 	games.forEach(function(g){
 		$("#pair-table-body").append(
-			"<tr>" +
+			"<tr id='" + g.id + "'>" +
 				"<td>" + g.buyer_id + "</td>" +
 				"<td>" + g.seller_id+ "</td>" +
 				"<td>" + g.alpha + "</td>" +
@@ -347,41 +394,31 @@ function refreshPairTable(games){
 				"<td>" + g.gamma + "</td>" +
 				"<td>" + g.t + "</td>" +
 				"<td>" + g.w + "</td>" +
+				"<td>" +
+					"<button class='alt small' onclick='removeGame(\"" + g.id+ "\")'>REMOVE</button>" +
+				"</td>" +
 			"</tr>");
 	});
 	$("table.pair tfoot td").html("Total: " + games.length);
 }
 
-const PAGE_SIZE = 10;
-displayParticipants(0, PAGE_SIZE);
-
-function displayParticipants(start, end){
-	$("#participant-table-body tr").hide();
-	for (var i = start; i < end; i++){
-		$("#participant-table-body tr").eq(i).show();
-	}
-	var pageCount = Math.ceil($("#participant-table-body tr").length / PAGE_SIZE);
-	$(".page").text("page " + Math.ceil((start + 1) / PAGE_SIZE) + "/" + pageCount);
-}
-
-function previousPage(){
-	var pageCount = Math.ceil($("#participant-table-body tr").length / PAGE_SIZE),
-		currentPage = parseInt($(".page").text().slice(4));
-	if (currentPage > 1){
-		var start = (currentPage - 2) * PAGE_SIZE,
-			end = start + PAGE_SIZE;
-		displayParticipants(start, end);
-	}
-}
-
-function nextPage(){
-	var pageCount = Math.ceil($("#participant-table-body tr").length / PAGE_SIZE),
-		currentPage = parseInt($(".page").text().slice(4));
-	if (currentPage < pageCount){
-		var start = currentPage * PAGE_SIZE,
-			end = Math.min(start + PAGE_SIZE, $("#participant-table-body tr").length);
-		displayParticipants(start, end);
-	}
+// remove game from pair
+function removeGame(id){
+	// post request for removing a game
+	$.ajax({
+		url:  "/admin/remove_game",
+		type: "POST",
+		data: {id: id},
+		success : function(res){
+			if (res.success){
+				$("#"+id).remove();
+				var n = parseInt($("table.pair tfoot td").html().slice(6));
+				$("table.pair tfoot td").html("Total: " + (--n));
+			} else {
+				alert(res);
+			}
+		}
+	});
 }
 
 

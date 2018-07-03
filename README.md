@@ -29,4 +29,4 @@ The following functions have been implemented:
 * The instructor can view/add/delete games
 * The instructor can add participants
 * Automatically pair participants
-* The instructor can view/remove games in each pair
+* The instructor can modify each pair by assigning/removing games

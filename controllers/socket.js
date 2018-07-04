@@ -5,13 +5,17 @@ exports.listen = (server) => {
 
     io.sockets.on("connection", (socket) => {
 
+        var id;
         socket.on("login", (data) => {
-            console.log(data.id);
+            id = data.id;
         });
 
         socket.on('warm up', (data) => {
             console.log(data.msg);
+            socket.emit("test", "welcom! " + id);
         });
+
+
 
     });
 

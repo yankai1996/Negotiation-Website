@@ -12,9 +12,9 @@
 	<div class="box">
 
 		<div class="tabs">
-			<button class="tab-button active" onclick="openTab(event, 'Games')">Games</button>
-			<button class="tab-button" onclick="openTab(event, 'Participants')">Participants</button>
-			<div class="logout" onclick="location.href='/logout'">Log out</div>
+			<button class="tab-button active">Games</button>
+			<button class="tab-button">Participants</button>
+			<div class="logout">Log out</div>
 		</div>
 
 		<div class="tab-container">
@@ -33,7 +33,7 @@
 
 					<tbody id="game-table-body">
 						<% games.forEach(function(game) { %>
-						<tr onclick="showDelete(event)">
+						<tr>
 							<td class="alpha"><%= game.alpha %></td>
 							<td class="beta"> <%= game.beta  %></td>
 							<td class="gamma"><%= game.gamma %></td>
@@ -41,21 +41,21 @@
 							<td class="w">    <%= game.w 	 %></td>
 							<td class="n">    <%= game.n 	 %></td>
 							<td>
-								<div class="delete" onclick="deleteGames(this)">Delete</div>
+								<div class="delete">Delete</div>
 							</td>
 						</tr>
 						<% }); %>
 					</tbody>
 					
 					<tfoot>
-						<td><input class="param" type="text" id="alpha" placeholder="0.5" onkeypress="floatOnly(event)"></td>
-						<td><input class="param" type="text" id="beta" 	placeholder="0.5" 	onkeypress="floatOnly(event)"></td>
-						<td><input class="param" type="text" id="gamma" placeholder="0.5" onkeypress="floatOnly(event)"></td>
-						<td><input class="param" type="text" id="t" 	placeholder="10" 	onkeypress="intOnly(event)"  ></td>
-						<td><input class="param" type="text" id="w" 	placeholder="15" 	onkeypress="floatOnly(event)"></td>
-						<td><input class="param" type="text" id="n" 	placeholder="n" 	onkeypress="intOnly(event)"  ></td>
+						<td><input class="param float-only" type="text" id="alpha" placeholder="0.5"></td>
+						<td><input class="param float-only" type="text" id="beta" placeholder="0.5"></td>
+						<td><input class="param float-only" type="text" id="gamma" placeholder="0.5"></td>
+						<td><input class="param int-only" type="text" id="t" 	placeholder="10"></td>
+						<td><input class="param float-only" type="text" id="w" placeholder="15"></td>
+						<td><input class="param int-only" type="text" id="n" placeholder="n"></td>
 						<td>
-							<button class="alt small" onclick="addGames()">ADD</button>
+							<button class="alt small add-games">ADD</button>
 						</td>
 					</tfoot>
 				</table>
@@ -65,8 +65,8 @@
 				<div class="content">
 					<h3 id="count">Participants: <%= count %></h3>
 					<div class="input-board">
-						<input class="alt" id="addParticipants" type="text" placeholder="1~100" onkeypress="intOnly(event)">
-						<button class="alt" onclick="addParticipants()">ADD</button>
+						<input class="alt int-only add-participants" type="text" placeholder="1~100">
+						<button class="alt add-participants">ADD</button>
 					</div>
 					<div class="line"></div>
 					<div class="flexbox">
@@ -80,10 +80,10 @@
 								<tbody id="participant-table-body">
 								<% participants.forEach(function(p) { %>
 									<% if (p.second){ %>
-									<tr class="button" onclick="viewPair(event)">
+									<tr class="button">
 										<td>
-											<p class="first"><%= p.first %></p>
-											<p class="second"><%= p.second %></p>
+											<p><%= p.first %></p>
+											<p><%= p.second %></p>
 										</td>
 										<td><p> 》 </p></td>
 									<% } else { %>
@@ -99,9 +99,9 @@
 								</tbody>
 							</table>
 							<div class="turn-buttons">
-								<button class="alt turn" onclick="previousPage()"> < </button>
-								<div class="page">1/10</div>
-								<button class="alt turn" onclick="nextPage()"> > </button>
+								<button class="alt turn"> < </button>
+								<div class="pages"></div>
+								<button class="alt turn"> > </button>
 							</div>
 							
 						</div>
@@ -124,7 +124,7 @@
 								</tfoot>
 							</table>
 
-							<div style="white-space:nowrap;"><p>Assign Games</p></div>
+							<div class="no-wrap"><p>Assign Games</p></div>
 
 							<table class="assignment bordered">
 								<thead>
@@ -141,7 +141,7 @@
 								</tbody>
 								<tfoot>
 									<td colspan="9">
-										<button class="alt" onclick="assignGames()">Confirm</button>
+										<button class="alt assign-games">Confirm</button>
 									</td>
 								</tfoot>
 							</table>
@@ -155,482 +155,7 @@
 	</div>
 
 <script type="text/javascript" src="/js/jquery.min.js"></script>
-<script type="text/javascript" src="/js/common.js"></script>
-<script>
-
-const PAGE_SIZE = 10;
-
-// show the Games tab
-$("#Games").show();
-// $("#Participants").show();
-
-// switch tabs between Games and Participants
-function openTab(event, tabId) {
-	$(".tab-content").hide();
-	$("#" + tabId).show();
-	$(".tab-button").removeClass("active");
-	event.currentTarget.className += " active";
-
-	$("#participant-table-body tr").removeClass("focused");
-	$(".panel.right").hide();
-}
-
-function showDelete(event){
-	var i = $("#game-table-body tr").index(event.currentTarget);
-	var button = $("#game-table-body .delete").eq(i);
-	if (button.css("display") == "none") {
-		$("#game-table-body .delete").animate({width:'hide'}, 500);
-		$("#game-table-body .delete").eq(i).animate({width:'show'}, 300);
-	} else {
-		$("#game-table-body .delete").animate({width:'hide'}, 500);
-	}
-}
-
-// click ADD button to add games
-function addGames(){
-	// check if empty input
-	var isEmpty = false
-	$(".param").each(function(index){
-		if (!$(this).val()) {
-			if ($(this).attr('id') == 'n') {
-				isEmpty = true;
-			} else {
-				$(this).val($(this).attr('placeholder'))
-			}
-		}
-	});
-	if (isEmpty) {
-		alert("Please enter n!");
-		return;
-	}
-
-	// format the input to numbers
-	var data = {
-		alpha: parseFloat($('.param#alpha').val()),
-		beta : parseFloat($('.param#beta') .val()),
-		gamma: parseFloat($('.param#gamma').val()),
-		t 	 : parseInt  ($('.param#t')	   .val()),
-		w	 : parseFloat($('.param#w')	   .val()),
-		n  	 : parseInt  ($('.param#n')	   .val())
-	};
-
-	// check if invalid number
-	for (var i in data) {
-		if (i == 'alpha' || i == 'beta' || i == 'gamma') {
-			if (data[i] < 0 || data[i] > 1) {
-				alert(i + " must be between 0-1!");
-				$('#'+i).val('');
-				return;
-			}
-		}
-	}
-	if (data.n == 0) {
-		alert("n cannot be 0!");
-		$('#n').val('');
-		return;
-	}
-
-	// post request for adding games
-	$.ajax({
-		url:  "/admin/add_games",
-		type: "POST",
-		data: data,
-		success : function(res) {
-			if (res.success) {
-				$(".param").val('');
-				if (!mergeGameRow(res.game)){
-					appendGameRow(res.game);
-				}
-			} else {
-				alert(res);
-			}	
-		}
-	});
-
-	removeCachedAvailableGames();
-}
-
-// update n if newly added games have the same parameters as the existing ones
-function mergeGameRow(game) {
-	for (var i = 0; i < $(".alpha").length; i++) {
-		if ($('.alpha').eq(i).text() == game.alpha && 
-			$('.beta') .eq(i).text() == game.beta  && 
-			$('.gamma').eq(i).text() == game.gamma && 
-			$('.t')	   .eq(i).text() == game.t 	   && 
-			$('.w')	   .eq(i).text() == game.w ){
-			var cell = $('.n').eq(i);
-			cell.text(parseInt(cell.text()) + game.n);
-			return true;
-		}
-	}
-	return false;
-}
-
-// append a row of games
-function appendGameRow(game) {
-	$("#game-table-body").append(
-		"<tr onclick='showDelete(event)'>" +
-			"<td class='alpha'>" + game.alpha + "</td>" +
-			"<td class='beta'>"  + game.beta  + "</td>" +
-			"<td class='gamma'>" + game.gamma + "</td>" +
-			"<td class='t'>" 	 + game.t 	  + "</td>" +
-			"<td class='w'>" 	 + game.w 	  + "</td>" +
-			"<td class='n'>" 	 + game.n 	  + "</td>" +
-			"<td><div class='delete' onclick='deleteGames(this)'>Delete</div></td>" +
-		"</tr>");
-}
-
-// click DELETE button to delete games
-function deleteGames(element) {
-	// get the index of the row to be deleted
-	var i = $("#game-table-body .delete").index(element);
-
-	var data = {
-		alpha: parseFloat($('.alpha').eq(i).text()),
-		beta : parseFloat($('.beta') .eq(i).text()),
-		gamma: parseFloat($('.gamma').eq(i).text()),
-		t 	 : parseInt  ($('.t')	 .eq(i).text()),
-		w	 : parseFloat($('.w')	 .eq(i).text()),
-		n  	 : parseInt  ($('.n')	 .eq(i).text())
-	};
-
-	// post request for deleting games
-	$.ajax({
-		url:  "/admin/delete_games",
-		type: "POST",
-		data: data,
-		success : function(res){
-			if (res.success){
-				$("#game-table-body > tr").eq(i).remove();
-			} else {
-				alert(res);
-			}
-		}
-	});
-
-	removeCachedAvailableGames();
-}
-
-// click ADD button to add participants
-function addParticipants(){
-	var number = parseInt($("#addParticipants").val());
-	$("#addParticipants").val('');
-
-	// check if invalid input 
-	if (!number || number > 100){
-		alert("Please enter an number in 1~100!");
-		return;
-	}
-
-	// post request for adding participants
-	$.ajax({
-		url:  "/admin/add_participants",
-		type: "POST",
-		data: {number: number},
-		success : function(res){
-			if (res.success){
-				updateParticipants(res.participants, res.count);
-			} else {
-				alert(res);
-			}
-		}
-	});
-}
-
-// update participant table
-function updateParticipants(participants, count){
-	$("#count").html("Participants: " + count);
-	$("#participant-table-body").html("");
-	participants.forEach(function(p){
-		$("#participant-table-body").append(
-			"<tr" + (p.second ? " class='button' onclick='viewPair(event)'>" : ">") +
-				"<td>" +
-					 "<p class='first'>" + p.first + "</p>" + 
-					 "<p class='second'>"+ (p.second ? p.second : "") + "</p>" +
-				"</td>" +
-				"<td>" + (p.second ? "<p> 》 </p>" : "") + "</td>" + 
-			"</tr>");
-	});
-	var start = (getCurrentPage() - 1) * PAGE_SIZE,
-		end = Math.min(start + PAGE_SIZE, $("#participant-table-body tr").length);
-	displayParticipants(start, end);
-}
-
-// page the participants list
-displayParticipants(0, PAGE_SIZE);
-
-function getCurrentPage(){
-	return parseInt($(".page").text());
-}
-
-function getPageCount(){
-	return Math.ceil($("#participant-table-body tr").length / PAGE_SIZE);
-}
-
-function displayParticipants(start, end){
-	$("#participant-table-body tr").hide();
-	for (var i = start; i < end; i++){
-		$("#participant-table-body tr").eq(i).show();
-	}
-	var pageCount = Math.ceil($("#participant-table-body tr").length / PAGE_SIZE);
-	$(".page").text(Math.ceil((start + 1) / PAGE_SIZE) + "/" + pageCount);
-}
-
-function previousPage(){
-	var pageCount = getPageCount(),
-		currentPage = getCurrentPage();
-	if (currentPage > 1){
-		var start = (currentPage - 2) * PAGE_SIZE,
-			end = start + PAGE_SIZE;
-		displayParticipants(start, end);
-	}
-}
-
-function nextPage(){
-	var pageCount = getPageCount(),
-		currentPage = getCurrentPage();
-	if (currentPage < pageCount){
-		var start = currentPage * PAGE_SIZE,
-			end = Math.min(start + PAGE_SIZE, $("#participant-table-body tr").length);
-		displayParticipants(start, end);
-	}
-}
-
-
-// local storage of pair information
-function cachePair(first, second, games){
-	window.sessionStorage.setItem(first + second, JSON.stringify(games));
-}
-
-function getCachedPair(first, second){
-	return JSON.parse(window.sessionStorage.getItem(first + second));
-}
-
-function removeCachedPair(first, second){
-	window.sessionStorage.removeItem(first + second);
-}
-
-// show the detail of the selected pair
-function viewPair(event){
-	var i = $("#participant-table-body tr").index(event.currentTarget);
-	$("#participant-table-body tr").removeClass("focused");
-	$("#participant-table-body tr").eq(i).addClass("focused");
-	$(".panel.right").animate({width:'show'}, 500);
-
-	var first = $(".first").eq(i).text(),
-		second = $(".second").eq(i).text();
-	showPair(first, second);
-	
-}
-
-function showPair(first, second){
-	$("#first").text(first);
-	$("#second").text(second);
-
-	var games = getCachedPair(first, second)
-	if (games != null) {
-		refreshPairTable(games);
-	} else {
-		// post request for viewing a pair
-		$.ajax({
-			url:  "/admin/view_pair",
-			type: "POST",
-			data: {id: first},
-			success : function(res){
-				if (res.success){
-					refreshPairTable(res.games);
-				} else {
-					alert(res);
-				}
-			}
-		});
-	}
-	viewAvailableGames(first, second);
-}
-
-// refresh games in the pair panel
-function refreshPairTable(games){
-	$("#pair-table-body").html("");
-	games.forEach(function(g){
-		$("#pair-table-body").append(
-			"<tr id='" + g.id + "' onclick='showRemove(event)'>" +
-				"<td>" + g.buyer_id + "</td>" +
-				"<td>" + g.seller_id+ "</td>" +
-				"<td>" + g.alpha + "</td>" +
-				"<td>" + g.beta + "</td>" +
-				"<td>" + g.gamma + "</td>" +
-				"<td>" + g.t + "</td>" +
-				"<td>" + g.w + "</td>" +
-				"<td>" +
-					"<div class='delete' onclick='" + 
-						"removeGame(\"" + g.id + "\", \"" + g.buyer_id + "\")'>Remove</div>" +
-				"</td>" +
-			"</tr>");
-	});
-	$("table.pair tfoot td").html("Total: " + games.length);
-
-	var first = $("tr.focused td > .first").text(),
-		second = $("tr.focused td > .second").text();
-	cachePair(first, second, games);
-}
-
-// show the Remove button
-function showRemove(event){
-	var i = $("#pair-table-body tr").index(event.currentTarget);
-	var button = $("#pair-table-body .delete").eq(i);
-	if (button.css("display") == "none") {
-		$("#pair-table-body .delete").animate({width:'hide'}, 500);
-		$("#pair-table-body .delete").eq(i).animate({width:'show'}, 300);
-	} else {
-		$("#pair-table-body .delete").animate({width:'hide'}, 500);
-	}
-}
-
-// remove game from pair
-function removeGame(gameId, buyerId){
-	// post request for removing a game
-	$.ajax({
-		url:  "/admin/remove_game",
-		type: "POST",
-		data: {
-			gameId: gameId,
-			buyerId: buyerId
-		},
-		success : function(res){
-			if (res.success){
-				refreshPairTable(res.games);
-				getAvailableGames();
-			} else {
-				alert(res);
-			}
-		}
-	});
-
-	removeCachedAvailableGames();
-}
-
-function viewAvailableGames(first, second){
-	$("#buyer").html(first);
-	$("#seller").html(second);
-
-	if (getCachedAvailableGames() == null){
-		getAvailableGames();
-	} else {
-		showAvailableGames();
-	}
-}
-
-// cache available games locally
-function cacheAvailableGames(games){
-	window.sessionStorage.setItem("availableGames", JSON.stringify(games));
-}
-
-function getCachedAvailableGames(){
-	return JSON.parse(window.sessionStorage.getItem("availableGames"));
-}
-
-function removeCachedAvailableGames(){
-	window.sessionStorage.removeItem("availableGames");
-}
-
-// get all games that have not been assigned to pairs
-function getAvailableGames(){
-	$.ajax({
-		url:  "/admin/get_available_games",
-		type: "POST",
-		data: {},
-		success : function(res){
-			if (res.success){
-				cacheAvailableGames(res.games);
-				showAvailableGames();
-			} else {
-				alert(res);
-			}
-		}
-	});
-}
-
-// show available games in table
-function showAvailableGames(){
-	var games = getCachedAvailableGames();
-	$("#assignment-table-body").html("");
-	games.forEach(function(g){
-		$("#assignment-table-body").append(
-			"<tr>" +
-				"<td><input class='checked' type='checkbox'></td>" +
-				"<td colspan='2'>" +
-					"<label class='switch'>" +
-				  		"<input class='role' type='checkbox'>" +
-				 		"<div class='slider'>" +
-				 			"<p>seller</p>" +
-				 			"<p>seller</p>" +
-				 		"</div>" +
-					"</label>" +
-				"</td>" +
-				"<td class='assign' id='alpha'>" + g.alpha + "</td>" +
-				"<td class='assign' id='beta'>" + g.beta + "</td>" +
-				"<td class='assign' id='gamma'>" + g.gamma + "</td>" +
-				"<td class='assign' id='t'>" + g.t + "</td>" +
-				"<td class='assign' id='w'>" + g.w + "</td>" +
-			"</tr>");
-	});
-}
-
-// assign games to the pair
-function assignGames(){
-
-	var first = $("tr.focused td > .first").text(),
-		second = $("tr.focused td > .second").text();
-
-	var games = [];
-	$(".checked").each(function(){
-		if ($(this).prop("checked")){
-			var i = $(".checked").index(this);
-			var seller, buyer;
-			if ($(".role").eq(i).prop("checked")){
-				seller = first;
-				buyer = second;
-			} else {
-				seller = second;
-				buyer = first;
-			}
-			var alpha = $(".assign#alpha").eq(i).text(),
-				beta = $(".assign#beta").eq(i).text(),
-				gamma = $(".assign#gamma").eq(i).text(),
-				t = $(".assign#t").eq(i).text(),
-				w = $(".assign#w").eq(i).text();
-			games.push({
-				buyer_id: buyer,
-				seller_id: seller,
-				alpha: alpha,
-				beta: beta,
-				gamma: gamma,
-				t: t,
-				w: w
-			});
-		}
-	});
-
-	if (games) {
-		$.ajax({
-			url:  "/admin/assign_games_to_pair",
-			type: "POST",
-			data: {gamesString: JSON.stringify(games)},
-			success : function(res){
-				if (res.success){
-					removeCachedPair(first, second);
-					showPair(first, second);
-					removeCachedAvailableGames();
-					viewAvailableGames(first, second);
-				} else {
-					alert(res);
-				}
-			}
-		});
-	}
-}
-
-</script>
+<script type="text/javascript" src="/js/admin.js"></script>
 
 </body>
 

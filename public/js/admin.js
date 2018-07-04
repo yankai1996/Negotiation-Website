@@ -2,25 +2,25 @@ $(function(){
 
 const PAGE_SIZE = 10;
 
-var $logout = $(".logout");
-var $tabButtons = $(".tab-button");
-var $tabContents = $(".tab-content");
-var $gameTableBody = $("#game-table-body");
-var $parameters = $(".param");
-var $floatOnlyInput = $(".float-only");
-var $intOnlyInput = $(".int-only")
-var $addGamesButton = $("button.add-games");
-var $addParticipantsInput = $("input.add-participants");
-var $addParticipantsButton = $("button.add-participants");
-var $participantTableBody = $("#participant-table-body");
-var $rightPanel = $(".panel.right");
-var $leftButton = $(".turn-buttons button").eq(0);
-var $rightButton = $(".turn-buttons button").eq(1);
-var $pages = $(".pages");
-var $pairTableBody = $("#pair-table-body");
-var $assignTableBody = $("#assignment-table-body");
-var $assignGamesButton = $("button.assign-games");
-
+var $logout = $(".logout")
+  , $tabButtons = $(".tab-button")
+  , $tabContents = $(".tab-content")
+  , $gameTableBody = $("#game-table-body")
+  , $parameters = $(".param")
+  , $floatOnlyInput = $(".float-only")
+  , $intOnlyInput = $(".int-only")
+  , $addGamesButton = $("button.add-games")
+  , $addParticipantsInput = $("input.add-participants")
+  , $addParticipantsButton = $("button.add-participants")
+  , $participantTableBody = $("#participant-table-body")
+  , $rightPanel = $(".panel.right")
+  , $leftButton = $(".turn-buttons button").eq(0)
+  , $rightButton = $(".turn-buttons button").eq(1)
+  , $pages = $(".pages")
+  , $pairTableBody = $("#pair-table-body")
+  , $assignTableBody = $("#assignment-table-body")
+  , $assignGamesButton = $("button.assign-games")
+  ;
 
 // open tab
 const openTab = (index) => {

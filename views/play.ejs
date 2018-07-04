@@ -1,33 +1,31 @@
 <html>
 
 <head>
-    <meta charset="UTF-8">
-    <title>Welcome</title>
-    <link href="/css/common.css" type="text/css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <title>Welcome</title>
+  <link href="/css/common.css" type="text/css" rel="stylesheet">
+  <script type="text/javascript" src="/js/jquery.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
 </head>
 
 <body>
-    <div class="box bottom">
-    	<div class="title" align="center">
-    		<h1> Welcome! <%= participantID %></h1>
-    	</div>
-    	<div class="content" style="width: 90%">
-    		<p>Thank you for your participation! In this experiment, you will perform as a buyer or seller in the negotiations between supply chain partners. 
-    		<div class="line"></div>
-    		<div id="description">
-    			<!-- load -->
-    		</div>
-    	</div>
-    	<div align="center">
-    		<button class="big" aling="center">Let's Start a Warm-Up !</button>
-    	</div>
+  <div class="box bottom">
+  	<div class="title" align="center">
+  		<h1> Welcome! <%= participantID %></h1>
+  	</div>
+  	<div class="content" style="width: 90%">
+  		<p>Thank you for your participation! In this experiment, you will perform as a buyer or seller in the negotiations between supply chain partners.</p> 
+  		<div class="line"></div>
+  		<div id="description">
+  			<!-- load -->
+  		</div>
+  	</div>
+  	<div align="center">
+  		<button id="warm-up" class="big" aling="center">Let's Start a Warm-Up !</button>
+  	</div>
 
-    </div>
-
-    <script type="text/javascript" src="/js/jquery.min.js"></script>
-    <script>
-        $("#description").load("/html/description.html")
-    </script>
+  </div>
+  <script type="text/javascript" src="/js/play.js"></script>
 </body>
 
 </html>

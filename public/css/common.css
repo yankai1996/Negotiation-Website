@@ -3,10 +3,6 @@ button {
     cursor: pointer;
 }
 
-button:focus {
-    outline: none;
-}
-
 .button {
     cursor: pointer;
 }
@@ -65,3 +61,6 @@ button.big:hover {
     background: #11746b;
 }
 
+.no-wrap {
+    white-space: nowrap;
+}

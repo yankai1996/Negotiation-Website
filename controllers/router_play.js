@@ -5,13 +5,13 @@ const auth = require('./auth')
 
 // render the welcom page
 function renderWelcome(req, res) {
-    res.render('welcome', {
+    res.render('play', {
         participantID: req.cookies.participant
     });
 }
 
-getRouter.get('/welcome', auth.checkAuthParticipant);
-getRouter.get('/welcome', renderWelcome);
+getRouter.get('/play', auth.checkAuthParticipant);
+getRouter.get('/play', renderWelcome);
 
 
 exports.get = getRouter;

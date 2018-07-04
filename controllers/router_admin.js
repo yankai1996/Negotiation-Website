@@ -83,19 +83,30 @@ function checkGameData(req, res, next){
 
 // add games and send the game data
 function addGames(req, res, next){
-    Instructor.addGames(req.game).then(function(result){
+    Instructor.addGames(req.game).then((result) => {
+        next();
+    }).catch((err) => {
+        req.err = err;
+        sendError()
+    }); 
+}
+
+const sendGames = (req, res, next) => {
+    try {
         res.send({
             success: 1,
-            game: result
+            games: req.games
         });
-    }).catch(function(err){
+    } catch (err) {
         req.err = err;
-        next();
-    }); 
+        next()
+    }
 }
 
 postRouter.post('/admin/add_games', checkGameData);
 postRouter.post('/admin/add_games', addGames);
+postRouter.post('/admin/add_games', getGames);
+postRouter.post('/admin/add_games', sendGames);
 postRouter.post('/admin/add_games', sendError);
 
 

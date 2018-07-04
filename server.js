@@ -1,16 +1,19 @@
 'use strict';
 
-var express = require('express');
-var path = require('path');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
+var express = require('express')
+  , path = require('path')
+  , logger = require('morgan')
+  , cookieParser = require('cookie-parser')
+  , bodyParser = require('body-parser')
+  , login  = require('./controllers/router_login')
+  , admin  = require('./controllers/router_admin')
+  , play   = require('./controllers/router_play')
+  ;
 
-var login  = require('./controllers/login');
-var admin  = require('./controllers/router_admin');
-var play   = require('./controllers/router_play');
-
-var app = express();
+var app = express()
+  , server = require('http').createServer(app)
+  , io = require('./controllers/socket').listen(server)
+  ;
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -27,6 +30,12 @@ app.use(admin.get);
 app.use(admin.post);
 app.use(play.get);
 
-app.listen(8888, function(){
-    console.log("App is running on port 8888!")
+app.use(function(req, res){
+    res.writeHead(404);
+    res.write("Opps this doesn't exist - 404");
+    res.end();
+});
+
+server.listen(8888, () => {
+    console.log("Server is running on port 8888!")
 });

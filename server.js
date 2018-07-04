@@ -7,8 +7,8 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
 var login  = require('./controllers/login');
-var admin  = require('./controllers/admin');
-var play   = require('./controllers/play');
+var admin  = require('./controllers/router_admin');
+var play   = require('./controllers/router_play');
 
 var app = express();
 

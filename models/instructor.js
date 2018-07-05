@@ -1,9 +1,8 @@
 const Sequelize = require('sequelize');
 const db = require('./db');
-var System = require('./system');
 
-let Game = db.Game,
-    Participant = db.Participant;
+var Game = db.Game;
+var Participant = db.Participant;
 
 // get games by groups with the count of duplications
 // return type: Promise
@@ -20,12 +19,16 @@ exports.getGames = () => {
     });
 }
 
+const generateGameId = (seed) => {
+    return ("0" + seed).slice(-2) + Date.now();
+}
+
 // add a group of games
 exports.addGames = async (game) => {
     try {
         for (var i = 0; i < game.n; i++) {
             await Game.create({
-                id:     System.generateGameId(i),
+                id:     generateGameId(i),
                 alpha:  game.alpha,
                 beta:   game.beta,
                 gamma:  game.gamma,
@@ -75,6 +78,37 @@ exports.countParticipants = () => {
     return Participant.count();
 }
 
+const addWarmupGames = async (first, second) => {
+    var param = {
+        alpha: 0.5,
+        beta:  0.5,
+        gamma: 0.5,
+        t:     10,
+        w:     15
+    };
+    var keys = ['alpha', 'beta', 'gamma', 't', 'w'];
+    var randKey = keys[Math.floor(Math.random() * keys.length)];
+    var randScale = (0.5 + Math.random()).toFixed(1);
+    param[randKey] *= randScale;
+    var pair = [first, second];
+
+    for (var i = 0; i < 2; i++) {
+        await Game.create({
+            id: generateGameId(i),
+            buyer_id: pair[i],
+            seller_id: pair[1 - i],
+            alpha:  param.alpha,
+            beta:   param.beta,
+            gamma:  param.gamma,
+            t:      param.t,
+            w:      param.w,
+            is_warmup: true
+        }).catch((error) => {
+            console.log(error);
+        });
+    }
+}
+
 // add n participants
 exports.addParticipants = async (n) => {
     try {
@@ -100,7 +134,7 @@ exports.addParticipants = async (n) => {
                     }, {
                         where: {id: opponentID}
                     });
-                    System.addWarmupGames(randomID, opponentID);
+                    addWarmupGames(randomID, opponentID);
                 }
             }).catch((error) => {
                 console.log(error);

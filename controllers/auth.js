@@ -1,12 +1,30 @@
 // Authentication middelwares
+var db = require('../models/db');
+var Participant = db.Participant;
 
-const System = require('../models/system');
+// set admin username/password here
+const verifyInstructor = (username, password) => {
+    return (username == 'admin' 
+        &&  password == 'admin');
+}
+
+const verifyParticipant = (username, password) => {
+    return Participant.findOne({
+        where: {
+            id: username,
+            pin: password
+        }
+    }).then((result) => {
+        return result !== null;
+    });
+}
+
 
 // authentication of instructor
 exports.authInstructor = function(req, res, next){
     let username = req.body.username,
         password = req.body.password;
-    if (System.verifyInstructor(username, password)) {
+    if (verifyInstructor(username, password)) {
         res.cookie('instructor', username);
         res.redirect('/admin');
     } else {
@@ -18,7 +36,7 @@ exports.authInstructor = function(req, res, next){
 exports.authParticipant = function(req, res, next){
     let username = req.body.username,
         password = req.body.password;
-    System.verifyParticipant(username, password).then(function(verified){
+        verifyParticipant(username, password).then(function(verified){
         if (verified) {
             res.cookie('participant', username);
             res.redirect('/play');

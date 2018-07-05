@@ -1,5 +1,5 @@
 var socketio = require('socket.io');
-var System = require('../models/system');
+var Dealer = require('../models/dealer');
 
 exports.listen = (server) => {
     var io = socketio.listen(server);
@@ -12,26 +12,32 @@ exports.listen = (server) => {
             return io.sockets.adapter.rooms[opponent];
         }
 
-        socket.on('login', (id) => {
+        const startGame = (game) => {
+            io.to(opponent).emit('start', "Hi I'm your opponent " + self + "!");
+            socket.emit('start', "Let's start a warm-up Hahah!");
+        }
+
+        socket.on('login', async (id) => {
             self = id;
-            System.getOpponent(self).then((result) => {
-                if (result.opponent) {
-                    opponent = result.opponent;
-                    socket.emit('test', "Welcome! " + self + ". Your opponent is " + opponent);
-                } else { 
-                    socket.emit('test', "Welcome! " + self + ". You have no opponent!");
-                }
-            });
+            var result = await Dealer.getOpponent(self);
+            if (result.opponent) {
+                opponent = result.opponent;
+                socket.emit('test', "Welcome! " + self + ". Your opponent is " + opponent);
+            } else { 
+                socket.emit('test', "Welcome! " + self + ". You have no opponent!");
+            }
         });
 
-        socket.on('warm up', (data) => {
+        socket.on('ready', (data) => {
             socket.join(self);
             if (!opponentIsOnline()){
                 socket.emit('wait opponent', "Please wait!");
                 return;
             }
-            io.to(opponent).emit('start', "Hi I'm your opponent " + self + "!");
-            socket.emit('start', "Let's start a warm-up Hahah!");
+            startGame();
+            // Dealer.getWarmupGame(self).then((result) => {
+
+            // })
         });
 
         socket.on('disconnect', () => {

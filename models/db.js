@@ -71,7 +71,7 @@ var Game = sequelize.define('game', {
     },
     beta: {
         type: Sequelize.FLOAT(3,2),
-        allowNull: false
+        allowNull: false,
     },
     gamma: {
         type: Sequelize.FLOAT(3,2),
@@ -87,6 +87,11 @@ var Game = sequelize.define('game', {
     },
     exists_2nd_buyer: Sequelize.BOOLEAN,
     is_warmup: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+    },
+    is_done: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false

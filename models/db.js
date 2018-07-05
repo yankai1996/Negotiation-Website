@@ -85,14 +85,19 @@ var Game = sequelize.define('game', {
         type: Sequelize.FLOAT(6,2),
         allowNull: false
     },
-    exists_2nd_buyer: Sequelize.BOOLEAN
+    exists_2nd_buyer: Sequelize.BOOLEAN,
+    is_warmup: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+    }
 }, {
     timestamps: false,
     freezeTableName: true
 });
 
 
-function init(){
+const init = () => {
     Participant.sync();
     Game.sync();
 }

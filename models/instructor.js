@@ -1,27 +1,31 @@
 const Sequelize = require('sequelize');
 const db = require('./db');
+var System = require('./system');
 
 let Game = db.Game,
     Participant = db.Participant;
 
 // get games by groups with the count of duplications
 // return type: Promise
-exports.getGames = function(){ 
+exports.getGames = () => { 
     return Game.findAll({
         attributes: ['alpha', 'beta', 'gamma', 't', 'w', 
             [Sequelize.fn('COUNT', Sequelize.col('id')), 'n']
         ],
+        where: {
+            is_warmup: false
+        },
         group: ['alpha', 'beta', 'gamma', 't', 'w'],
         raw: true
     });
 }
 
 // add a group of games
-exports.addGames = async function(game){
+exports.addGames = async (game) => {
     try {
         for (var i = 0; i < game.n; i++) {
             await Game.create({
-                id:     ("0" + i).slice(-2) + Date.now(),
+                id:     System.generateGameId(i),
                 alpha:  game.alpha,
                 beta:   game.beta,
                 gamma:  game.gamma,
@@ -37,40 +41,42 @@ exports.addGames = async function(game){
 }
 
 // delete a group of games
-exports.deleteGames = function(game){
+exports.deleteGames = (game) => {
     return Game.destroy({
         where: {
             alpha: game.alpha,
             beta:  game.beta,
             gamma: game.gamma,
             t:     game.t,
-            w:     game.w
+            w:     game.w,
+            is_warmup: false
         }
     });
 }
 
 // check if exist games with the same parameters
-exports.existGames = function(game){
+exports.existGames = (game) => {
     return Game.findOne({
         where: {
             alpha: game.alpha,
             beta:  game.beta,
             gamma: game.gamma,
             t:     game.t,
-            w:     game.w
+            w:     game.w,
+            is_warmup: false
         }
-    }).then(function(result){
+    }).then((result) => {
         return result !== null;
     });
 }
 
 // count the number of participants
-exports.countParticipants = function(){ 
+exports.countParticipants = () => { 
     return Participant.count();
 }
 
 // add n participants
-exports.addParticipants = async function(n){
+exports.addParticipants = async (n) => {
     try {
         for (var i = 0; i < n; ){
             var randomID = ("000" + (Math.random() * 1000)).slice(-4);
@@ -85,7 +91,7 @@ exports.addParticipants = async function(n){
                 pin: randomPIN,
                 payoff: 0,
                 opponent: opponentID
-            }).then(function(result){
+            }).then((result) => {
                 i++;
                 // console.log(JSON.stringify(result));
                 if (opponent){
@@ -94,8 +100,9 @@ exports.addParticipants = async function(n){
                     }, {
                         where: {id: opponentID}
                     });
+                    System.addWarmupGames(randomID, opponentID);
                 }
-            }).catch(function(error){
+            }).catch((error) => {
                 console.log(error);
             })
         }
@@ -107,7 +114,7 @@ exports.addParticipants = async function(n){
 }
 
 // get all participants
-exports.getParticipants = function(){
+exports.getParticipants = () => {
     return Participant.findAll({
         attributes: ['id', 'payoff'],
         raw: true
@@ -115,7 +122,7 @@ exports.getParticipants = function(){
 }
 
 // get all participants by pair
-exports.getPairedParticipants = async function(){
+exports.getPairedParticipants = async () => {
     var participants = await Participant.findAll();
     var pairs = {},
         result = [],
@@ -139,11 +146,12 @@ exports.getPairedParticipants = async function(){
 }
 
 // get games by one participant id
-exports.getGamesByParticipant = function(id){
+exports.getGamesByParticipant = (id) => {
     return Game.findAll({
         attributes: ['id', 'buyer_id', 'seller_id', 
             'alpha', 'beta', 'gamma', 't', 'w'], 
         where: {
+            is_warmup: false,
             $or: [{buyer_id: id},
                 {seller_id: id}]
         }
@@ -151,7 +159,7 @@ exports.getGamesByParticipant = function(id){
 }
 
 // remove the buyer and seller from a game
-exports.removePairFromGame = function(id){
+exports.removePairFromGame = (id) => {
     return Game.update({
         buyer_id: null,
         seller_id: null
@@ -161,7 +169,7 @@ exports.removePairFromGame = function(id){
 }
 
 // get all games that have not been assigned to pairs
-exports.getAvailableGames = function(){
+exports.getAvailableGames = () => {
     return Game.findAll({
         attributes: ['alpha', 'beta', 'gamma', 't', 'w', 
             [Sequelize.fn('COUNT', Sequelize.col('id')), 'available']
@@ -175,7 +183,7 @@ exports.getAvailableGames = function(){
     })
 }
 
-exports.assignGamesToPair = async function(games){
+exports.assignGamesToPair = async (games) => {
     for (var i = 0; i < games.length; i++) {
         var g = games[i];
         await Game.update({
@@ -183,13 +191,13 @@ exports.assignGamesToPair = async function(games){
             seller_id: g.seller_id
         }, {
             where: {
+                buyer_id: null,
+                seller_id: null,
                 alpha: g.alpha,
 				beta: g.beta,
 				gamma: g.gamma,
 				t: g.t,
-                w: g.w,
-                $and: [{buyer_id: null},
-                    {seller_id: null}]
+                w: g.w
             },
             limit: 1
         });

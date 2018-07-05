@@ -143,12 +143,25 @@ table.participants {
 }
 
 table.participants td, table.participants th {
+    position: relative;
     padding-top: 8px;
     padding-bottom: 8px;
     line-height: 16px;
     display: table-cell;
     text-align: center;
     vertical-align: middle;
+}
+
+table.participants td > .delete {
+    position: absolute;
+    top: 8px;
+    right: 0;
+    z-index: 5;
+    width: 60px;
+    height: 100%;
+    line-height: 65px;
+    vertical-align: middle;
+    direction: rtl;
 }
 
 table.participants tbody tr {
@@ -236,6 +249,11 @@ table.assignment tbody {
     border-bottom: none;
 }
 
+table.assignment tbody .assign {
+    cursor: pointer;
+    min-width: 26px;
+}
+
 table.assignment td, table.assignment th {
     display: table-cell;
     padding: 8px 10px;
@@ -245,12 +263,29 @@ table.assignment td, table.assignment th {
 }
 
 table.assignment td:first-child {
-    padding-right: 2px;
+    padding-right: 16px;
+}
+
+table.assignment td:first-child > label {
+    margin-top: -10px;
 }
 
 table.assignment th:nth-child(2) {
     padding-left: 30px;
     padding-right: 0px;
+}
+
+table.assignment td:last-child {
+    padding-right: 0;
+    position: relative;
+}
+
+table.assignment td:last-child > div {
+    z-index: 10;
+    position: absolute;
+    right: 0;
+    top: 16px;
+    /* transform: translateY(-50%); */
 }
 
 table.assignment th:last-child {
@@ -259,6 +294,7 @@ table.assignment th:last-child {
 
 table.assignment tfoot td {
     text-align: right;
+    padding-right: 20px !important;
     border-top: 1px solid #ccc;
 }
 

@@ -217,6 +217,21 @@ exports.getAvailableGames = () => {
     })
 }
 
+// delete games that have not been assigned to pairs
+exports.deleteExtraGames = (game) => {
+    return Game.destroy({
+        where: {
+            buyer_id: null,
+            seller_id: null,
+            alpha: game.alpha,
+            beta:  game.beta,
+            gamma: game.gamma,
+            t:     game.t,
+            w:     game.w
+        }
+    });
+}
+
 exports.assignGamesToPair = async (games) => {
     for (var i = 0; i < games.length; i++) {
         var g = games[i];

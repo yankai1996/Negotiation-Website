@@ -36,7 +36,9 @@ const openTab = (index) => {
 
 // hide all delete buttons
 const hideDelete = () => {
-	$gameTableBody.find(".delete").animate({width:'hide'}, 300);
+	$(".delete").animate({width:'hide'}, 300);
+	$(".moved").animate({marginLeft: "+=55px"}, 300);
+	$(".moved").removeClass("moved");
 }
 
 // show delete button of clicked row
@@ -100,12 +102,12 @@ const addGames = () => {
 
 	// format the input to numbers
 	var data = {
-		alpha: parseFloat($('#alpha').val()),
-		beta : parseFloat($('#beta') .val()),
-		gamma: parseFloat($('#gamma').val()),
-		t 	 : parseInt  ($('#t')	.val()),
-		w	 : parseFloat($('#w')	.val()),
-		n  	 : parseInt  ($('#n')	.val())
+		alpha: parseFloat($('.param#alpha').val()),
+		beta : parseFloat($('.param#beta') .val()),
+		gamma: parseFloat($('.param#gamma').val()),
+		t 	 : parseInt  ($('.param#t')	.val()),
+		w	 : parseFloat($('.param#w')	.val()),
+		n  	 : parseInt  ($('.param#n')	.val())
 	};
 
 	// check if invalid number
@@ -197,7 +199,9 @@ const updateParticipants = (participants, count) => {
 					 "<p>" + p.first + "</p>" + 
 					 "<p>"+ (p.second ? p.second : "") + "</p>" +
 				"</td>" +
-				"<td>" + (p.second ? "<p> 》 </p>" : "") + "</td>" + 
+				"<td>" + 
+					(p.second ? "<p> 》 </p><div class='delete'>Delete</div>" : "") + 
+				"</td>" + 
 			"</tr>");
 	});
 	var start = (getCurrentPage() - 1) * PAGE_SIZE,
@@ -251,6 +255,20 @@ const showPair = (first, second) => {
 		});
 	}
 	viewAvailableGames(first, second);
+}
+
+const showDeletePair = (index) => {
+	var $buttons = $participantTableBody.find("td .delete");
+	var $text = $participantTableBody.find("tr").eq(index).find("p");
+	if ($buttons.eq(index).css("display") == "none") {
+		hideDelete();
+		$buttons.eq(index).animate({width:'show'}, 300);
+		$text.animate({marginLeft: "-=55px"}, 300);
+		$text.addClass("moved");
+	} else {
+		hideDelete();
+	}
+
 }
 
 
@@ -335,10 +353,10 @@ const refreshPairTable = (games) => {
 const showRemove = (index) => {
 	var $buttons = $pairTableBody.find(".delete");
 	if ($buttons.eq(index).css("display") == "none") {
-		$buttons.animate({width:'hide'}, 300);
+		hideDelete();
 		$buttons.eq(index).animate({width:'show'}, 300);
 	} else {
-		$buttons.animate({width:'hide'}, 300);
+		hideDelete();
 	}
 }
 
@@ -417,7 +435,12 @@ const showAvailableGames = () => {
 	games.forEach((g) => {
 		$assignTableBody.append(
 			"<tr>" +
-				"<td><input class='checked' type='checkbox'></td>" +
+				"<td>" + 
+					"<label class='checkbox'>" +
+						"<input type='checkbox'>" +
+						"<span class='checkmark'></span>" +
+					"</label>" +
+				"</td>" +
 				"<td colspan='2'>" +
 					"<label class='switch'>" +
 				  		"<input class='role' type='checkbox'>" +
@@ -432,8 +455,50 @@ const showAvailableGames = () => {
 				"<td class='assign' id='gamma'>" + g.gamma + "</td>" +
 				"<td class='assign' id='t'>" + g.t + "</td>" +
 				"<td class='assign' id='w'>" + g.w + "</td>" +
+				"<td class='assign'>" + g.available +
+					"<div class='delete'>Delete</div>" + 
+				"</td>" +
 			"</tr>");
 	});
+}
+
+const showDeleteExtra = (index) => {
+	var $buttons = $assignTableBody.find(".delete");
+	if ($buttons.eq(index).css("display") == "none") {
+		hideDelete();
+		$buttons.eq(index).animate({width:'show'}, 300);
+	} else {
+		hideDelete();
+	}
+} 
+
+const deleteExtraGames = (index) => {
+	var data = {
+		alpha: parseFloat($('.assign#alpha').eq(index).text()),
+		beta : parseFloat($('.assign#beta') .eq(index).text()),
+		gamma: parseFloat($('.assign#gamma').eq(index).text()),
+		t 	 : parseInt  ($('.assign#t')	.eq(index).text()),
+		w	 : parseFloat($('.assign#w')	.eq(index).text()),
+	};
+	console.log(data);
+
+	// post request for deleting games
+	$.ajax({
+		url:  "/admin/delete_extra_games",
+		type: "POST",
+		data: data,
+		success: (res) => {
+			if (res.success){
+				$assignTableBody.find("tr").eq(index).remove();
+				updateGames(res.games);
+			} else {
+				alert(res);
+			}
+		}
+	});
+
+	window.sessionStorage.clear();
+
 }
 
 // assign games to the pair
@@ -443,9 +508,10 @@ const assignGames = () => {
 		second = getSecond();
 
 	var games = [];
-	$(".checked").each(function(){
+	$checkboxes = $(".checkbox input")
+	$checkboxes.each(function(){
 		if ($(this).prop("checked")){
-			var i = $(".checked").index(this);
+			var i = $checkboxes.index(this);
 			var seller, buyer;
 			if ($(".role").eq(i).prop("checked")){
 				seller = first;
@@ -541,8 +607,14 @@ $addParticipantsButton.click(() => {
 
 $participantTableBody.on("click", ".button", (event) => {
 	var index = $participantTableBody.find(".button").index(event.currentTarget);
+	hideDelete();
 	viewPair(index);
 })
+
+$participantTableBody.on("click", ".focused", (event) => {
+	var index = $participantTableBody.find(".button").index(event.currentTarget);
+	// showDeletePair(index);
+});
 
 $leftButton.click(() => {
 	previousPage();
@@ -561,6 +633,18 @@ $pairTableBody.on("click", ".delete", (event) => {
 	var index = $pairTableBody.find(".delete").index(event.currentTarget);
 	removeGame(index);
 });
+
+$assignTableBody.on("click", ".assign", (event) => {
+	var number = $assignTableBody.find(".assign").index(event.currentTarget);
+	var index = Math.floor(number / 6);
+	showDeleteExtra(index);
+});
+
+$assignTableBody.on("click", ".delete", (event) => {
+	var index = $assignTableBody.find(".delete").index(event.currentTarget);
+	deleteExtraGames(index);
+});
+
 
 $assignGamesButton.click(() => {
 	assignGames();

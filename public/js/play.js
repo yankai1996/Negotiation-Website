@@ -51,7 +51,7 @@ socket.on('lost opponent', (data) => {
 
 $warmup.click(() => {
 	// waiting();
-	socket.emit("warm up", {
+	socket.emit("ready", {
 		msg: "I am ready!"
 	});
 });

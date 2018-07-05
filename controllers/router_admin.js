@@ -58,19 +58,13 @@ const parseGame = (raw) => {
         }
         raw[key] = temp;
     }
-    return {
-        alpha: raw.alpha,
-        beta:  raw.beta,
-        gamma: raw.gamma,
-        t:     raw.t,
-        w:     raw.w,
-        n:     raw.n 
-    }
+    return raw;
 }
 
 // format and check the received data of games
 const checkGameData = (req, res, next) => {
     var game = parseGame(req.body);
+    console.log(game);
     for (var i in game){
         if (isNaN(game[i])){
             res.send("Input " + i + " is NaN!");
@@ -81,15 +75,21 @@ const checkGameData = (req, res, next) => {
                 res.send("Input " + i + " should be 0 ~ 1.");
                 return;
             }
-        } else if (game.t < 1 || game.t > 99) {
-            res.send("Input T should be 1 ~ 99.");
-            return;
-        } else if (game.w < 0 || game.w >= 10000) {
-            res.send("Input T should be 0 ~ 9999.");
-            return;
-        } else if (game.n > 1000) {
-            res.send("Please try a smaller n.");
-            return;
+        } else if (i == 't') {
+            if (game.t < 1 || game.t > 99) {
+                res.send("Input T should be 1 ~ 99.");
+                return;
+            }
+        } else if (i == 'w') {
+            if (game.w < 0 || game.w >= 10000) {
+                res.send("Input T should be 0 ~ 9999.");
+                return;
+            }
+        } else if (i == 'n') {
+            if (game.n > 1000) {
+                res.send("Please try a smaller n.");
+                return;
+            }
         }
     }
     req.game = game;
@@ -114,7 +114,6 @@ postRouter.post('/admin/add_games', checkGameData);
 postRouter.post('/admin/add_games', addGames);
 postRouter.post('/admin/add_games', getGames);
 postRouter.post('/admin/add_games', sendGames);
-postRouter.post('/admin/add_games', sendError);
 
 
 // delete games and send the game data
@@ -130,7 +129,6 @@ const deleteGames = async (req, res, next) => {
 
 postRouter.post('/admin/delete_games', checkGameData);
 postRouter.post('/admin/delete_games', deleteGames);
-postRouter.post('/admin/delete_games', sendError);
 
 
 // check if valid number of participants to be added
@@ -163,7 +161,6 @@ postRouter.post('/admin/add_participants', checkNumber);
 postRouter.post('/admin/add_participants', addParticipants);
 postRouter.post('/admin/add_participants', getParticipants);
 postRouter.post('/admin/add_participants', sendUpdatedParticipants);
-postRouter.post('/admin/add_participants', sendError);
 
 
 // get and send games according to participant id
@@ -189,7 +186,6 @@ const removeGame = async (req, res, next) => {
 
 postRouter.post('/admin/remove_game', removeGame);
 postRouter.post('/admin/remove_game', viewPair);
-postRouter.post('/admin/remove_game', sendError);
 
 
 const getAvalibaleGames = async (req, res, next) => {
@@ -202,7 +198,17 @@ const getAvalibaleGames = async (req, res, next) => {
 }
 
 postRouter.post('/admin/get_available_games', getAvalibaleGames);
-postRouter.post('/admin/get_available_games', sendError);
+
+
+const deleteExtraGames = async (req, res, next) => {
+    await Instructor.deleteExtraGames(req.game);
+    next()
+}
+
+postRouter.post('/admin/delete_extra_games', checkGameData);
+postRouter.post('/admin/delete_extra_games', deleteExtraGames);
+postRouter.post('/admin/delete_extra_games', getGames);
+postRouter.post('/admin/delete_extra_games', sendGames);
 
 
 const assignGamesToPair = async (req, res, next) => {
@@ -216,7 +222,8 @@ const assignGamesToPair = async (req, res, next) => {
 }
 
 postRouter.post('/admin/assign_games_to_pair', assignGamesToPair);
-postRouter.post('/admin/assign_games_to_pair', sendError);
+
+postRouter.post('/admin*', sendError);
 
 exports.get = getRouter;
 exports.post = postRouter;

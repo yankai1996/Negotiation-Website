@@ -21,7 +21,7 @@ exports.authParticipant = function(req, res, next){
     System.verifyParticipant(username, password).then(function(verified){
         if (verified) {
             res.cookie('participant', username);
-            res.redirect('/welcome');
+            res.redirect('/play');
         } else {
             next()
         }
@@ -53,7 +53,7 @@ exports.checkAuth = function(req, res, next){
     if (req.cookies.instructor) {
         res.redirect('/admin');
     } else if (req.cookies.participant) {
-        res.redirect('/welcome');
+        res.redirect('/play');
     } else {
         next()
     }

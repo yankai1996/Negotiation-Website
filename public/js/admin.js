@@ -100,12 +100,12 @@ const addGames = () => {
 
 	// format the input to numbers
 	var data = {
-		alpha: parseFloat($parameters.find('#alpha').val()),
-		beta : parseFloat($parameters.find('#beta') .val()),
-		gamma: parseFloat($parameters.find('#gamma').val()),
-		t 	 : parseInt  ($parameters.find('#t')	.val()),
-		w	 : parseFloat($parameters.find('#w')	.val()),
-		n  	 : parseInt  ($parameters.find('#n')	.val())
+		alpha: parseFloat($('#alpha').val()),
+		beta : parseFloat($('#beta') .val()),
+		gamma: parseFloat($('#gamma').val()),
+		t 	 : parseInt  ($('#t')	.val()),
+		w	 : parseFloat($('#w')	.val()),
+		n  	 : parseInt  ($('#n')	.val())
 	};
 
 	// check if invalid number

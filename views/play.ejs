@@ -2,14 +2,16 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Welcome</title>
+  <title>Play</title>
   <link href="/css/common.css" type="text/css" rel="stylesheet">
+  <link href="/css/play.css" type="text/css" rel="stylesheet">
   <script type="text/javascript" src="/js/jquery.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
 </head>
 
 <body>
-  <div class="box bottom">
+
+  <div id="welcome" class="box bottom hide">
   	<div class="title" align="center">
   		<h1> Welcome! <%= participantID %></h1>
   	</div>
@@ -23,9 +25,34 @@
   	<div align="center">
   		<button id="warm-up" class="big" aling="center">Let's Start a Warm-Up !</button>
   	</div>
-
   </div>
+
+  <div id="waiting" class="backdrop">
+    <div class="round">
+      <div class="loader"></div>
+      <div id="waiting-info"></div>
+    </div>
+  </div>
+
+  <div id="game" class="box bottom hide">
+    <div class="title" align="center">
+      <h1>Your Role: </h1>
+    </div>
+    <div class="line"></div>
+    
+  </div>
+
+
+
   <script type="text/javascript" src="/js/play.js"></script>
+  <script type="text/javascript">
+    var welcome = <%= welcome %>;
+        if (welcome == 1) {
+            $("#welcome").show();
+        } else {
+            $("#game").show();
+        }
+  </script>
 </body>
 
 </html>

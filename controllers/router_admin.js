@@ -13,10 +13,10 @@ const getGames = async (req, res, next) => {
 }
 
 // add participants to request
-const getParticipants = async (req, res, next) => {
-    var participants = await Instructor.getPairedParticipants();
-    req.participants = participants;
-    req.count = await Instructor.countParticipants();
+const getPairs = async (req, res, next) => {
+    var pairs = await Instructor.getPairs();
+    req.pairs = pairs;
+    req.count = pairs.length;
     next();
 }
 
@@ -24,7 +24,7 @@ const getParticipants = async (req, res, next) => {
 const renderAdmin = (req, res, next) => {
     res.render('admin', {
         games: req.games,
-        participants: req.participants,
+        pairs: req.pairs,
         count: req.count
     });
     next();
@@ -39,13 +39,13 @@ const sendError = (req, res) => {
 
 getRouter.get('/admin', auth.checkAuthInstructor);
 getRouter.get('/admin', getGames);
-getRouter.get('/admin', getParticipants);
+getRouter.get('/admin', getPairs);
 getRouter.get('/admin', renderAdmin);
 getRouter.get('/admin', sendError);
 
 
 // parse game data to numbers
-const parseGame = (raw) => {
+const parseParams = (raw) => {
     for (var key in raw) {
         var temp;
         if (key == 't' || key == 'n'){
@@ -62,35 +62,35 @@ const parseGame = (raw) => {
 }
 
 // format and check the received data of games
-const checkGameData = (req, res, next) => {
-    var game = parseGame(req.body);
-    console.log(game);
-    for (var i in game){
-        if (isNaN(game[i])){
+const checkParams = (req, res, next) => {
+    var params = parseParams(req.body);
+    for (var i in params){
+        if (isNaN(params[i])){
             res.send("Input " + i + " is NaN!");
             return;
         } 
         if (i == 'alpha' || i == 'beta' || i == 'gamma') {
-            if (game[i] < 0 || game[i] > 1) {
+            if (params[i] < 0 || params[i] > 1) {
                 res.send("Input " + i + " should be 0 ~ 1.");
                 return;
             }
         } else if (i == 't') {
-            if (game.t < 1 || game.t > 99) {
+            if (params.t < 1 || params.t > 99) {
                 res.send("Input T should be 1 ~ 99.");
                 return;
             }
         } else if (i == 'w') {
-            if (game.w < 0 || game.w >= 10000) {
+            if (params.w < 0 || params.w >= 10000) {
                 res.send("Input T should be 0 ~ 9999.");
                 return;
             }
-        } else if (i == 'n') {
-            if (game.n > 1000) {
-                res.send("Please try a smaller n.");
-                return;
-            }
-        }
+        } 
+        // else if (i == 'n') {
+        //     if (game.n > 1000) {
+        //         res.send("Please try a smaller n.");
+        //         return;
+        //     }
+        // }
     }
     req.game = game;
     next();
@@ -110,57 +110,56 @@ const sendGames = (req, res, next) => {
     next()
 }
 
-postRouter.post('/admin/add_games', checkGameData);
+postRouter.post('/admin/add_games', checkParams);
 postRouter.post('/admin/add_games', addGames);
 postRouter.post('/admin/add_games', getGames);
 postRouter.post('/admin/add_games', sendGames);
 
 
 // delete games and send the game data
-const deleteGames = async (req, res, next) => {
-    await Instructor.deleteGames(req.game);
+const deleteMasterGame = async (req, res, next) => {
+    await Instructor.deleteMasterGame(req.body.id);
     res.send({
         success: 1,
-        game: req.game
+        id: req.body.id
     });
     next();
 
 }
 
-postRouter.post('/admin/delete_games', checkGameData);
-postRouter.post('/admin/delete_games', deleteGames);
+postRouter.post('/admin/delete_master_game', deleteMasterGame);
 
 
 // check if valid number of participants to be added
 const checkNumber = (req, res, next) => {
-    var number = parseInt(req.body.number);
-    if (number <= 0 || number > 100) {
+    var n = parseInt(req.body.n);
+    if (n <= 0 || n > 100) {
         res.send("Please enter an number in 1~100!");
     }
-    req.number = number;
+    req.n = n;
     next();
 }
 
 // add participants and send the number that has been added
-const addParticipants = async (req, res, next) => {
-    await Instructor.addParticipants(req.number);
+const addPairs = async (req, res, next) => {
+    await Instructor.addPairs(req.n);
     next();
 }
 
 // send the updated participant table
-const sendUpdatedParticipants = (req, res, next) => {
+const sendUpdatedPairs = (req, res, next) => {
     res.send({
         success: 1,
-        participants: req.participants,
+        pairs: req.pairs,
         count: req.count
     });
     next()
 }
 
-postRouter.post('/admin/add_participants', checkNumber);
-postRouter.post('/admin/add_participants', addParticipants);
-postRouter.post('/admin/add_participants', getParticipants);
-postRouter.post('/admin/add_participants', sendUpdatedParticipants);
+postRouter.post('/admin/add_pairs', checkNumber);
+postRouter.post('/admin/add_pairs', addPairs);
+postRouter.post('/admin/add_pairs', getPairs);
+postRouter.post('/admin/add_pairs', sendUpdatedPairs);
 
 
 // get and send games according to participant id
@@ -205,7 +204,7 @@ const deleteExtraGames = async (req, res, next) => {
     next()
 }
 
-postRouter.post('/admin/delete_extra_games', checkGameData);
+postRouter.post('/admin/delete_extra_games', checkParams);
 postRouter.post('/admin/delete_extra_games', deleteExtraGames);
 postRouter.post('/admin/delete_extra_games', getGames);
 postRouter.post('/admin/delete_extra_games', sendGames);

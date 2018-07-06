@@ -60,7 +60,7 @@ table.games {
     margin-bottom: 30px;
     border-collapse: collapse;
     border-spacing: 0;
-    width: 90%;
+    width: 80%;
     background-color: #fff;
     display: table
 }
@@ -79,9 +79,10 @@ table.games tbody tr, table.games tbody td{
     cursor: pointer;
 }
 
-table.games tbody tr>td:last-child {
+table.games tbody td:last-child {
     width: 61px;
-    padding: 0;
+    padding-right: 10px;
+    position: relative;
 }
 
 .delete {
@@ -99,6 +100,11 @@ table.games tbody tr>td:last-child {
     color: #fff;
     background-color: red;
     cursor: pointer;
+
+    z-index: 10;
+    position: absolute;
+    right: 0;
+    top:8px;
 }
 
 table.games input {
@@ -153,10 +159,10 @@ table.participants td, table.participants th {
 }
 
 table.participants td > .delete {
-    position: absolute;
+    /* position: absolute; */
     top: 8px;
-    right: 0;
-    z-index: 5;
+    /* right: 0;
+    z-index: 5; */
     width: 60px;
     height: 100%;
     line-height: 65px;
@@ -188,9 +194,9 @@ table.participants tbody tr:hover>td:last-child p {
     background-color: #ddd!important;
 }
 
-/* Tabel Pair */
+/* Tabel Insight */
 
-table.pair {
+table.insight {
     width: 500px;
     margin-top: 0px;
     margin-bottom: 30px;
@@ -199,7 +205,7 @@ table.pair {
     display: inline-block
 }
 
-table.pair td, table.pair th {
+table.insight td, table.insight th {
     min-width: 40px;
     display: table-cell;
     padding: 8px 10px;
@@ -208,27 +214,28 @@ table.pair td, table.pair th {
     vertical-align: middle;
 }
 
-table.pair tbody td {
+table.insight tbody td {
     cursor: pointer;
 }
 
-table.pair td:nth-child(3) {
+table.insight td:nth-child(3) {
     border-left: 1px solid #ccc;
 }
 
-table.pair td:last-child, table.pair th:last-child {
+table.insight td:last-child, table.insight th:last-child {
     width: 100%;
+    position: relative;
 }
 
-table.pair tbody td:last-child {
+table.insight tbody td:last-child {
     padding: 0;
 }
 
-table.pair .delete {
+table.insight .delete {
     width: 70px;
 }
 
-table.pair tfoot td {
+table.insight tfoot td {
     text-align: right;
     border-top: 1px solid #ccc;
 }

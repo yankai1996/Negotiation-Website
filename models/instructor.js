@@ -1,20 +1,14 @@
 const Sequelize = require('sequelize');
 const db = require('./db');
 
+var MasterGame = db.MasterGame;
 var Game = db.Game;
 var Participant = db.Participant;
 
 // get games by groups with the count of duplications
 // return type: Promise
 exports.getGames = () => { 
-    return Game.findAll({
-        attributes: ['alpha', 'beta', 'gamma', 't', 'w', 
-            [Sequelize.fn('COUNT', Sequelize.col('id')), 'n']
-        ],
-        where: {
-            is_warmup: false
-        },
-        group: ['alpha', 'beta', 'gamma', 't', 'w'],
+    return MasterGame.findAll({
         raw: true
     });
 }
@@ -24,53 +18,55 @@ const generateGameId = (seed) => {
 }
 
 // add a group of games
-exports.addGames = async (game) => {
-    try {
-        for (var i = 0; i < game.n; i++) {
-            await Game.create({
-                id:     generateGameId(i),
-                alpha:  game.alpha,
-                beta:   game.beta,
-                gamma:  game.gamma,
-                t:      game.t,
-                w:      game.w
-            });
-        }
-        return game;
-    } catch (error) {
-        console.log(error);
-        return error;
+exports.addGames = async (params) => {
+    var noMasterGame = await MasterGame.findOne().then((result) => {
+        return result == null;
+    });
+    var masterGameId = generateGameId(0);
+    await MasterGame.create({
+        id:     masterGameId,
+        alpha:  params.alpha,
+        beta:   params.beta,
+        gamma:  params.gamma,
+        t:      params.t,
+        w:      params.w,
+        is_warmup: noMasterGame
+    });
+    assignMasterGameToAll(masterGameId, params);
+    return params;
+}
+
+const assignMasterGameToAll = async (masterGameId, params) => {
+    var pairs = await getPairs();
+    for (var i in pairs) {
+        var first = pairs[i].first;
+        var second = pairs[i].second;
+        var fisrtIsBuyer = await Game.findOne({
+            where: {buyer_id: first}
+        }).then((result) => {
+            result !== null;
+        })
+        var buyer = fisrtIsBuyer ? first: second;
+        var seller = fisrtIsBuyer ? second : first;
+        Game.create({
+            id: generateGameId(i),
+            master_game: masterGameId,
+            buyer_id: buyer,
+            seller_id: seller,
+            exists_2nd_buyer: Math.random() < params.gamma
+        });
     }
 }
 
 // delete a group of games
-exports.deleteGames = (game) => {
-    return Game.destroy({
-        where: {
-            alpha: game.alpha,
-            beta:  game.beta,
-            gamma: game.gamma,
-            t:     game.t,
-            w:     game.w,
-            is_warmup: false
-        }
+exports.deleteMasterGame = async (id) => {
+    await Game.destroy({
+        where: {master_game: id}
     });
-}
-
-// check if exist games with the same parameters
-exports.existGames = (game) => {
-    return Game.findOne({
-        where: {
-            alpha: game.alpha,
-            beta:  game.beta,
-            gamma: game.gamma,
-            t:     game.t,
-            w:     game.w,
-            is_warmup: false
-        }
-    }).then((result) => {
-        return result !== null;
+    MasterGame.destroy({
+        where: {id: id}
     });
+    return 1;
 }
 
 // count the number of participants
@@ -78,73 +74,50 @@ exports.countParticipants = () => {
     return Participant.count();
 }
 
-const addWarmupGames = async (first, second) => {
-    var param = {
-        alpha: 0.5,
-        beta:  0.5,
-        gamma: 0.5,
-        t:     10,
-        w:     15
-    };
-    var keys = ['alpha', 'beta', 'gamma', 't', 'w'];
-    var randKey = keys[Math.floor(Math.random() * keys.length)];
-    var randScale = (0.5 + Math.random()).toFixed(1);
-    param[randKey] *= randScale;
-    var pair = [first, second];
-
-    for (var i = 0; i < 2; i++) {
+const assignMasterGamesToPair = async (masterGames, buyer, seller) => {
+    for (var i in masterGames) {
+        var master = masterGames[i];
         await Game.create({
             id: generateGameId(i),
-            buyer_id: pair[i],
-            seller_id: pair[1 - i],
-            alpha:  param.alpha,
-            beta:   param.beta,
-            gamma:  param.gamma,
-            t:      param.t,
-            w:      param.w,
-            is_warmup: true
-        }).catch((error) => {
-            console.log(error);
+            master_game: master.id,
+            buyer_id: buyer,
+            seller_id: seller,
+            exists_2nd_buyer: Math.random() < master.gamma
         });
     }
 }
 
-// add n participants
-exports.addParticipants = async (n) => {
-    try {
-        for (var i = 0; i < n; ){
-            var randomID = ("000" + (Math.random() * 1000)).slice(-4);
-            var randomPIN = Math.random().toString(18).substring(2, 6);
-            var opponent = await Participant.findOne({
-                where: {opponent: null}
-            });
-            var opponentID = opponent ? opponent.id : null;
+exports.addPairs = async (n) => {
+    var masterGames = await MasterGame.findAll({
+        raw: true
+    });
+    console.log("!!!!!!" + n)
+    for (var i = 0; i < 2 * n; ) {
+        var randomID = Math.random().toString(36).substring(2, 6);
+        var opponent = await Participant.findOne({
+            where: {opponent: null}
+        });
+        var opponentID = opponent ? opponent.id : null;
 
-            await Participant.create({
-                id: randomID,
-                pin: randomPIN,
-                payoff: 0,
-                opponent: opponentID
-            }).then((result) => {
-                i++;
-                // console.log(JSON.stringify(result));
-                if (opponent){
-                    Participant.update({
-                        opponent: randomID
-                    }, {
-                        where: {id: opponentID}
-                    });
-                    addWarmupGames(randomID, opponentID);
-                }
-            }).catch((error) => {
-                console.log(error);
-            })
-        }
-        return n;
-    } catch (error) {
-        console.log(error)
-        return error;
+        await Participant.create({
+            id: randomID,
+            payoff: 0,
+            opponent: opponentID
+        }).then((result) => {
+            i++;
+            if (opponent){
+                Participant.update({
+                    opponent: randomID
+                }, {
+                    where: {id: opponentID}
+                });
+                assignMasterGamesToPair(masterGames, randomID, opponentID);
+            }
+        }).catch((error) => {
+            console.log(error);
+        })
     }
+    return n;
 }
 
 // get all participants
@@ -156,40 +129,49 @@ exports.getParticipants = () => {
 }
 
 // get all participants by pair
-exports.getPairedParticipants = async () => {
+const getPairs = async () => {
     var participants = await Participant.findAll();
-    var pairs = {},
-        result = [],
-        single;
+    var temp = {};
+    var pairs = [];
     for (var i in participants) {
-        if (!(participants[i].opponent in pairs)){
-            var first = participants[i].id,
-                second = participants[i].opponent;
-            if (!second) {
-                single = first;
-                continue;
-            }
-            pairs[first] = second;
-            result.push({first:first, second:second});
+        var p = participants[i];
+        if (!(p.opponent in temp)){
+            var first = p.id;
+            var second = p.opponent;
+            temp[first] = second;
+            pairs.push({first:first, second:second});
         }
     }
-    if (single) {
-        result.push({first:single, second:null});
-    }
-    return result;
+    return pairs;
 }
+exports.getPairs = getPairs;
 
 // get games by one participant id
-exports.getGamesByParticipant = (id) => {
-    return Game.findAll({
+exports.getGamesByParticipant = async (id) => {
+    var games = await Game.findAll({
         attributes: ['id', 'buyer_id', 'seller_id', 
-            'alpha', 'beta', 'gamma', 't', 'w'], 
+            'master_game', 'exists_2nd_buyer', 'is_done'], 
         where: {
-            is_warmup: false,
             $or: [{buyer_id: id},
                 {seller_id: id}]
+        },
+        raw: true
+    });
+    for (var i = 0; i < games.length; i++) {
+        var g = games[i];
+        var masterGame = await MasterGame.findOne({
+            attributes: ['alpha', 'beta', 'gamma', 't', 
+                'w', 'is_warmup'],
+            where: {
+                id: g.master_game
+            },
+            raw: true
+        });
+        for (var attr in masterGame) {
+            g[attr] = masterGame[attr];
         }
-    })
+    }
+    return games;
 }
 
 // remove the buyer and seller from a game

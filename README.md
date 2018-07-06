@@ -13,9 +13,10 @@ The website is based on
 
 * Express - The website framework
 * Mysql2
-* Sequelize -  A promise-based ORM for operating MySQL
+* Sequelize - A promise-based ORM for operating MySQL
 * Cookie-parser
 * Morgan 
+* Socket.IO - For real-time bi-directional communication between client and server
 
 ```
 npm install express mysql2 sequelize cookie-parser morgan
@@ -27,6 +28,6 @@ The following functions have been implemented:
 
 * Login/logout for the instructor and participants
 * The instructor can view/add/delete games
-* The instructor can add participants
-* Automatically pair participants
-* The instructor can modify each pair by assigning/removing games
+* The instructor can add pairs of participants
+* Automatically assign games to new added pairs, and vice versa
+* Basic connection between participants and the server

@@ -28,20 +28,21 @@
 						<th>&gamma;</th>
 						<th>T</th>
 						<th>w</th>
-						<th>n</th>
 						<th></th>
 					</thead>
 
 					<tbody id="game-table-body">
-						<% games.forEach(function(game) { %>
-						<tr>
+						<% games.forEach((game) => { %>
+						<tr id="<%= game.id %>">
 							<td class="alpha"><%= game.alpha %></td>
 							<td class="beta"> <%= game.beta  %></td>
 							<td class="gamma"><%= game.gamma %></td>
 							<td class="t">	  <%= game.t 	 %></td>
 							<td class="w">    <%= game.w 	 %></td>
-							<td class="n">    <%= game.n 	 %></td>
-							<td>
+							<td class="no-wrap">
+								<% if (game.is_warmup) { %>
+									Warm-Up
+								<% } %>
 								<div class="delete">Delete</div>
 							</td>
 						</tr>
@@ -54,7 +55,6 @@
 						<td><input class="param float-only" type="text" id="gamma" placeholder="0.5"></td>
 						<td><input class="param int-only" type="text" id="t" 	placeholder="10"></td>
 						<td><input class="param float-only" type="text" id="w" placeholder="15"></td>
-						<td><input class="param int-only" type="text" id="n" placeholder="n"></td>
 						<td>
 							<button class="alt small add-games">ADD</button>
 						</td>
@@ -64,10 +64,12 @@
 
 			<div id="Participants" class="tab-content">
 				<div class="content">
-					<h3 id="count">Participants: <%= count %></h3>
+					<h3>Number of Pairs: 
+						<label class="count"><%= count %></label>
+					</h3>
 					<div class="input-board">
-						<input class="alt int-only add-participants" type="text" placeholder="1~100">
-						<button class="alt add-participants">ADD</button>
+						<input class="alt int-only add-pairs" type="text" placeholder="1~100">
+						<button class="alt add-pairs">ADD</button>
 					</div>
 					<div class="line"></div>
 					<div class="flexbox">
@@ -79,8 +81,7 @@
 								</thead>
 
 								<tbody id="participant-table-body">
-								<% participants.forEach(function(p) { %>
-									<% if (p.second){ %>
+								<% pairs.forEach(function(p) { %>
 									<tr class="button">
 										<td>
 											<p><%= p.first %></p>
@@ -90,15 +91,6 @@
 											<p> 》 </p>
 											<div class="delete">Delete</div>
 										</td>
-									<% } else { %>
-									<tr>
-										<td>
-											<p class="first"><%= p.first %></p>
-											<p class="second"><%= p.second %></p>
-										</td>
-										<td></td>
-									<% } %>
-									</tr>
 								<% }); %>
 								</tbody>
 							</table>
@@ -111,7 +103,7 @@
 						</div>
 					
 						<div class="panel right">
-							<table class="pair bordered striped">
+							<table class="insight bordered striped">
 								<thead>
 									<th>buyer</th>
 									<th>seller</th>
@@ -122,14 +114,14 @@
 									<th>w</th>
 									<th></th>
 								</thead>
-								<tbody id="pair-table-body">
+								<tbody id="insight-table-body">
 								</tbody>
 								<tfoot>
 									<td colspan="8">Total: 0</td>
 								</tfoot>
 							</table>
 
-							<div class="no-wrap"><p>Assign Games</p></div>
+							<!-- <div class="no-wrap"><p>Assign Games</p></div>
 
 							<table class="assignment bordered">
 								<thead>
@@ -150,7 +142,7 @@
 										<button class="alt assign-games">Confirm</button>
 									</td>
 								</tfoot>
-							</table>
+							</table> -->
 						</div>
 					</div>
 				</div>

@@ -23,10 +23,6 @@ var Participant = sequelize.define('participant', {
         allowNull: false,
         primaryKey: true
     },
-    pin: {
-        type: Sequelize.STRING(4),
-        allowNull: false
-    },
     payoff: {
         type: Sequelize.FLOAT(5,2),
         defaultValue: 0
@@ -44,26 +40,11 @@ var Participant = sequelize.define('participant', {
     freezeTableName: true
 });
 
-// define table 'game'
-var Game = sequelize.define('game', {
+var MasterGame = sequelize.define('master_game', {
     id: {
         type: Sequelize.STRING(20),
         allowNull: false,
         primaryKey: true
-    },
-    buyer_id: {
-        type: Sequelize.STRING(4),
-        references: {
-            model: 'participant',
-            key: 'id'
-        }
-    },
-    seller_id:{
-        type: Sequelize.STRING(4),
-        references: {
-            model: 'participant',
-            key: 'id'
-        }
     },
     alpha: {
         type: Sequelize.FLOAT(3,2),
@@ -85,11 +66,50 @@ var Game = sequelize.define('game', {
         type: Sequelize.FLOAT(6,2),
         allowNull: false
     },
-    exists_2nd_buyer: Sequelize.BOOLEAN,
     is_warmup: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false
+    }
+}, {
+    timestamps: false,
+    freezeTableName: true
+});
+
+// define table 'game'
+var Game = sequelize.define('game', {
+    id: {
+        type: Sequelize.STRING(20),
+        allowNull: false,
+        primaryKey: true
+    },
+    master_game: {
+        type: Sequelize.STRING(20),
+        allowNull: false,
+        references: {
+            model: 'master_game',
+            key: 'id'
+        }
+    },
+    buyer_id: {
+        type: Sequelize.STRING(4),
+        references: {
+            model: 'participant',
+            key: 'id'
+        },
+        allowNull: false
+    },
+    seller_id: {
+        type: Sequelize.STRING(4),
+        references: {
+            model: 'participant',
+            key: 'id'
+        },
+        allowNull: false
+    },
+    exists_2nd_buyer: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false
     },
     is_done: {
         type: Sequelize.BOOLEAN,
@@ -141,12 +161,14 @@ var Period = sequelize.define('period', {
 });
 
 const init = () => {
+    MasterGame.sync();
     Participant.sync();
     Game.sync();
     Period.sync();
 }
 // init();
 
+exports.MasterGame = MasterGame;
 exports.Game = Game;
 exports.Participant = Participant;
 exports.Period = Period;

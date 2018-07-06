@@ -85,20 +85,15 @@ const checkParams = (req, res, next) => {
                 return;
             }
         } 
-        // else if (i == 'n') {
-        //     if (game.n > 1000) {
-        //         res.send("Please try a smaller n.");
-        //         return;
-        //     }
-        // }
     }
-    req.game = game;
+    // req.param is a built-in function
+    req.gameParams = params;
     next();
 }
 
 // add games and send the game data
 const addGames = async (req, res, next) => {
-    await Instructor.addGames(req.game);
+    await Instructor.addGames(req.gameParams);
     next()
 }
 

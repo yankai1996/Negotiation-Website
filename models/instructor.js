@@ -22,6 +22,7 @@ exports.addGames = async (params) => {
     var noMasterGame = await MasterGame.findOne().then((result) => {
         return result == null;
     });
+    console.log(params)
     var masterGameId = generateGameId(0);
     await MasterGame.create({
         id:     masterGameId,

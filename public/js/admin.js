@@ -650,6 +650,11 @@ $assignGamesButton.click(() => {
 	assignGames();
 });
 
+// $(window).click(function(event) {
+// 	if (!$(event.target).find("delete")){
+// 		hideDelete();
+// 	}
+// });
 
 // show the Games tab
 $("#Games").show();

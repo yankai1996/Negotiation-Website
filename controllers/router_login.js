@@ -5,22 +5,21 @@ const auth = require('./auth');
 
 // root url
 getRouter.get('/', auth.checkAuth);
-getRouter.get('/', function(req, res){
+getRouter.get('/', (req, res) => {
     res.redirect('/login');
 });
 
-getRouter.get('/login', function(req, res){
+getRouter.get('/login', (req, res) => {
     res.render('login', {flag: 0});
 });
 
-postRouter.post('/login', auth.authInstructor);
-postRouter.post('/login', auth.authParticipant);
+postRouter.post('/login', auth.authenticate);
+postRouter.post('/login', auth.clearCookie);
 postRouter.post('/login', auth.authFail);
 
 // log out
-getRouter.get('/logout', function(req, res){
-    res.clearCookie("instructor");
-    res.clearCookie("participant");
+getRouter.get('/logout', auth.clearCookie);
+getRouter.get('/logout', (req, res) => {
     res.redirect('/login');
 });
 

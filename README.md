@@ -18,10 +18,6 @@ The website is based on
 * Morgan 
 * Socket.IO - For real-time bi-directional communication between client and server
 
-```
-npm install express mysql2 sequelize cookie-parser morgan
-```
-
 ## Functions 
 
 The following functions have been implemented:

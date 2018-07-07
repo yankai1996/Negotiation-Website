@@ -1,6 +1,5 @@
 $(function(){
 
-const PAGE_SIZE = 10;
 
 var $logout = $(".logout")
   , $tabButtons = $(".tab-button")
@@ -31,25 +30,53 @@ const openTab = (index) => {
 
 	$participantTableBody.find("tr").removeClass("focused");
 	$rightPanel.hide();
-	hideDelete();
+	buttonManager.hideDelete();
 }
 
-// hide all delete buttons
-const hideDelete = () => {
-	$(".delete").animate({width:'hide'}, 300);
-	$(".moved").animate({marginLeft: "+=55px"}, 300);
-	$(".moved").removeClass("moved");
-}
+const buttonManager = new function(){
 
-// show delete button of clicked row
-const showDelete = (index) => {
-	var $button = $gameTableBody.find(".delete").eq(index);
-	if ($button.css("display") == "none") {
-		hideDelete();
-		$button.animate({width:'show'}, 300);
-	} else {
-		hideDelete();
+	// hide all delete buttons
+	this.hideDelete = () => {
+		$(".delete").animate({width:'hide'}, 300);
+		$(".moved").animate({marginLeft: "+=55px"}, 300);
+		$(".moved").removeClass("moved");
 	}
+
+	// show delete button of clicked row
+	this.toggleDeleteGame = (index) => {
+		var $button = $gameTableBody.find(".delete").eq(index);
+		if ($button.css("display") == "none") {
+			this.hideDelete();
+			$button.animate({width:'show'}, 300);
+		} else {
+			this.hideDelete();
+		}
+	}
+
+	this.toggleDeletePair = (index) => {
+		var $buttons = $participantTableBody.find("td .delete");
+		var $text = $participantTableBody.find("tr").eq(index).find("p");
+		if ($buttons.eq(index).css("display") == "none") {
+			this.hideDelete();
+			$buttons.eq(index).animate({width:'show'}, 300);
+			$text.animate({marginLeft: "-=55px"}, 300);
+			$text.addClass("moved");
+		} else {
+			this.hideDelete();
+		}
+	}
+
+	// show the Remove button
+	this.toggleRemove = (index) => {
+		var $buttons = $insightTableBody.find(".delete");
+		if ($buttons.eq(index).css("display") == "none") {
+			this.hideDelete();
+			$buttons.eq(index).animate({width:'show'}, 300);
+		} else {
+			this.hideDelete();
+		}
+	}
+
 }
 
 // click delete button to delete games
@@ -64,7 +91,7 @@ const deleteMasterGame = (index) => {
 		success: (res) => {
 			if (res.success){
 				$gameTableBody.find("tr").eq(index).remove();
-				window.sessionStorage.clear();
+				cacheManager.clearAll();
 			} else {
 				alert(res);
 			}
@@ -113,35 +140,35 @@ const addMasterGame = () => {
 			if (res.success) {
 				$parameters.val('');
 				updateGames(res.games);
-				window.sessionStorage.clear();
+				cacheManager.clearAll();
 			} else {
 				alert(res);
 			}	
 		}
 	});
 
-	// removeCachedAvailableGames();
-}
-
-// update game table
-const updateGames = (games) => {
-	$gameTableBody.html("");
-	games.forEach((g) => {
-		$gameTableBody.append(
-			"<tr id='" + g.id + "'>" +
-				"<td class='alpha'>" + g.alpha + "</td>" +
-				"<td class='beta'>"  + g.beta  + "</td>" +
-				"<td class='gamma'>" + g.gamma + "</td>" +
-				"<td class='t'>" 	 + g.t 	   + "</td>" +
-				"<td class='w'>" 	 + g.w 	   + "</td>" +
-				"<td class='no-wrap'>" + 
-					(g.is_warmup ? "Warm-Up" : "") +
-					"<div class='delete'>Delete</div>" + 
-				"</td>" +
-			"</tr>");
-	});
+	// update game table
+	const updateGames = (games) => {
+		$gameTableBody.html("");
+		games.forEach((g) => {
+			$gameTableBody.append(
+				"<tr id='" + g.id + "'>" +
+					"<td class='alpha'>" + g.alpha + "</td>" +
+					"<td class='beta'>"  + g.beta  + "</td>" +
+					"<td class='gamma'>" + g.gamma + "</td>" +
+					"<td class='t'>" 	 + g.t 	   + "</td>" +
+					"<td class='w'>" 	 + g.w 	   + "</td>" +
+					"<td class='no-wrap'>" + 
+						(g.is_warmup ? "Warm-Up" : "") +
+						"<div class='delete'>Delete</div>" + 
+					"</td>" +
+				"</tr>");
+		});
+	}
 
 }
+
+
 
 // click add button to add pairs
 const addPairs = () => {
@@ -167,28 +194,28 @@ const addPairs = () => {
 			}
 		}
 	});
+
+	// update participant table
+	const updatePairs = (pairs, count) => {
+		$("#count").html(count);
+		$participantTableBody.html("");
+		pairs.forEach((p) => {
+			$participantTableBody.append(
+				"<tr" + (p.second ? " class='button'>" : ">") +
+					"<td>" +
+						 "<p>" + p.first + "</p>" + 
+						 "<p>" + p.second + "</p>" +
+					"</td>" +
+					"<td><p> 》 </p>" + 
+						"<div class='delete'>Delete</div>" + 
+					"</td>" + 
+				"</tr>");
+		});
+		pageManager.updateCurrentPage();
+	}
 }
 
-// update participant table
-const updatePairs = (pairs, count) => {
-	$("#count").html(count);
-	$participantTableBody.html("");
-	pairs.forEach((p) => {
-		$participantTableBody.append(
-			"<tr" + (p.second ? " class='button'>" : ">") +
-				"<td>" +
-					 "<p>" + p.first + "</p>" + 
-					 "<p>" + p.second + "</p>" +
-				"</td>" +
-				"<td><p> 》 </p>" + 
-					"<div class='delete'>Delete</div>" + 
-				"</td>" + 
-			"</tr>");
-	});
-	var start = (getCurrentPage() - 1) * PAGE_SIZE,
-		end = Math.min(start + PAGE_SIZE, $("#participant-table-body tr").length);
-	displayPairs(start, end);
-}
+
 
 const getFirst = () => {
 	return $("tr.focused p").eq(0).text();
@@ -217,7 +244,7 @@ const showPair = (first, second) => {
 	$("#first").text(first);
 	$("#second").text(second);
 
-	var games = getCachedPair(first, second);
+	var games = cacheManager.getCachedPair(first, second);
 	if (games != null) {
 		refreshInsightTable(games);
 	} else {
@@ -238,87 +265,97 @@ const showPair = (first, second) => {
 	// viewAvailableGames(first, second);
 }
 
-const showDeletePair = (index) => {
-	var $buttons = $participantTableBody.find("td .delete");
-	var $text = $participantTableBody.find("tr").eq(index).find("p");
-	if ($buttons.eq(index).css("display") == "none") {
-		hideDelete();
-		$buttons.eq(index).animate({width:'show'}, 300);
-		$text.animate({marginLeft: "-=55px"}, 300);
-		$text.addClass("moved");
-	} else {
-		hideDelete();
+const pageManager = new function(){
+
+	this._pageSize = 10;
+
+	this._getCurrentPage = () => {
+		return parseInt($pages.text());
 	}
 
-}
-
-
-const getCurrentPage = () => {
-	return parseInt($pages.text());
-}
-
-const getPageCount = () => {
-	return Math.ceil($participantTableBody.find("tr").length / PAGE_SIZE);
-}
-
-const displayPairs = (start, end) => {
-	var $rows = $participantTableBody.find("tr");
-	$rows.hide();
-	for (var i = start; i < end; i++){
-		$rows.eq(i).show();
+	this._getPageCount = () => {
+		return Math.ceil($participantTableBody.find("tr").length / this._pageSize);
 	}
-	var pageCount = Math.ceil($rows.length / PAGE_SIZE);
-	$pages.text(Math.ceil((start + 1) / PAGE_SIZE) + "/" + pageCount);
-}
 
-const previousPage = () => {
-	var pageCount = getPageCount(),
-		currentPage = getCurrentPage();
-	if (currentPage > 1){
-		var start = (currentPage - 2) * PAGE_SIZE,
-			end = start + PAGE_SIZE;
-		displayPairs(start, end);
+	this._displayPairs = (start, end) => {
+		var $rows = $participantTableBody.find("tr");
+		$rows.hide();
+		for (var i = start; i < end; i++){
+			$rows.eq(i).show();
+		}
+		var pageCount = Math.ceil($rows.length / this._pageSize);
+		$pages.text(Math.ceil((start + 1) / this._pageSize) + "/" + pageCount);
 	}
-}
 
-const nextPage = () => {
-	var pageCount = getPageCount(),
-		currentPage = getCurrentPage();
-	if (currentPage < pageCount){
-		var start = currentPage * PAGE_SIZE,
-			end = Math.min(start + PAGE_SIZE, $participantTableBody.find("tr").length);
-		displayPairs(start, end);
+	this.previousPage = () => {
+		var currentPage = this._getCurrentPage();
+		if (currentPage > 1){
+			var start = (currentPage - 2) * this._pageSize,
+				end = start + this._pageSize;
+			this._displayPairs(start, end);
+		}
 	}
+
+	this.nextPage = () => {
+		var pageCount = this._getPageCount(),
+			currentPage = this._getCurrentPage();
+		if (currentPage < pageCount){
+			var start = currentPage * this._pageSize,
+				end = Math.min(start + this._pageSize, $participantTableBody.find("tr").length);
+			this._displayPairs(start, end);
+		}
+	}
+
+	this.updateCurrentPage = () => {
+		var start = (this._getCurrentPage() - 1) * this._pageSize;
+			end = Math.min(start + this._pageSize, $participantTableBody.find("tr").length);
+		this._displayPairs(start, end);
+	}
+
+	return this._displayPairs(0, this._pageSize);
+
 }
 
+const cacheManager = new function(){
 
-// local storage of pair information
-const cachePair = (first, second, games) => {
-	window.sessionStorage.setItem(first + second, JSON.stringify(games));
-}
+	// local storage of pair information
+	this.cachePair = (first, second, games) => {
+		window.sessionStorage.setItem(first + second, JSON.stringify(games));
+	}
 
-const getCachedPair = (first, second) => {
-	return JSON.parse(window.sessionStorage.getItem(first + second));
-}
+	this.getCachedPair = (first, second) => {
+		return JSON.parse(window.sessionStorage.getItem(first + second));
+	}
 
-const removeCachedPair = (first, second) => {
-	window.sessionStorage.removeItem(first + second);
+	this.removeCachedPair = (first, second) => {
+		window.sessionStorage.removeItem(first + second);
+	}
+
+	this.clearAll = () => {
+		window.sessionStorage.clear();
+	}
+
 }
 
 // refresh games in the pair panel
 const refreshInsightTable = (games) => {
+	$("#buyer").html(games[0].buyer_id);
+	$("#seller").html(games[0].seller_id);
 	$insightTableBody.html("");
 	games.forEach((g) => {
 		$insightTableBody.append(
 			"<tr id='" + g.id + "'>" +
-				"<td>" + g.buyer_id + "</td>" +
-				"<td>" + g.seller_id+ "</td>" +
+
 				"<td>" + g.alpha + "</td>" +
 				"<td>" + g.beta + "</td>" +
 				"<td>" + g.gamma + "</td>" +
 				"<td>" + g.t + "</td>" +
 				"<td>" + g.w + "</td>" +
+				"<td>" + 
+					(g.exists_2nd_buyer ? "Yes" : "No") + 
+				"</td>" +
 				"<td>" +
+					(g.is_warmup ? "Warm-Up" : "") +
 					"<div class='delete'>Remove</div>" +
 				"</td>" +
 			"</tr>");
@@ -327,18 +364,7 @@ const refreshInsightTable = (games) => {
 
 	var first = getFirst();
 	var second = getSecond();
-	cachePair(first, second, games);
-}
-
-// show the Remove button
-const showRemove = (index) => {
-	var $buttons = $insightTableBody.find(".delete");
-	if ($buttons.eq(index).css("display") == "none") {
-		hideDelete();
-		$buttons.eq(index).animate({width:'show'}, 300);
-	} else {
-		hideDelete();
-	}
+	cacheManager.cachePair(first, second, games);
 }
 
 // remove game from pair
@@ -548,7 +574,7 @@ $tabButtons.click((event) => {
 
 $gameTableBody.on("click", "tr", (event) => {
 	var index = $gameTableBody.find("tr").index(event.currentTarget);
-	showDelete(index);
+	buttonManager.toggleDeleteGame(index);
 });
 
 $gameTableBody.on("click", ".delete", (event) => {
@@ -588,7 +614,7 @@ $addPairsButton.click(() => {
 
 $participantTableBody.on("click", ".button", (event) => {
 	var index = $participantTableBody.find(".button").index(event.currentTarget);
-	hideDelete();
+	buttonManager.hideDelete();
 	viewPair(index);
 })
 
@@ -598,21 +624,21 @@ $participantTableBody.on("click", ".focused", (event) => {
 });
 
 $leftButton.click(() => {
-	previousPage();
+	pageManager.previousPage();
 });
 
 $rightButton.click(() => {
-	nextPage();
+	pageManager.nextPage();
 });
 
 $insightTableBody.on("click", "tr", (event) => {
 	var index = $insightTableBody.find("tr").index(event.currentTarget);
-	showRemove(index);
+	buttonManager.toggleRemove(index);
 });
 
 $insightTableBody.on("click", ".delete", (event) => {
 	var index = $insightTableBody.find(".delete").index(event.currentTarget);
-	removeGame(index);
+	// removeGame(index);
 });
 
 // $assignTableBody.on("click", ".assign", (event) => {
@@ -639,8 +665,7 @@ $insightTableBody.on("click", ".delete", (event) => {
 
 // show the Games tab
 $("#Games").show();
-// page the participants list
-displayPairs(0, PAGE_SIZE);
+
 
 
 });

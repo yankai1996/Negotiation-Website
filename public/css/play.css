@@ -3,6 +3,14 @@
     display: none;
 }
 
+.content {
+    width: 90%;
+}
+
+.content.short {
+    min-height: 0px !important;
+}
+
 .backdrop {
     z-index: 100;
     display: none;
@@ -27,10 +35,9 @@
     background: #fff;
     font-family: "Roboto", sans-serif;
     text-align: center;
-   
 }
 
-.round > * {
+.round>* {
     position: relative;
     top: 50%;
     transform: translateY(-50%);
@@ -38,7 +45,7 @@
 
 .loader {
     position: absolute;
-    top:0;
+    top: 0;
     left: 0;
     border: 16px solid #f3f3f3;
     /* border: 16px solid #fff; */
@@ -66,4 +73,105 @@
     100% {
         transform: rotate(360deg);
     }
+}
+
+table.params {
+    font-family: "Roboto", sans-serif;
+    margin: auto;
+    margin-top: 20px;
+    margin-bottom: 30px;
+    border-collapse: collapse;
+    border-spacing: 0;
+    background-color: #fff;
+    display: table;
+}
+
+table.params td {
+    padding-top: 6px;
+    padding-bottom: 6px;
+    display: table-cell;
+    text-align: left;
+    vertical-align: middle;
+}
+
+table.params td:nth-child(3) {
+    padding-left: 20px;
+}
+
+table.progress {
+    font-family: "Roboto", sans-serif;
+    width: 100%;
+}
+
+table.progress td > div{
+    background: #eee;
+    height: 10px
+}
+
+table.progress td:first-child {
+    background:#fff;
+    width: 70px;
+}
+
+table.progress td:nth-child(2) {
+    background:#fff;
+    padding-right: 10px;
+    width: 30px;
+}
+
+table.progress td:nth-child(3) > div {
+    background:#159287;
+}
+
+
+.flexbox {
+    display: flex;
+    height: 300px;
+    margin-top: 20px;
+}
+
+.panel.left {
+    width: 200px;
+    border: 1px solid #ccc;
+}
+
+.panel.right {
+    /* padding: 12px;
+    margin-top: 20px !important; */
+    margin-left: 20px;
+    border: 1px solid #ccc;
+    width: 100%;
+}
+
+.timer {
+    font-family: "Roboto", sans-serif;
+    height: 50px;
+    font-size: 30px;
+    font-weight: bold;
+    display: block;
+} 
+
+.timer > * {
+    float: right;
+}
+
+.timer > p {
+    margin: 0;
+    padding-left: 10px;
+}
+
+.clock {
+    border: 16px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 16px solid #159287;
+    width: 0;
+    height: 0;
+    -webkit-animation: spin 1s linear infinite;
+    animation: spin 1s linear infinite;
+}
+
+.operation {
+    width: 100%;
+    height: 200px;
+    border: 1px solid #ccc;
 }

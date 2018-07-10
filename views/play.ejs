@@ -6,6 +6,7 @@
   <link href="/css/common.css" type="text/css" rel="stylesheet">
   <link href="/css/play.css" type="text/css" rel="stylesheet">
   <script type="text/javascript" src="/js/jquery.min.js"></script>
+  <script type="text/javascript" src="/js/jquery-ui.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
 </head>
 
@@ -88,11 +89,19 @@
         <div class="panel left">
         </div>
         <div class="panel right">
-          <div class="timer">
-            <p id="time">30</p>
-            <!-- <label class="clock"></label> -->
+          <table class="timer">
+            <td id="time">30</td>
+            <td>
+              <div class="time-bar">
+                <div class="remaining-time"></div>
+              </div>
+            </td>
+          </table>
+
+          <div class="operation">
+            <input class="price hide" type="text">
+            <div class="wait-input">Waiting for proposal...</div>
           </div>
-          
           <div class="operation"></div>
         </div>
 

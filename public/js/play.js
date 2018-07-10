@@ -36,6 +36,41 @@ const start = () => {
 	$game.show();
 }
 
+function Timer(time=30) {
+	this.time = time;
+	this.start = () => {
+		var $time = $("#time");
+		var $waitInput = $(".wait-input");
+		var count = this.time;
+		$(".remaining-time").animate({width: '0%'}, time*1000);
+		this.set = setInterval(() => {
+	        count--;
+	        $time.html(('0'+count).slice(-2)); 
+	        if (count == 10) {
+	        	$time.css('color', 'red');
+	        	$(".remaining-time").animate({backgroundColor: '#000'}, 1000);
+	        }
+	        if (count % 2 == 1) {
+	        	$waitInput.animate({backgroundColor: '#fafafa'}, 1000);
+	        } else {
+	        	$waitInput.animate({backgroundColor: '#eee'}, 1000);
+	        }
+	        if (count === 0) {
+	            clearInterval(this.set);
+	        }
+	    }, 1000);
+
+	}
+	this.reset = () => {
+		clearInterval(this.set);
+		var $time = $("#time");
+		$time.html(this.time);
+		$time.css('color', '#000');
+	}
+}
+var timer = new Timer();
+timer.start();
+
 
 
 socket.on(EVENT.TEST, (data) => {
@@ -57,6 +92,9 @@ socket.on('lost opponent', (data) => {
 	console.log(data);
 });
 
+socket.on('disconnect', () => {
+	socket.disconnect();
+})
 
 $warmup.click(() => {
 	console.log("I'm ready")

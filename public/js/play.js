@@ -2,6 +2,13 @@
 $("#description").load("/html/description.html");
 
 const ID = $("#welcome .title h1").text().slice(-4);
+const EVENT = {
+	LOGIN: 'login',
+    READY: 'ready',
+    START: 'start',
+    TEST: 'test',
+    WAIT: 'wait opponent',
+}
 
 var $warmup = $("#warm-up")
   , $welcome = $("#welcome")
@@ -12,6 +19,10 @@ var $warmup = $("#warm-up")
 
 // default address: 'http://localhost'
 var socket = io.connect();
+socket.on("connect", () => {
+	socket.emit(EVENT.LOGIN, ID);
+});
+
 
 const waiting = (info) => {
 	info = info || "Waiting for your opponent...";
@@ -25,20 +36,18 @@ const start = () => {
 	$game.show();
 }
 
-socket.on("connect", () => {
-	socket.emit("login", ID);
-});
 
-socket.on("test", (data) => {
+
+socket.on(EVENT.TEST, (data) => {
 	console.log(data);
 });
 
-socket.on('wait opponent', (data) => {
+socket.on(EVENT.WAIT, (data) => {
 	waiting();
 	console.log(data);
 });
 
-socket.on('start', (data) => {
+socket.on(EVENT.START, (data) => {
 	start();
 	console.log(data);
 });
@@ -50,7 +59,7 @@ socket.on('lost opponent', (data) => {
 
 
 $warmup.click(() => {
-	// waiting();
+	console.log("I'm ready")
 	socket.emit("ready", {
 		msg: "I am ready!"
 	});

@@ -18,10 +18,13 @@ var $warmup = $("#warm-up")
   ;
 
 // default address: 'http://localhost'
-var socket = io.connect();
-socket.on("connect", () => {
-	socket.emit(EVENT.LOGIN, ID);
-});
+
+// var socket = io.connect();
+// socket.on("connect", () => {
+// 	socket.emit(EVENT.LOGIN, ID);
+// });
+
+var socket = io();
 
 
 const waiting = (info) => {
@@ -38,34 +41,38 @@ const start = () => {
 
 function Timer(time=30) {
 	this.time = time;
+	this.$timer = $(".timer");
+	this.$time = $("#time");
+	this.$waitProposal = $("#wait-proposal");
+	this.$remainingTime = $(".remaining-time");
+
 	this.start = () => {
-		var $time = $("#time");
-		var $waitInput = $(".wait-input");
 		var count = this.time;
-		$(".remaining-time").animate({width: '0%'}, time*1000);
+		this.$remainingTime.animate({width: '0%'}, this.time*1000);
 		this.set = setInterval(() => {
 	        count--;
-	        $time.html(('0'+count).slice(-2)); 
+	        this.$time.html(('0'+count).slice(-2)); 
 	        if (count == 10) {
-	        	$time.css('color', 'red');
-	        	$(".remaining-time").animate({backgroundColor: '#000'}, 1000);
+	        	this.$timer.addClass('red');
 	        }
 	        if (count % 2 == 1) {
-	        	$waitInput.animate({backgroundColor: '#fafafa'}, 1000);
+	        	this.$waitProposal.animate({backgroundColor: '#fafafa'}, 1000);
 	        } else {
-	        	$waitInput.animate({backgroundColor: '#eee'}, 1000);
+	        	this.$waitProposal.animate({backgroundColor: '#eee'}, 1000);
 	        }
 	        if (count === 0) {
-	            clearInterval(this.set);
+	            this.reset();
 	        }
 	    }, 1000);
 
 	}
 	this.reset = () => {
 		clearInterval(this.set);
-		var $time = $("#time");
-		$time.html(this.time);
-		$time.css('color', '#000');
+		this.$remainingTime.stop();
+		this.$waitProposal.stop();
+		this.$time.html(this.time);
+		this.$timer.removeClass('red');
+		this.$remainingTime.css('width', '100%');
 	}
 }
 var timer = new Timer();

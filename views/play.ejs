@@ -23,7 +23,7 @@
   			<!-- load -->
   		</div>
   	</div>
-  	<div align="center">
+  	<div class="padding-end" align="center">
   		<button id="warm-up" class="big" aling="center">Let's Start a Warm-Up !</button>
   	</div>
   </div>
@@ -35,7 +35,20 @@
     </div>
   </div>
 
+  <div id="continue-page" class="box bottom hide">
+    <div class="title" align="center">
+      <h1>Welcome! <%= participantID %></h1>
+    </div>
+    <div class="content short">
+      <p>We've detedcted that you have not complete the experiment. Click the button to continue it.</p> 
+    </div>
+    <div class="padding-end" align="center">
+      <button id="contiue" class="big" aling="center">CONTINUE</button>
+    </div>
+  </div>
+
   <div id="game" class="box bottom hide">
+
     <div class="title" align="center">
       <h1>Your Role: </h1>
     </div>
@@ -44,7 +57,7 @@
         <tr>
           <td>&alpha; =</td>
           <td id="alpha">0.5</td>
-          <td>the probability of being notified of the second buyer</td>
+          <td>the probability of being notified of the second buyer's existence in each period</td>
         </tr>
         <tr>
           <td>&beta; =</td>
@@ -87,8 +100,14 @@
 
       <div class="flexbox">
         <div class="panel left">
+          <p>2nd Buyer</p>
+          <div class="img-box">
+            <img src="/image/buyer.png"  alt="2nd buyer" />
+          </div>
         </div>
+
         <div class="panel right">
+
           <table class="timer">
             <td id="time">30</td>
             <td>
@@ -98,16 +117,32 @@
             </td>
           </table>
 
-          <div class="operation">
-            <input class="price hide" type="text">
-            <div class="wait-input">Waiting for proposal...</div>
+          <div id="proposal" class="operation">
+            <div class="input-box">
+              <input type="text" placeholder="Propose a price" autofocus="autofocus">
+            </div>
+            <div class="button-box">
+              <button class="alt" value="propose">Propose</button>
+            </div>
           </div>
+
+          <div id="decision" class="operation hide">
+            <div class="input-box">
+              <div id="wait-proposal" class="proposal">Waiting for proposal...</div> 
+              <div id="proposed" class="proposal hide">$16</div>
+            </div>
+            <div class="button-box">
+              <button class="alt disable" value="accept">Accept</button>
+              <button class="alt" value="refuse">Refuse</button>
+            </div>
+          </div>
+
           <div class="operation"></div>
         </div>
 
       </div>
 
-
+      <!-- <div class="help"><p></p></div> -->
       
     </div>
     
@@ -120,7 +155,7 @@
     <div class="content short">
       <p>You have finished all the games.</p> 
     </div>
-    <div align="center">
+    <div class="padding-end" align="center">
       <button class="big" aling="center">QUIT</button>
     </div>
   </div>

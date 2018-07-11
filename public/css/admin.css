@@ -328,18 +328,6 @@ input.alt {
 
 /* Button */
 
-button.circular {
-    color: #fff;
-    background: #159287;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-}
-
-button.circular:hover {
-    background: #11746b;
-}
-
 button.alt {
     height: 100%;
     max-height: 30px;

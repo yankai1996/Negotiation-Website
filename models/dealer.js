@@ -66,3 +66,29 @@ exports.getWarmupGame = (participantId) => {
         raw: true
     });
 }
+
+exports.existFinishedGames = (participantId) => {
+    return Game.findOne({
+        where: {
+            is_done: true,
+            $or: [{buyer_id: participantId},
+                {seller_id: participantId}]
+        },
+        raw: true
+    }).then((result) => {
+        return result !== null;
+    });
+}
+
+exports.existUnfinishedGames = (participantId) => {
+    return Game.findOne({
+        where: {
+            is_done: false,
+            $or: [{buyer_id: participantId},
+                {seller_id: participantId}]
+        },
+        raw: true
+    }).then((result) => {
+        return result !== null;
+    });
+}

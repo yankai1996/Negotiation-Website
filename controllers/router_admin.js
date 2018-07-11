@@ -93,7 +93,7 @@ const checkParams = (req, res, next) => {
 
 // add games and send the game data
 const addGames = async (req, res, next) => {
-    await Instructor.addGames(req.gameParams);
+    await Instructor.addMasterGame(req.gameParams);
     next()
 }
 

@@ -18,7 +18,7 @@ const generateGameId = (seed) => {
 }
 
 // add a group of games
-exports.addGames = async (params) => {
+exports.addMasterGame = async (params) => {
     var noMasterGame = await MasterGame.findOne().then((result) => {
         return result == null;
     });

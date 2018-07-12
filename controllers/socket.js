@@ -1,5 +1,5 @@
 var socketio = require('socket.io');
-var Dealer = require('../models/dealer');
+var Assistant = require('../models/assistant');
 
 const EVENT = {
     LOGIN: 'login',
@@ -9,6 +9,26 @@ const EVENT = {
     WAIT: 'wait opponent',
 }
 
+function Dealer(buyer, seller, io){
+    this.buyer = buyer;
+    this.seller = seller;
+    this.io = io;
+}
+
+Dealer.prototype.toBuyer = function(event, data){
+    this.io.to(this.buyer).emit(event, data);
+}
+
+Dealer.prototype.toSeller = function(event, data){
+    this.io.to(this.seller).emit(event, data);
+}
+
+Dealer.prototype.start = function(){
+    this.toBuyer(EVENT.START, "Hi I'm your opponent " + this.seller + "!");
+    this.toSeller(EVENT.START, "Hi I'm your opponent " + this.buyer + "!")
+}
+
+
 exports.listen = (server) => {
     var io = socketio.listen(server);
 
@@ -17,17 +37,16 @@ exports.listen = (server) => {
         var self, opponent;
 
         const opponentIsOnline = () => {
-            return io.sockets.adapter.rooms[opponent];
+            return io.sockets.adapter.rooms[opponent] && opponent;
         }
 
-        const startGame = (game) => {
-            io.to(opponent).emit(EVENT.START, "Hi I'm your opponent " + self + "!");
-            socket.emit(EVENT.START, "Let's start a warm-up Hahah!");
+        const newGame = async () => {
+            
         }
 
         socket.on(EVENT.LOGIN, async (id) => {
             self = id;
-            var result = await Dealer.getOpponent(self);
+            var result = await Assistant.getOpponent(self);
             if (result.opponent) {
                 opponent = result.opponent;
                 socket.emit(EVENT.TEST, "Welcome! " + self + ". Your opponent is " + opponent);
@@ -38,10 +57,11 @@ exports.listen = (server) => {
 
         socket.on(EVENT.READY, (data) => {
             socket.join(self);
+            console.log(opponentIsOnline());
             if (!opponentIsOnline()){
                 socket.emit(EVENT.WAIT, "Please wait!");
             } else {
-                startGame();
+                newGame();
             }
         });
 
@@ -55,5 +75,3 @@ exports.listen = (server) => {
 
     return io;
 }
-
-exports.EVENT = EVENT;

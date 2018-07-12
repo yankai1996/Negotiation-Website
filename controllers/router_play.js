@@ -2,12 +2,12 @@ const express = require('express');
 const getRouter = express.Router();
 const postRouter = express.Router();
 const auth = require('./auth');
-const Dealer = require('../models/dealer');
+const Assistant = require('../models/assistant');
 
 const getStatus = async (req, res, next) => {
     var id = req.cookies.participant;
-    var existFinished = await Dealer.existFinishedGames(id);
-    var existUnfinished = await Dealer.existUnfinishedGames(id);
+    var existFinished = await Assistant.existFinishedGames(id);
+    var existUnfinished = await Assistant.existUnfinishedGames(id);
     if (existFinished && existUnfinished) {
         req.status = 2;
     } else if (existUnfinished) {
@@ -17,7 +17,6 @@ const getStatus = async (req, res, next) => {
     }
     next();
 }
-
 
 // render the welcom page
 const renderPlay = (req, res) => {

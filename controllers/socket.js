@@ -12,22 +12,24 @@ const EVENT = {
     WAIT: 'wait opponent',
 }
 
-function Dealer(self, opponent, io){
+
+
+function Dealer(self, opponent, io) {
     this.self = self;
     this.opponent = opponent;
     this.io = io;
     this.game = null;
 }
 
-Dealer.prototype.toBuyer = function(event, data){
+Dealer.prototype.toBuyer = function (event, data) {
     this.io.to(this.game.buyer_id).emit(event, data);
 }
 
-Dealer.prototype.toSeller = function(event, data){
+Dealer.prototype.toSeller = function (event, data) {
     this.io.to(this.game.seller_id).emit(event, data);
 }
 
-Dealer.prototype.newGame = async function(){
+Dealer.prototype.newGame = async function () {
     var newGame = await Assistant.getNewGame(this.self);
     if (!newGame) {
         this.toBuyer(EVENT.COMPLETE, "You have finished all the games.");
@@ -38,13 +40,33 @@ Dealer.prototype.newGame = async function(){
     }
 }
 
-Dealer.prototype.syncGame = function(game){
+Dealer.prototype.syncGame = function (game) {
     this.game = game;
 }
 
-Dealer.prototype.start = function(){
-    this.toBuyer(EVENT.START, "Hi I'm your opponent " + this.seller + "!");
-    this.toSeller(EVENT.START, "Hi I'm your opponent " + this.buyer + "!")
+Dealer.prototype.startGame = function () {
+    var propose = Math.random() < this.game.beta;
+    var secondBuyer = this.game.exists_2nd_buyer && Math.random() < this.game.alpha;
+    this.toBuyer(EVENT.START, {
+        alpha: this.game.alpha,
+        beta: this.game.beta,
+        gamma: this.game.gamma,
+        t: this.game.t,
+        w: this.game.w,
+        period: 1,
+        propose: propose,
+        secondBuyer: secondBuyer
+    });
+    this.toSeller(EVENT.START, {
+        alpha: this.game.alpha,
+        beta: this.game.beta,
+        gamma: this.game.gamma,
+        t: this.game.t,
+        w: this.game.w,
+        period: 1,
+        propose: !propose,
+        secondBuyer: secondBuyer
+    });
 }
 
 
@@ -63,7 +85,7 @@ exports.listen = (server) => {
                 opponent = result.opponent;
                 dealer = new Dealer(self, opponent, io);
                 socket.emit(EVENT.TEST, "Welcome! " + self + ". Your opponent is " + opponent);
-            } else { 
+            } else {
                 socket.emit(EVENT.TEST, "Welcome! " + self + ". You have no opponent!");
             }
         });
@@ -75,7 +97,7 @@ exports.listen = (server) => {
 
         socket.on(EVENT.READY, (data) => {
             socket.join(self);
-            if (!opponentIsOnline()){
+            if (!opponentIsOnline()) {
                 socket.emit(EVENT.WAIT, "Please wait!");
             } else {
                 dealer.newGame();
@@ -84,7 +106,7 @@ exports.listen = (server) => {
 
         socket.on(EVENT.SYNC_GAME, (game) => {
             dealer.syncGame(game);
-            dealer.start();
+            dealer.startGame();
         });
 
         socket.on('disconnect', () => {

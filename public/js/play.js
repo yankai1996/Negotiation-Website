@@ -3,28 +3,33 @@ $("#description").load("/html/description.html");
 
 const ID = $("#welcome .title h1").text().slice(-4);
 const EVENT = {
-	LOGIN: 'login',
+    COMPLETE: 'complete',
+    LOGIN: 'login',
+    LOST_OP: 'lost opponent',
     READY: 'ready',
     START: 'start',
+    SYNC_GAME: 'sync game',
     TEST: 'test',
     WAIT: 'wait opponent',
 }
 
-var $warmup = $("#warm-up")
+
+var $boxes = $(".box")
   , $welcome = $("#welcome")
   , $game = $("#game")
   , $waiting = $("#waiting")
+  , $complete = $("#complete")
+  ,	$warmup = $("#warm-up")
   , $waitingInfo = $("#waiting-info")
   ;
 
 // default address: 'http://localhost'
 
-// var socket = io.connect();
-// socket.on("connect", () => {
-// 	socket.emit(EVENT.LOGIN, ID);
-// });
+var socket = io.connect();
+socket.on("connect", () => {
+	socket.emit(EVENT.LOGIN, ID);
+});
 
-var socket = io();
 
 
 const waiting = (info) => {
@@ -39,7 +44,7 @@ const start = () => {
 	$game.show();
 }
 
-function Timer(time=30) {
+const timer = new function(time=30) {
 	this.time = time;
 	this.$timer = $(".timer");
 	this.$time = $("#time");
@@ -75,10 +80,19 @@ function Timer(time=30) {
 		this.$remainingTime.css('width', '100%');
 	}
 }
-var timer = new Timer();
 timer.start();
 
 
+
+socket.on(EVENT.COMPLETE, () => {
+	$boxes.hide();
+	$complete.show();
+});
+
+socket.on(EVENT.SYNC_GAME, (game) => {
+	console.log(game);
+	socket.emit(EVENT.SYNC_GAME, game);
+});
 
 socket.on(EVENT.TEST, (data) => {
 	console.log(data);
@@ -94,7 +108,7 @@ socket.on(EVENT.START, (data) => {
 	console.log(data);
 });
 
-socket.on('lost opponent', (data) => {
+socket.on(EVENT.LOST_OP, (data) => {
 	waiting();
 	console.log(data);
 });
@@ -104,12 +118,8 @@ socket.on('disconnect', () => {
 })
 
 $warmup.click(() => {
-	console.log("I'm ready")
-	socket.emit("ready", {
-		msg: "I am ready!"
-	});
+	socket.emit(EVENT.READY);
 });
-
 
 
 

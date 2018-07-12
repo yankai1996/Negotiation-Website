@@ -39,9 +39,10 @@ const waiting = (info) => {
 }
 
 const start = () => {
+	$boxes.hide();
 	$waiting.hide();
-	$welcome.hide();
 	$game.show();
+	timer.start();
 }
 
 const timer = new function(time=30) {
@@ -80,8 +81,6 @@ const timer = new function(time=30) {
 		this.$remainingTime.css('width', '100%');
 	}
 }
-timer.start();
-
 
 
 socket.on(EVENT.COMPLETE, () => {
@@ -122,7 +121,6 @@ $warmup.click(() => {
 });
 
 
-
-$(".round").click(() => {
-	$waiting.hide();
-});
+// $(".round").click(() => {
+// 	$waiting.hide();
+// });

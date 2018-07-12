@@ -146,29 +146,31 @@ const addMasterGame = () => {
 			}	
 		}
 	});
-
-	// update game table
-	const updateGames = (games) => {
-		$gameTableBody.html("");
-		games.forEach((g) => {
-			$gameTableBody.append(
-				"<tr id='" + g.id + "'>" +
-					"<td class='alpha'>" + g.alpha + "</td>" +
-					"<td class='beta'>"  + g.beta  + "</td>" +
-					"<td class='gamma'>" + g.gamma + "</td>" +
-					"<td class='t'>" 	 + g.t 	   + "</td>" +
-					"<td class='w'>" 	 + g.w 	   + "</td>" +
-					"<td class='no-wrap'>" + 
-						(g.is_warmup ? "Warm-Up" : "") +
-						"<div class='delete'>Delete</div>" + 
-					"</td>" +
-				"</tr>");
-		});
-	}
-
 }
 
-
+// update game table
+const updateGames = (games) => {
+	$gameTableBody.html("");
+	games.forEach((g) => {
+		var element = 
+			"<tr id='" + g.id + "'>" +
+				"<td class='alpha'>" + g.alpha + "</td>" +
+				"<td class='beta'>"  + g.beta  + "</td>" +
+				"<td class='gamma'>" + g.gamma + "</td>" +
+				"<td class='t'>" 	 + g.t 	   + "</td>" +
+				"<td class='w'>" 	 + g.w 	   + "</td>" +
+				"<td class='no-wrap'>" + 
+					(g.is_warmup ? "Warm-Up" : "") +
+					"<div class='delete'>Delete</div>" + 
+				"</td>" +
+			"</tr>";
+		if (g.is_warmup) {
+			$gameTableBody.prepend(element);
+		} else {
+			$gameTableBody.append(element);
+		}
+	});
+}
 
 // click add button to add pairs
 const addPairs = () => {
@@ -343,9 +345,8 @@ const refreshInsightTable = (games) => {
 	$("#seller").html(games[0].seller_id);
 	$insightTableBody.html("");
 	games.forEach((g) => {
-		$insightTableBody.append(
+		var element = 
 			"<tr id='" + g.id + "'>" +
-
 				"<td>" + g.alpha + "</td>" +
 				"<td>" + g.beta + "</td>" +
 				"<td>" + g.gamma + "</td>" +
@@ -358,7 +359,12 @@ const refreshInsightTable = (games) => {
 					(g.is_warmup ? "Warm-Up" : "") +
 					"<div class='delete'>Remove</div>" +
 				"</td>" +
-			"</tr>");
+			"</tr>";
+		if (g.is_warmup) {
+			$insightTableBody.prepend(element);
+		} else {
+			$insightTableBody.append(element);
+		}
 	});
 	$("table.insight tfoot td").html("Total: " + games.length);
 
@@ -665,7 +671,6 @@ $insightTableBody.on("click", ".delete", (event) => {
 
 // show the Games tab
 $("#Games").show();
-
 
 
 });

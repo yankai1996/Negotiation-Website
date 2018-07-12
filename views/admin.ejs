@@ -32,7 +32,10 @@
 					</thead>
 
 					<tbody id="game-table-body">
-						<% games.forEach((game) => { %>
+						<% for (var i = 0; i < games.length; i++) { %>
+							<% var game = games[i]; %>
+							<% if (game.is_warmup) { %>
+
 						<tr id="<%= game.id %>">
 							<td class="alpha"><%= game.alpha %></td>
 							<td class="beta"> <%= game.beta  %></td>
@@ -40,12 +43,30 @@
 							<td class="t">	  <%= game.t 	 %></td>
 							<td class="w">    <%= game.w 	 %></td>
 							<td class="no-wrap">
-								<% if (game.is_warmup) { %>
-									Warm-Up
-								<% } %>
+								Warm-Up
 								<div class="delete">Delete</div>
 							</td>
 						</tr>
+								<% break; %>
+							<% } %>
+						<% } %>
+
+						<% games.forEach((game) => { %>
+							<% if (!game.is_warmup) { %>
+
+						<tr id="<%= game.id %>">
+							<td class="alpha"><%= game.alpha %></td>
+							<td class="beta"> <%= game.beta  %></td>
+							<td class="gamma"><%= game.gamma %></td>
+							<td class="t">	  <%= game.t 	 %></td>
+							<td class="w">    <%= game.w 	 %></td>
+							<td class="no-wrap">
+									<div class="delete">Delete</div>
+								</div>
+							</td>
+						</tr>
+
+							<% } %>
 						<% }); %>
 					</tbody>
 					

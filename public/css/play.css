@@ -127,7 +127,7 @@ table.progress td:nth-child(2) {
     width: 30px;
 }
 
-table.progress td:nth-child(3)>div {
+table.progress td.done>div {
     background: #159287;
 }
 

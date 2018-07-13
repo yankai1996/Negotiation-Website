@@ -7,9 +7,11 @@ const EVENT = {
     LOGIN: 'login',
     LOST_OP: 'lost opponent',
     NEW_PERIOD: 'new period',
+    PROPOSE: 'propose',
     READY: 'ready',
     START: 'start',
     SYNC_GAME: 'sync game',
+    SYNC_PERIOD: 'sync period',
     TEST: 'test',
     WAIT: 'wait opponent',
 }
@@ -19,8 +21,8 @@ function Dealer(self, opponent, io) {
     this.self = self;
     this.opponent = opponent;
     this.io = io;
-    this.game = null;
-    this.period = null;
+    this.game = {};
+    this.period = {};
 }
 
 Dealer.prototype.toBuyer = function (event, data) {
@@ -46,8 +48,24 @@ Dealer.prototype.newGame = async function () {
     }
 }
 
+Dealer.prototype.initPeriod = function () {
+    this.period = {
+        number: 0,
+        proposer: null,
+        price: null,
+        proposed_at: null,
+        accepted: false,
+        decided_at: null,
+        show_up_2nd_buyer: false
+    }
+}
+
 Dealer.prototype.syncGame = function (game) {
     this.game = game;
+}
+
+Dealer.prototype.syncPeriod = function (period) {
+    this.period = period;
 }
 
 Dealer.prototype.startGame = function () {
@@ -67,23 +85,52 @@ Dealer.prototype.startGame = function () {
         w: this.game.w,
         role: 'seller'
     });
-    this.nextPeriod(0);
+    this.initPeriod();
+    this.nextPeriod();
 }
 
-Dealer.prototype.nextPeriod = function (currentPeriod) {
+Dealer.prototype.nextPeriod = function () {
     var propose = Math.random() < this.game.beta;
     var secondBuyer = this.game.exists_2nd_buyer && Math.random() < this.game.alpha;
-    secondBuyer = false;
-    this.toBuyer(EVENT.NEW_PERIOD, {
-        period: currentPeriod + 1,
-        propose: propose,
-        secondBuyer: secondBuyer
-    });
-    this.toSeller(EVENT.NEW_PERIOD, {
-        period: currentPeriod + 1,
-        propose: !propose,
-        secondBuyer: secondBuyer
-    });
+
+    if (this.period.number == this.game.t) {
+        console.log("end");
+        return false;
+    }
+
+    this.period.number++;
+    this.period.proposer = propose ? this.game.buyer_id : this.game.seller_id; 
+    this.period.show_up_2nd_buyer = secondBuyer
+
+    this.toBoth(EVENT.NEW_PERIOD, this.period)
+    // this.toBuyer(EVENT.NEW_PERIOD, {
+    //     periodNumber: this.period.number,
+    //     propose: propose,
+    //     secondBuyer: secondBuyer
+    // });
+    // this.toSeller(EVENT.NEW_PERIOD, {
+    //     periodNumber: this.period.number,
+    //     propose: !propose,
+    //     secondBuyer: secondBuyer
+    // });
+
+    return true;
+}
+
+Dealer.prototype.recordPeriod = function (data) {
+    for (let i in this.period) {
+        if (data[i] !== undefined) {
+            this.period[i] = data[i];
+        }
+    }
+}
+
+Dealer.prototype.propose = function (price) {
+    this.io.to(this.opponent).emit(EVENT.PROPOSE, this.period.price);
+}
+
+Dealer.prototype.endPeriod = function () {
+
 }
 
 
@@ -112,6 +159,12 @@ exports.listen = (server) => {
             return io.sockets.adapter.rooms[opponent] && opponent;
         }
 
+
+        socket.on(EVENT.PROPOSE, (data) => {
+            dealer.recordPeriod(data);
+            dealer.propose(data.price);
+        });
+
         socket.on(EVENT.READY, (data) => {
             socket.join(self);
             if (!opponentIsOnline()) {
@@ -126,8 +179,15 @@ exports.listen = (server) => {
             dealer.startGame();
         });
 
-        socket.on(EVENT.END_PERIOD, (data) => {
+        socket.on(EVENT.SYNC_PERIOD, (period) => {
+            dealer.syncPeriod(period);
+        })
 
+        socket.on(EVENT.END_PERIOD, (data) => {
+            dealer.recordPeriod(data)
+            if (!dealer.nextPeriod()) {
+                dealer.newGame();
+            }
         })
 
         socket.on('disconnect', () => {

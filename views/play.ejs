@@ -122,20 +122,21 @@
           <div id="proposal" class="operation hide">
             <div class="input-box">
               <input type="text" placeholder="Propose a price" autofocus="autofocus">
+              <div class="proposal proposed hide"></div>
             </div>
             <div class="button-box">
-              <button class="alt" value="propose">Propose</button>
+              <button id="propose" class="alt"">Propose</button>
             </div>
           </div>
 
           <div id="decision" class="operation hide">
             <div class="input-box">
               <div id="wait-proposal" class="proposal">Waiting for proposal...</div> 
-              <div id="proposed" class="proposal hide">$16</div>
+              <div class="proposal proposed hide"></div>
             </div>
             <div class="button-box">
-              <button class="alt disable" value="accept">Accept</button>
-              <button class="alt" value="refuse">Refuse</button>
+              <button id="accept" class="alt disable">Accept</button>
+              <button id="refuse" class="alt">Refuse</button>
             </div>
           </div>
 

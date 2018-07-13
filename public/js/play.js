@@ -8,24 +8,31 @@ const EVENT = {
     LOGIN: 'login',
     LOST_OP: 'lost opponent',
     NEW_PERIOD: 'new period',
+    PROPOSE: 'propose',
     READY: 'ready',
     START: 'start',
     SYNC_GAME: 'sync game',
+    SYNC_PERIOD: 'sync period',
     TEST: 'test',
     WAIT: 'wait opponent',
 }
 
 
-var $boxes = $(".box")
+var $accept = $("#accept")
+  , $boxes = $(".box")
   , $buttonBox = $(".button-box")
   , $complete = $("#complete")
   , $decision = $("#decision")
+  , $input = $("#proposal input")
   , $game = $("#game")
+  , $operations = $(".operation")
   , $params = $(".params")
   , $progressRow = $("#progress-row")
   , $progressLabel = $("#progress-label")
   , $proposal = $("#proposal")
-  , $proposed = $("#proposed")
+  , $propose = $("#propose")
+  , $proposed = $(".proposed")
+  , $refuse = $("#refuse")
   , $secondBuyer = $("2nd-buyer")
   , $waiting = $("#waiting")
   , $waitingInfo = $("#waiting-info")
@@ -51,12 +58,16 @@ const waiting = (info) => {
 }
 
 const proposal = () => {
-	$decision.hide();
+	$operations.hide();
 	$proposal.show();
+	$proposed.hide();
+	$input.show();
+	$input.val('');
+	$propose.removeClass('disable');
 }
 
 const waitProposal = () => {
-	$proposal.hide();
+	$operations.hide();
 	$decision.show();
 	$waitProposal.show();
 	$proposed.hide();
@@ -65,36 +76,37 @@ const waitProposal = () => {
 
 const timer = new function(time=30) {
 	this.time = time;
+	this.count = time;
 	this.$timer = $(".timer");
 	this.$time = $("#time");
 	this.$waitProposal = $("#wait-proposal");
 	this.$remainingTime = $(".remaining-time");
 
 	this.start = () => {
-		var count = this.time;
 		this.$remainingTime.animate({width: '0%'}, this.time*1000);
 		this.set = setInterval(() => {
-	        count--;
-	        this.$time.html(('0'+count).slice(-2)); 
-	        if (count == 10) {
+	        this.count--;
+	        this.$time.html(('0' + this.count).slice(-2)); 
+	        if (this.count == 10) {
 	        	this.$timer.addClass('red');
 	        }
-	        if (count % 2 == 1) {
+	        if (this.count % 2 == 1) {
 	        	this.$waitProposal.animate({backgroundColor: '#fafafa'}, 1000);
 	        } else {
 	        	this.$waitProposal.animate({backgroundColor: '#eee'}, 1000);
 	        }
-	        if (count === 0) {
-				clearInterval(this.set);
+	        if (this.count === 0) {
 	            this.reset();
 	            socket.emit(EVENT.END_PERIOD, {
-
+	            	decided_at: null
 	            });
 	        }
 	    }, 1000);
 
 	}
 	this.reset = () => {
+		clearInterval(this.set);
+		this.count = this.time;
 		this.$remainingTime.stop();
 		this.$waitProposal.stop();
 		this.$time.html(this.time);
@@ -118,19 +130,27 @@ socket.on(EVENT.LOST_OP, (data) => {
 	console.log(data);
 });
 
-socket.on(EVENT.NEW_PERIOD, (data) => {
-	if (data.secondBuyer) {
-		$secondBuyer.show()
-	}
-	if (data.propose) {
+socket.on(EVENT.NEW_PERIOD, (period) => {
+	socket.emit(EVENT.SYNC_PERIOD, period);
+	$progressRow.find('div').eq(period.number - 1).addClass('done')
+	// if (period.show_up_2nd_buyer) {
+	// 	$secondBuyer.show()
+	// }
+	if (period.proposer == ID) {
 		proposal();
 	} else {
 		waitProposal();
 	}
 
-
 	timer.restart();
 });
+
+socket.on(EVENT.PROPOSE, (price) => {
+	$waitProposal.hide();
+	$proposed.html("$" + price);
+	$proposed.show();
+	$buttonBox.find('button').removeClass('disable');
+})
 
 socket.on(EVENT.START, (data) => {
 	$boxes.hide();
@@ -143,7 +163,7 @@ socket.on(EVENT.START, (data) => {
 	}
 
 	$progressLabel.html("1/" + data.t)
-	$progressRow.children().slice(3).detach();
+	$progressRow.children().slice(2).detach();
 	for (let i = 0; i < data.t; i++) {
 		$progressRow.append("<td><div></div></td>");
 	}
@@ -176,6 +196,53 @@ $warmup.click(() => {
 	socket.emit(EVENT.READY);
 });
 
+$input.keypress((event) => {
+	var theEvent = event || window.event;
+    var key = theEvent.keyCode || theEvent.which;
+    key = String.fromCharCode( key );
+    var regex = /[0-9]|\./;
+    if( !regex.test(key) ) {
+        theEvent.returnValue = false;
+        if(theEvent.preventDefault) theEvent.preventDefault();
+    }
+});
+
+$propose.click(() => {
+	if ($propose.hasClass('disable')) {
+		return;
+	}
+	var price = parseFloat($input.val());
+	socket.emit(EVENT.PROPOSE, {
+		price: price,
+		proposed_at: timer.time - timer.count
+	});
+	$propose.addClass('disable');
+	$input.hide();
+	$proposed.html("Your proposal: $" + price);
+	$proposed.show();
+});
+
+$accept.click(() => {
+	if ($accept.hasClass('disable')) {
+		return;
+	}
+	socket.emit(EVENT.END_PERIOD, {
+		accepted: true,
+		decided_at: timer.time - timer.count
+	});
+	$buttonBox.find('button').addClass('disable');
+});
+
+$refuse.click(() => {
+	if ($refuse.hasClass('disable')) {
+		return;
+	}
+	socket.emit(EVENT.END_PERIOD, {
+		accepted: false,
+		decided_at: timer.time - timer.count
+	});
+	$buttonBox.find('button').addClass('disable');
+});
 
 // $(".round").click(() => {
 // 	$waiting.hide();

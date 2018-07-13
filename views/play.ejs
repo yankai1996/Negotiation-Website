@@ -56,27 +56,27 @@
       <table class="params">
         <tr>
           <td>&alpha; =</td>
-          <td id="alpha">0.5</td>
+          <td id="alpha"></td>
           <td>the probability of being notified of the second buyer's existence in each period</td>
         </tr>
         <tr>
           <td>&beta; =</td>
-          <td id="beta">0.5</td>
+          <td id="beta"></td>
           <td>the probability that the buyer proposes the price in each period</td>
         </tr>
         <tr>
           <td>&gamma; =</td>
-          <td id="gamma">0.5</td>
+          <td id="gamma"></td>
           <td>the probability the second buyer exists</td>
         </tr>
         <tr>
           <td>T =</td>
-          <td id="t">10</td>
+          <td id="t"></td>
           <td>the maximum number of negotiation periods</td>
         </tr>
         <tr>
           <td>w =</td>
-          <td id="w">15</td>
+          <td id="w"></td>
           <td>the price that the second buyer will pay</td>
         </tr>
       </table>
@@ -84,24 +84,26 @@
       <div class="line"></div>
 
       <table class="progress">
-        <td>Progress: </td>
-        <td>1/10</td>
-        <td><div></div></td>
-        <td><div></div></td>
-        <td><div></div></td>
-        <td><div></div></td>
-        <td><div></div></td>
-        <td><div></div></td>
-        <td><div></div></td>
-        <td><div></div></td>
-        <td><div></div></td>
-        <td><div></div></td>
+        <tr id="progress-row">
+          <td>Progress: </td>
+          <td id="progress-label">1/10</td>
+          <td><div></div></td>
+          <td><div></div></td>
+          <td><div></div></td>
+          <td><div></div></td>
+          <td><div></div></td>
+          <td><div></div></td>
+          <td><div></div></td>
+          <td><div></div></td>
+          <td><div></div></td>
+          <td><div></div></td>
+        </tr> 
       </table>
 
       <div class="flexbox">
         <div class="panel left">
           <p>2nd Buyer</p>
-          <div class="img-box">
+          <div id="2nd-buyer" class="img-box hide">
             <img src="/image/buyer.png"  alt="2nd buyer" />
           </div>
         </div>
@@ -117,7 +119,7 @@
             </td>
           </table>
 
-          <div id="proposal" class="operation">
+          <div id="proposal" class="operation hide">
             <div class="input-box">
               <input type="text" placeholder="Propose a price" autofocus="autofocus">
             </div>

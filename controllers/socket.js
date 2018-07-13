@@ -3,8 +3,10 @@ var Assistant = require('../models/assistant');
 
 const EVENT = {
     COMPLETE: 'complete',
+    END_PERIOD: 'end period',
     LOGIN: 'login',
     LOST_OP: 'lost opponent',
+    NEW_PERIOD: 'new period',
     READY: 'ready',
     START: 'start',
     SYNC_GAME: 'sync game',
@@ -13,12 +15,12 @@ const EVENT = {
 }
 
 
-
 function Dealer(self, opponent, io) {
     this.self = self;
     this.opponent = opponent;
     this.io = io;
     this.game = null;
+    this.period = null;
 }
 
 Dealer.prototype.toBuyer = function (event, data) {
@@ -29,11 +31,15 @@ Dealer.prototype.toSeller = function (event, data) {
     this.io.to(this.game.seller_id).emit(event, data);
 }
 
+Dealer.prototype.toBoth = function (event, data) {
+    this.toBuyer(event, data);
+    this.toSeller(event, data);
+}
+
 Dealer.prototype.newGame = async function () {
     var newGame = await Assistant.getNewGame(this.self);
     if (!newGame) {
-        this.toBuyer(EVENT.COMPLETE, "You have finished all the games.");
-        this.toSeller(EVENT.COMPLETE, "You have finished all the games.");
+        this.toBoth(EVENT.COMPLETE, "You have finished all the games.");
     } else {
         this.game = newGame;
         this.io.to(this.opponent).emit(EVENT.SYNC_GAME, this.game);
@@ -45,17 +51,13 @@ Dealer.prototype.syncGame = function (game) {
 }
 
 Dealer.prototype.startGame = function () {
-    var propose = Math.random() < this.game.beta;
-    var secondBuyer = this.game.exists_2nd_buyer && Math.random() < this.game.alpha;
     this.toBuyer(EVENT.START, {
         alpha: this.game.alpha,
         beta: this.game.beta,
         gamma: this.game.gamma,
         t: this.game.t,
         w: this.game.w,
-        period: 1,
-        propose: propose,
-        secondBuyer: secondBuyer
+        role: 'buyer'
     });
     this.toSeller(EVENT.START, {
         alpha: this.game.alpha,
@@ -63,7 +65,22 @@ Dealer.prototype.startGame = function () {
         gamma: this.game.gamma,
         t: this.game.t,
         w: this.game.w,
-        period: 1,
+        role: 'seller'
+    });
+    this.nextPeriod(0);
+}
+
+Dealer.prototype.nextPeriod = function (currentPeriod) {
+    var propose = Math.random() < this.game.beta;
+    var secondBuyer = this.game.exists_2nd_buyer && Math.random() < this.game.alpha;
+    secondBuyer = false;
+    this.toBuyer(EVENT.NEW_PERIOD, {
+        period: currentPeriod + 1,
+        propose: propose,
+        secondBuyer: secondBuyer
+    });
+    this.toSeller(EVENT.NEW_PERIOD, {
+        period: currentPeriod + 1,
         propose: !propose,
         secondBuyer: secondBuyer
     });
@@ -108,6 +125,10 @@ exports.listen = (server) => {
             dealer.syncGame(game);
             dealer.startGame();
         });
+
+        socket.on(EVENT.END_PERIOD, (data) => {
+
+        })
 
         socket.on('disconnect', () => {
             if (opponentIsOnline()) {

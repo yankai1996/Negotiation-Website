@@ -4,8 +4,10 @@ $("#description").load("/html/description.html");
 const ID = $("#welcome .title h1").text().slice(-4);
 const EVENT = {
     COMPLETE: 'complete',
+    END_PERIOD: 'end period',
     LOGIN: 'login',
     LOST_OP: 'lost opponent',
+    NEW_PERIOD: 'new period',
     READY: 'ready',
     START: 'start',
     SYNC_GAME: 'sync game',
@@ -15,12 +17,21 @@ const EVENT = {
 
 
 var $boxes = $(".box")
-  , $welcome = $("#welcome")
-  , $game = $("#game")
-  , $waiting = $("#waiting")
+  , $buttonBox = $(".button-box")
   , $complete = $("#complete")
-  ,	$warmup = $("#warm-up")
+  , $decision = $("#decision")
+  , $game = $("#game")
+  , $params = $(".params")
+  , $progressRow = $("#progress-row")
+  , $progressLabel = $("#progress-label")
+  , $proposal = $("#proposal")
+  , $proposed = $("#proposed")
+  , $secondBuyer = $("2nd-buyer")
+  , $waiting = $("#waiting")
   , $waitingInfo = $("#waiting-info")
+  , $waitProposal = $("#wait-proposal")
+  ,	$warmup = $("#warm-up")
+  , $welcome = $("#welcome")
   ;
 
 // default address: 'http://localhost'
@@ -28,6 +39,7 @@ var $boxes = $(".box")
 var socket = io.connect();
 socket.on("connect", () => {
 	socket.emit(EVENT.LOGIN, ID);
+	console.log("connect!")
 });
 
 
@@ -38,11 +50,17 @@ const waiting = (info) => {
 	$waiting.show();
 }
 
-const start = () => {
-	$boxes.hide();
-	$waiting.hide();
-	$game.show();
-	timer.start();
+const proposal = () => {
+	$decision.hide();
+	$proposal.show();
+}
+
+const waitProposal = () => {
+	$proposal.hide();
+	$decision.show();
+	$waitProposal.show();
+	$proposed.hide();
+	$buttonBox.find('button').addClass('disable');
 }
 
 const timer = new function(time=30) {
@@ -67,18 +85,25 @@ const timer = new function(time=30) {
 	        	this.$waitProposal.animate({backgroundColor: '#eee'}, 1000);
 	        }
 	        if (count === 0) {
+				clearInterval(this.set);
 	            this.reset();
+	            socket.emit(EVENT.END_PERIOD, {
+
+	            });
 	        }
 	    }, 1000);
 
 	}
 	this.reset = () => {
-		clearInterval(this.set);
 		this.$remainingTime.stop();
 		this.$waitProposal.stop();
 		this.$time.html(this.time);
 		this.$timer.removeClass('red');
 		this.$remainingTime.css('width', '100%');
+	}
+	this.restart = () => {
+		this.reset();
+		this.start();
 	}
 }
 
@@ -86,6 +111,42 @@ const timer = new function(time=30) {
 socket.on(EVENT.COMPLETE, () => {
 	$boxes.hide();
 	$complete.show();
+});
+
+socket.on(EVENT.LOST_OP, (data) => {
+	waiting();
+	console.log(data);
+});
+
+socket.on(EVENT.NEW_PERIOD, (data) => {
+	if (data.secondBuyer) {
+		$secondBuyer.show()
+	}
+	if (data.propose) {
+		proposal();
+	} else {
+		waitProposal();
+	}
+
+
+	timer.restart();
+});
+
+socket.on(EVENT.START, (data) => {
+	$boxes.hide();
+	$waiting.hide();
+	$secondBuyer.hide();
+	$game.show();
+
+	for (let i in data) {
+		$params.find("#" + i).html(data[i]);
+	}
+
+	$progressLabel.html("1/" + data.t)
+	$progressRow.children().slice(3).detach();
+	for (let i = 0; i < data.t; i++) {
+		$progressRow.append("<td><div></div></td>");
+	}
 });
 
 socket.on(EVENT.SYNC_GAME, (game) => {
@@ -102,18 +163,13 @@ socket.on(EVENT.WAIT, (data) => {
 	console.log(data);
 });
 
-socket.on(EVENT.START, (data) => {
-	start();
-	console.log(data);
-});
 
-socket.on(EVENT.LOST_OP, (data) => {
-	waiting();
-	console.log(data);
-});
+
+
 
 socket.on('disconnect', () => {
 	socket.disconnect();
+	console.log("disconnect!!")
 })
 
 $warmup.click(() => {

@@ -90,30 +90,18 @@ Dealer.prototype.startGame = function () {
 }
 
 Dealer.prototype.nextPeriod = function () {
-    var propose = Math.random() < this.game.beta;
-    var secondBuyer = this.game.exists_2nd_buyer && Math.random() < this.game.alpha;
-
     if (this.period.number == this.game.t) {
         console.log("end");
         return false;
     }
 
     this.period.number++;
-    this.period.proposer = propose ? this.game.buyer_id : this.game.seller_id; 
-    this.period.show_up_2nd_buyer = secondBuyer
+    this.period.proposer = Math.random() < this.game.beta
+                         ? this.game.buyer_id 
+                         : this.game.seller_id; 
+    this.period.show_up_2nd_buyer = this.game.exists_2nd_buyer && Math.random() < this.game.alpha;
 
     this.toBoth(EVENT.NEW_PERIOD, this.period)
-    // this.toBuyer(EVENT.NEW_PERIOD, {
-    //     periodNumber: this.period.number,
-    //     propose: propose,
-    //     secondBuyer: secondBuyer
-    // });
-    // this.toSeller(EVENT.NEW_PERIOD, {
-    //     periodNumber: this.period.number,
-    //     propose: !propose,
-    //     secondBuyer: secondBuyer
-    // });
-
     return true;
 }
 
@@ -185,7 +173,7 @@ exports.listen = (server) => {
 
         socket.on(EVENT.END_PERIOD, (data) => {
             dealer.recordPeriod(data)
-            if (!dealer.nextPeriod()) {
+            if (data.accepted || !dealer.nextPeriod()) {
                 dealer.newGame();
             }
         })

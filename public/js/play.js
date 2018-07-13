@@ -15,7 +15,7 @@ const EVENT = {
     SYNC_PERIOD: 'sync period',
     TEST: 'test',
     WAIT: 'wait opponent',
-}
+};
 
 
 var $accept = $("#accept")
@@ -222,26 +222,26 @@ $propose.click(() => {
 	$proposed.show();
 });
 
+const endPeriod = (accepted) => {
+	socket.emit(EVENT.END_PERIOD, {
+		accepted: accepted,
+		decided_at: timer.time - timer.count
+	});
+	$buttonBox.find('button').addClass('disable');
+}
+
 $accept.click(() => {
 	if ($accept.hasClass('disable')) {
 		return;
 	}
-	socket.emit(EVENT.END_PERIOD, {
-		accepted: true,
-		decided_at: timer.time - timer.count
-	});
-	$buttonBox.find('button').addClass('disable');
+	endPeriod(true)
 });
 
 $refuse.click(() => {
 	if ($refuse.hasClass('disable')) {
 		return;
 	}
-	socket.emit(EVENT.END_PERIOD, {
-		accepted: false,
-		decided_at: timer.time - timer.count
-	});
-	$buttonBox.find('button').addClass('disable');
+	endPeriod(false);
 });
 
 // $(".round").click(() => {

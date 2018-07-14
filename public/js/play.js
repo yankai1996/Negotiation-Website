@@ -90,12 +90,10 @@ const timer = new function(time=30) {
 	        if (this.count == 10) {
 	        	this.$timer.addClass('red');
 	        }
-	        if (this.count % 2 == 1) {
-	        	this.$waitProposal.animate({backgroundColor: '#fafafa'}, 1000);
-	        } else {
-	        	this.$waitProposal.animate({backgroundColor: '#eee'}, 1000);
-	        }
-	        if (this.count === 0) {
+	        this.$waitProposal.animate({
+	        	backgroundColor: this.count % 2 ? '#fafafa' : '#eee'
+	        }, 1000);
+	        if (this.count == 0) {
 	            this.reset();
 	            socket.emit(EVENT.END_PERIOD, {
 	            	decided_at: null

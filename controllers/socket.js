@@ -11,7 +11,6 @@ const EVENT = {
     READY: 'ready',
     START: 'start',
     SYNC_GAME: 'sync game',
-    SYNC_PERIOD: 'sync period',
     TEST: 'test',
     WAIT: 'wait opponent',
 }
@@ -48,24 +47,8 @@ Dealer.prototype.newGame = async function () {
     }
 }
 
-Dealer.prototype.initPeriod = function () {
-    this.period = {
-        number: 0,
-        proposer: null,
-        price: null,
-        proposed_at: null,
-        accepted: false,
-        decided_at: null,
-        show_up_2nd_buyer: false
-    }
-}
-
 Dealer.prototype.syncGame = function (game) {
     this.game = game;
-}
-
-Dealer.prototype.syncPeriod = function (period) {
-    this.period = period;
 }
 
 Dealer.prototype.startGame = function () {
@@ -85,40 +68,49 @@ Dealer.prototype.startGame = function () {
         w: this.game.w,
         role: 'seller'
     });
-    this.initPeriod();
-    this.nextPeriod();
+    this.nextPeriod(true);
 }
 
-Dealer.prototype.nextPeriod = function () {
-    if (this.period.number == this.game.t) {
-        console.log("end");
+Dealer.prototype.nextPeriod = function (isInitial=false) {
+    if (!isInitial && this.period.number == this.game.t) {
         return false;
     }
 
-    this.period.number++;
-    this.period.proposer = Math.random() < this.game.beta
-                         ? this.game.buyer_id 
-                         : this.game.seller_id; 
-    this.period.show_up_2nd_buyer = this.game.exists_2nd_buyer && Math.random() < this.game.alpha;
+    this.period = {
+        number: isInitial 
+            ? 1
+            : this.period.number + 1,
+        proposer: Math.random() < this.game.beta
+            ? this.game.buyer_id 
+            : this.game.seller_id,
+        price: null,
+        proposed_at: null,
+        accepted: false,
+        decided_at: null,
+        show_up_2nd_buyer: this.game.exists_2nd_buyer && Math.random() < this.game.alpha
+    }
 
     this.toBoth(EVENT.NEW_PERIOD, this.period)
     return true;
 }
 
-Dealer.prototype.recordPeriod = function (data) {
-    for (let i in this.period) {
-        if (data[i] !== undefined) {
-            this.period[i] = data[i];
-        }
+Dealer.prototype.recordPeriod = function (period) {
+    this.period = period;
+}
+
+Dealer.prototype.propose = function () {
+    this.io.to(this.opponent).emit(EVENT.PROPOSE, this.period);
+}
+
+Dealer.prototype.endPeriod = async function () {
+    if (this.period.proposer == this.self) {
+        return;
     }
-}
-
-Dealer.prototype.propose = function (price) {
-    this.io.to(this.opponent).emit(EVENT.PROPOSE, this.period.price);
-}
-
-Dealer.prototype.endPeriod = function () {
-
+    await Assistant.savePeriod(this.game.id, this.period);
+    if (this.period.accepted || !this.nextPeriod()) {
+        await Assistant.endGame(this.game.id);
+        this.newGame();
+    }
 }
 
 
@@ -148,9 +140,9 @@ exports.listen = (server) => {
         }
 
 
-        socket.on(EVENT.PROPOSE, (data) => {
-            dealer.recordPeriod(data);
-            dealer.propose(data.price);
+        socket.on(EVENT.PROPOSE, (period) => {
+            dealer.recordPeriod(period);
+            dealer.propose();
         });
 
         socket.on(EVENT.READY, (data) => {
@@ -167,15 +159,9 @@ exports.listen = (server) => {
             dealer.startGame();
         });
 
-        socket.on(EVENT.SYNC_PERIOD, (period) => {
-            dealer.syncPeriod(period);
-        })
-
-        socket.on(EVENT.END_PERIOD, (data) => {
-            dealer.recordPeriod(data)
-            if (data.accepted || !dealer.nextPeriod()) {
-                dealer.newGame();
-            }
+        socket.on(EVENT.END_PERIOD, (period) => {
+            dealer.recordPeriod(period);
+            dealer.endPeriod();
         })
 
         socket.on('disconnect', () => {

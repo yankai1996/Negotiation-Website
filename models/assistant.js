@@ -2,6 +2,7 @@ const db = require('./db');
 const MasterGame = db.MasterGame;
 const Game = db.Game;
 const Participant = db.Participant;
+const Period = db.Period;
 
 
 exports.getOpponent = (id) => {
@@ -9,18 +10,6 @@ exports.getOpponent = (id) => {
         attributes: ['opponent'],
         where: {
             id: id
-        },
-        raw: true
-    });
-}
-
-exports.getWarmupGame = (participantId) => {
-    return Game.findOne({
-        where: {
-            is_warmup: true,
-            is_done: false,
-            $or: [{buyer_id: participantId},
-                {seller_id: participantId}]
         },
         raw: true
     });
@@ -52,7 +41,9 @@ exports.existUnfinishedGames = (participantId) => {
     });
 }
 
+// get a game that has not been done
 exports.getNewGame = async (participantId) => {
+    // get the warmup game first
     var warmup = await MasterGame.findOne({
         attributes:['id', 'alpha', 'beta', 'gamma', 't', 'w', 'is_warmup'],
         where: {is_warmup: true},
@@ -67,10 +58,12 @@ exports.getNewGame = async (participantId) => {
         },
         raw: true
     });
+
     var masterGame;
     if (game) {
         masterGame = warmup;
     } else {
+        // if warmup game has been done, find a game 
         game = await Game.findOne({
             where: {
                 is_done: false,
@@ -91,10 +84,32 @@ exports.getNewGame = async (participantId) => {
         });
     }
 
+    // associate parametes to the game
     for (let i in masterGame) {
         if (i != 'id') {
             game[i] = masterGame[i];
         }
     }
     return game;
+}
+
+exports.savePeriod = (gameId, period) => {
+    return Period.create({
+        game_id: gameId,
+        number: period.number,
+        proposer: period.proposer,
+        price: period.price,
+        proposed_at: period.proposed_at,
+        accepted: period.accepted,
+        decided_at: period.decided_at,
+        show_up_2nd_buyer: period.show_up_2nd_buyer
+    });
+}
+
+exports.endGame = (gameId) => {
+    return Game.update({
+        is_done: true
+    }, {
+        where: {id: gameId}
+    })
 }

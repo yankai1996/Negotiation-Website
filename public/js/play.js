@@ -92,21 +92,21 @@ const askDecision = () => {
 }
 
 const timer = new function() {
-	this.time = 30;
-	this.count = this.time;
+	const time = 30;
+	var count = time;
 
 	this.start = () => {
-		$remainingTime.animate({width: '0%'}, this.time*1000);
+		$remainingTime.animate({width: '0%'}, time*1000);
 		this.set = setInterval(() => {
-	        this.count--;
-	        $time.html(('0' + this.count).slice(-2)); 
-	        if (this.count == 10) {
+	        count--;
+	        $time.html(('0' + count).slice(-2)); 
+	        if (count == 10) {
 	        	$timer.addClass('red');
 	        }
 	        $waitProposal.animate({
-	        	backgroundColor: this.count % 2 ? '#fafafa' : '#eee'
+	        	backgroundColor: count % 2 ? '#fafafa' : '#eee'
 	        }, 1000);
-	        if (this.count == 0) {
+	        if (count == 0) {
 	            this.reset();
 	            socket.emit(EVENT.END_PERIOD, gPeriod);
 	        }
@@ -115,10 +115,10 @@ const timer = new function() {
 	}
 	this.reset = () => {
 		clearInterval(this.set);
-		this.count = this.time;
+		count = time;
 		$remainingTime.stop();
 		$waitProposal.stop();
-		$time.html(this.time);
+		$time.html(time);
 		$timer.removeClass('red');
 		$remainingTime.css('width', '100%');
 	}
@@ -127,7 +127,7 @@ const timer = new function() {
 		this.start();
 	}
 	this.lap = () => {
-		return this.time - this.count;
+		return time - count;
 	}
 }
 
@@ -150,19 +150,17 @@ socket.on(EVENT.NEW_PERIOD, (period) => {
 	// if (period.show_up_2nd_buyer) {
 	// 	$secondBuyer.show()
 	// }
-	if (period.proposer == ID) {
-		askProposal();
-	} else {
-		waitProposal();
-	}
-	if (period.number == 1) {
-		$preparation.fadeOut(1000);
-		setTimeout(() => {
-			timer.restart();;
-		}, 1000);
-	} else {
-		timer.restart();
-	}
+
+	var delay = period.number == 1 ? 1000 : 0;
+	$preparation.fadeOut(1000);
+	setTimeout(() => {
+		if (period.proposer == ID) {
+			askProposal();
+		} else {
+			waitProposal();
+		}
+		timer.restart();;
+	}, delay);
 });
 
 socket.on(EVENT.PROPOSE, (period) => {
@@ -210,16 +208,20 @@ socket.on('disconnect', () => {
 	console.log("disconnect!!")
 })
 
-$warmup.click(() => {
+const getReady = () => {
 	waiting();
 	setTimeout(() => {
 		socket.emit(EVENT.READY);
 	}, 5000);
+}
+
+$warmup.click(() => {
+	getReady();
 	// socket.emit(EVENT.READY);
 });
 
 $continue.click(() => {
-	socket.emit(EVENT.READY);
+	getReady();
 });
 
 $input.keypress((event) => {
@@ -251,6 +253,7 @@ const decide = (accepted) => {
 	gPeriod.decided_at = timer.lap();
 	socket.emit(EVENT.END_PERIOD, gPeriod);
 
+	timer.reset();
 	$buttonBox.find('button').addClass('disable');
 }
 

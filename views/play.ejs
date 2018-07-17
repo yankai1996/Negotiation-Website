@@ -40,10 +40,10 @@
       <h1>Welcome! <%= participantID %></h1>
     </div>
     <div class="content short">
-      <p>We've detedcted that you have not complete the experiment. Click the button to continue it.</p> 
+      <p>We've detedcted that you have not completed the experiment. Click the button to continue it.</p> 
     </div>
     <div class="padding-end" align="center">
-      <button id="contiue" class="big" aling="center">CONTINUE</button>
+      <button id="continue" class="big" aling="center">CONTINUE</button>
     </div>
   </div>
 
@@ -149,28 +149,22 @@
             </td>
           </table>
 
-          <div id="proposal" class="operation hide">
+          <div class="operation hide">
             <div class="input-box">
               <input type="text" placeholder="Propose a price" autofocus="autofocus">
-              <div class="proposal proposed hide"></div>
+              <div class="proposal proposed"></div>
+              <div id="wait-proposal" class="proposal">Waiting for proposal...</div> 
+              <div class="proposal refused">Proposal Refused!</div>
+              <div class="proposal accepted">Proposal Accpeted!</div>
+              <div class="proposal second">2nd Buyer Offered!</div>
             </div>
             <div class="button-box">
               <button id="propose" class="alt"">Propose</button>
-            </div>
-          </div>
-
-          <div id="decision" class="operation hide">
-            <div class="input-box">
-              <div id="wait-proposal" class="proposal">Waiting for proposal...</div> 
-              <div class="proposal proposed hide"></div>
-            </div>
-            <div class="button-box">
               <button id="accept" class="alt disable">Accept</button>
               <button id="refuse" class="alt">Refuse</button>
             </div>
           </div>
 
-          <div class="operation"></div>
         </div>
 
       </div>

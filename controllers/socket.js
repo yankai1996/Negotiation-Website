@@ -3,6 +3,7 @@ var Assistant = require('../models/assistant');
 
 const EVENT = {
     COMPLETE: 'complete',
+    DECIDE: 'decide',
     END_PERIOD: 'end period',
     LOGIN: 'login',
     LOST_OP: 'lost opponent',
@@ -107,6 +108,7 @@ Dealer.prototype.propose = function () {
 }
 
 Dealer.prototype.endPeriod = async function () {
+    this.toBoth(EVENT.DECIDE, this.period.accepted);
     if (this.period.proposer == this.self) {
         return;
     }

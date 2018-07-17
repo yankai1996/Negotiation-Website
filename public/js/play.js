@@ -4,6 +4,7 @@ $("#description").load("/html/description.html");
 const ID = $("#welcome .title h1").text().slice(-4);
 const EVENT = {
     COMPLETE: 'complete',
+    DECIDE: 'decide',
     END_PERIOD: 'end period',
     LOGIN: 'login',
     LOST_OP: 'lost opponent',
@@ -14,27 +15,35 @@ const EVENT = {
     SYNC_GAME: 'sync game',
     TEST: 'test',
     WAIT: 'wait opponent',
-};
+}
+const CLASS = {
+	DISABLE: 'disable',
+	RED: 'red',
+	DONE: 'done'
+}
 
 var gPeriod = {};
 
-var $accept = $("#accept")
+var $accept = $("button#accept")
+  , $accepted = $(".proposal.accepted")
   , $boxes = $(".box")
-  , $buttonBox = $(".button-box")
   , $complete = $("#complete")
   , $continue = $("#continue")
   , $decision = $("#decision")
-  , $input = $("#proposal input")
+  , $input = $(".input-box input")
   , $game = $("#game")
-  , $operations = $(".operation")
+  , $operation = $(".operation")
+  , $operationButtons = $(".button-box button")
   , $preparation = $("#preparation")
   , $progressRow = $("#progress-row")
   , $progressLabel = $("#progress-label")
-  , $proposal = $("#proposal")
-  , $propose = $("#propose")
-  , $proposed = $(".proposed")
-  , $refuse = $("#refuse")
+  , $proposals = $(".input-box").children()
+  , $propose = $("button#propose")
+  , $proposed = $(".proposal.proposed")
+  , $refuse = $("button#refuse")
+  , $refused = $(".proposal.refused")
   , $remainingTime = $(".remaining-time")
+  , $second = $(".proposal.second")
   , $secondBuyer = $("2nd-buyer")
   , $timer = $(".timer")
   , $time = $("#time")
@@ -61,24 +70,27 @@ const waiting = (info) => {
 }
 
 const askProposal = () => {
-	$operations.hide();
-	$proposal.show();
-	$proposed.hide();
+	$operation.show();
+	$proposals.hide();
 	$input.show();
 	$input.val('');
-	$propose.removeClass('disable');
+	$operationButtons.hide();
+	$propose.show();
+	$propose.removeClass(CLASS.DISABLE);
 }
 
 const waitProposal = () => {
-	$operations.hide();
-	$decision.show();
+	$operation.show();
+	$proposals.hide();
 	$waitProposal.show();
-	$proposed.hide();
-	$buttonBox.find('button').addClass('disable');
+	$operationButtons.hide();
+	$accept.show();
+	$refuse.show();
+	$operationButtons.addClass(CLASS.DISABLE);
 }
 
 const disableProposal = () => {
-	$propose.addClass('disable');
+	$propose.addClass(CLASS.DISABLE);
 	$input.hide();
 	$proposed.html("Your proposal: $" +gPeriod.price);
 	$proposed.show();
@@ -88,7 +100,7 @@ const askDecision = () => {
 	$waitProposal.hide();
 	$proposed.html("$" + gPeriod.price);
 	$proposed.show();
-	$buttonBox.find('button').removeClass('disable');
+	$operationButtons.removeClass(CLASS.DISABLE);
 }
 
 const timer = new function() {
@@ -101,7 +113,7 @@ const timer = new function() {
 	        count--;
 	        $time.html(('0' + count).slice(-2)); 
 	        if (count == 10) {
-	        	$timer.addClass('red');
+	        	$timer.addClass(CLASS.RED);
 	        }
 	        $waitProposal.animate({
 	        	backgroundColor: count % 2 ? '#fafafa' : '#eee'
@@ -113,13 +125,16 @@ const timer = new function() {
 	    }, 1000);
 
 	}
-	this.reset = () => {
+	this.stop = () => {
 		clearInterval(this.set);
-		count = time;
 		$remainingTime.stop();
 		$waitProposal.stop();
+	}
+	this.reset = () => {
+		this.stop();
+		count = time;
 		$time.html(time);
-		$timer.removeClass('red');
+		$timer.removeClass(CLASS.RED);
 		$remainingTime.css('width', '100%');
 	}
 	this.restart = () => {
@@ -144,23 +159,25 @@ socket.on(EVENT.LOST_OP, (data) => {
 
 socket.on(EVENT.NEW_PERIOD, (period) => {
 	gPeriod = period;
-	$progressRow.find('div').eq(period.number - 1).addClass('done');
-	var t = $progressLabel.html().split('/')[1];
-	$progressLabel.html(period.number + "/" + t);
-	// if (period.show_up_2nd_buyer) {
-	// 	$secondBuyer.show()
-	// }
 
-	var delay = period.number == 1 ? 1000 : 0;
+	// var delay = period.number == 1 ? 1000 : 0;
 	$preparation.fadeOut(1000);
+
 	setTimeout(() => {
+		$progressRow.find('div').eq(period.number - 1).addClass(CLASS.DONE);
+		var t = $progressLabel.html().split('/')[1];
+		$progressLabel.html(period.number + "/" + t);
+
+		// if (period.show_up_2nd_buyer) {
+		// 	$secondBuyer.show()
+		// }
 		if (period.proposer == ID) {
 			askProposal();
 		} else {
 			waitProposal();
 		}
 		timer.restart();;
-	}, delay);
+	}, 1000);
 });
 
 socket.on(EVENT.PROPOSE, (period) => {
@@ -190,6 +207,16 @@ socket.on(EVENT.SYNC_GAME, (game) => {
 	socket.emit(EVENT.SYNC_GAME, game);
 });
 
+socket.on(EVENT.DECIDE, (accepted) => {
+	timer.stop();
+	$proposals.hide();
+	if (accepted) {
+		$accepted.show();
+	} else {
+		$refused.show();
+	}
+})
+
 socket.on(EVENT.TEST, (data) => {
 	console.log(data);
 });
@@ -217,7 +244,6 @@ const getReady = () => {
 
 $warmup.click(() => {
 	getReady();
-	// socket.emit(EVENT.READY);
 });
 
 $continue.click(() => {
@@ -238,7 +264,7 @@ $input.keypress((event) => {
 });
 
 $propose.click(() => {
-	if ($propose.hasClass('disable')) {
+	if ($propose.hasClass(CLASS.DISABLE)) {
 		return;
 	}
 	gPeriod.price = parseFloat($input.val());
@@ -254,22 +280,29 @@ const decide = (accepted) => {
 	socket.emit(EVENT.END_PERIOD, gPeriod);
 
 	timer.reset();
-	$buttonBox.find('button').addClass('disable');
+	$operationButtons.addClass(CLASS.DISABLE);
 }
 
 $accept.click(() => {
-	if ($accept.hasClass('disable')) {
+	if ($accept.hasClass(CLASS.DISABLE)) {
 		return;
 	}
 	decide(true);
 });
 
 $refuse.click(() => {
-	if ($refuse.hasClass('disable')) {
+	if ($refuse.hasClass(CLASS.DISABLE)) {
 		return;
 	}
 	decide(false);
 });
+
+const main = () => {
+	$boxes.hide();
+	$("#game").show();
+	$decision.show();
+}
+// main();
 
 
 

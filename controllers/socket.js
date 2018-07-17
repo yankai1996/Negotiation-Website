@@ -38,17 +38,22 @@ Dealer.prototype.toBoth = function (event, data) {
 }
 
 Dealer.prototype.newGame = async function () {
-    var newGame = await Assistant.getNewGame(this.self);
-    if (!newGame) {
+    var game = await Assistant.getNewGame(this.self);
+    if (!game) {
         this.toBoth(EVENT.COMPLETE, "You have finished all the games.");
     } else {
-        this.game = newGame;
+        this.game = game;
+        Assistant.deletePeriods(this.game.id);
         this.io.to(this.opponent).emit(EVENT.SYNC_GAME, this.game);
     }
 }
 
 Dealer.prototype.syncGame = function (game) {
     this.game = game;
+}
+
+Dealer.prototype.syncPeriod = function (period) {
+    this.period = period;
 }
 
 Dealer.prototype.startGame = function () {
@@ -68,16 +73,19 @@ Dealer.prototype.startGame = function () {
         w: this.game.w,
         role: 'seller'
     });
-    this.nextPeriod(true);
+    setTimeout(() => {
+        this.nextPeriod(true);
+    }, 5000);
 }
 
-Dealer.prototype.nextPeriod = function (isInitial=false) {
-    if (!isInitial && this.period.number == this.game.t) {
+Dealer.prototype.nextPeriod = function (initial = false) {
+    // if it has reached the end of the game
+    if (!initial && this.period.number == this.game.t) {
         return false;
     }
 
     this.period = {
-        number: isInitial 
+        number: initial 
             ? 1
             : this.period.number + 1,
         proposer: Math.random() < this.game.beta
@@ -92,10 +100,6 @@ Dealer.prototype.nextPeriod = function (isInitial=false) {
 
     this.toBoth(EVENT.NEW_PERIOD, this.period)
     return true;
-}
-
-Dealer.prototype.recordPeriod = function (period) {
-    this.period = period;
 }
 
 Dealer.prototype.propose = function () {
@@ -141,11 +145,11 @@ exports.listen = (server) => {
 
 
         socket.on(EVENT.PROPOSE, (period) => {
-            dealer.recordPeriod(period);
+            dealer.syncPeriod(period);
             dealer.propose();
         });
 
-        socket.on(EVENT.READY, (data) => {
+        socket.on(EVENT.READY, () => {
             socket.join(self);
             if (!opponentIsOnline()) {
                 socket.emit(EVENT.WAIT, "Please wait!");
@@ -160,7 +164,7 @@ exports.listen = (server) => {
         });
 
         socket.on(EVENT.END_PERIOD, (period) => {
-            dealer.recordPeriod(period);
+            dealer.syncPeriod(period);
             dealer.endPeriod();
         })
 

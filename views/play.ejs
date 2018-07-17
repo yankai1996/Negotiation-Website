@@ -20,7 +20,7 @@
   		<p>Thank you for your participation! In this experiment, you will perform as a buyer or seller in the negotiations between supply chain partners.</p> 
   		<div class="line"></div>
   		<div id="description">
-  			<!-- load -->
+  			<!-- load here -->
   		</div>
   	</div>
   	<div class="padding-end" align="center">
@@ -47,36 +47,66 @@
     </div>
   </div>
 
+  <div id="preparation" class="backdrop">
+    <div class="preparation-content">
+      <div>Your role:
+        <label class="role"></label>
+      </div>
+      <table class="params2">
+        <tr>
+          <td>&alpha; =</td>
+          <td class="alpha"></td>
+<!--         </tr>
+        <tr> -->
+          <td>&beta; =</td>
+          <td class="beta"></td>
+
+          <td>&gamma; =</td>
+          <td class="gamma"></td>
+
+          <td>T =</td>
+          <td class="t"></td>
+
+          <td>w =</td>
+          <td class="w"></td>
+        </tr>
+      </table>
+      <!-- <h1>5</h1> -->
+    </div>
+  </div>
+
   <div id="game" class="box bottom hide">
 
     <div class="title" align="center">
-      <h1>Your Role: </h1>
+      <h1>Your Role: 
+        <label class="role"></label>
+      </h1>
     </div>
     <div class="content">
       <table class="params">
         <tr>
           <td>&alpha; =</td>
-          <td id="alpha"></td>
+          <td class="alpha"></td>
           <td>the probability of being notified of the second buyer's existence in each period</td>
         </tr>
         <tr>
           <td>&beta; =</td>
-          <td id="beta"></td>
+          <td class="beta"></td>
           <td>the probability that the buyer proposes the price in each period</td>
         </tr>
         <tr>
           <td>&gamma; =</td>
-          <td id="gamma"></td>
+          <td class="gamma"></td>
           <td>the probability the second buyer exists</td>
         </tr>
         <tr>
           <td>T =</td>
-          <td id="t"></td>
+          <td class="t"></td>
           <td>the maximum number of negotiation periods</td>
         </tr>
         <tr>
           <td>w =</td>
-          <td id="w"></td>
+          <td class="w"></td>
           <td>the price that the second buyer will pay</td>
         </tr>
       </table>
@@ -171,7 +201,7 @@
         if (status == 1) {
             $("#welcome").show();
         } else if (status == 2) {
-            $("#game").show();
+            $("#continue-page").show();
         } else if (status == 3) {
             $("#complete").show();
         }

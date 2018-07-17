@@ -16,18 +16,18 @@ const EVENT = {
     WAIT: 'wait opponent',
 };
 
-var gPeriod;
-
+var gPeriod = {};
 
 var $accept = $("#accept")
   , $boxes = $(".box")
   , $buttonBox = $(".button-box")
   , $complete = $("#complete")
+  , $continue = $("#continue")
   , $decision = $("#decision")
   , $input = $("#proposal input")
   , $game = $("#game")
   , $operations = $(".operation")
-  , $params = $(".params")
+  , $preparation = $("#preparation")
   , $progressRow = $("#progress-row")
   , $progressLabel = $("#progress-label")
   , $proposal = $("#proposal")
@@ -46,7 +46,6 @@ var $accept = $("#accept")
   ;
 
 // default address: 'http://localhost'
-
 var socket = io.connect();
 socket.on("connect", () => {
 	socket.emit(EVENT.LOGIN, ID);
@@ -156,8 +155,14 @@ socket.on(EVENT.NEW_PERIOD, (period) => {
 	} else {
 		waitProposal();
 	}
-
-	timer.restart();
+	if (period.number == 1) {
+		$preparation.fadeOut(1000);
+		setTimeout(() => {
+			timer.restart();;
+		}, 1000);
+	} else {
+		timer.restart();
+	}
 });
 
 socket.on(EVENT.PROPOSE, (period) => {
@@ -165,19 +170,19 @@ socket.on(EVENT.PROPOSE, (period) => {
 	askDecision();
 })
 
-socket.on(EVENT.START, (data) => {
+socket.on(EVENT.START, (params) => {
 	$boxes.hide();
 	$waiting.hide();
 	$secondBuyer.hide();
 	$game.show();
 
-	for (let i in data) {
-		$params.find("#" + i).html(data[i]);
+	for (let i in params) {
+		$("." + i).html(params[i]);
 	}
-
-	$progressLabel.html("1/" + data.t)
+	$preparation.fadeIn(1000);
+	$progressLabel.html("1/" + params.t)
 	$progressRow.children().slice(2).detach();
-	for (let i = 0; i < data.t; i++) {
+	for (let i = 0; i < params.t; i++) {
 		$progressRow.append("<td><div></div></td>");
 	}
 });
@@ -206,17 +211,27 @@ socket.on('disconnect', () => {
 })
 
 $warmup.click(() => {
+	waiting();
+	setTimeout(() => {
+		socket.emit(EVENT.READY);
+	}, 5000);
+	// socket.emit(EVENT.READY);
+});
+
+$continue.click(() => {
 	socket.emit(EVENT.READY);
 });
 
 $input.keypress((event) => {
 	var theEvent = event || window.event;
     var key = theEvent.keyCode || theEvent.which;
-    key = String.fromCharCode( key );
+    key = String.fromCharCode(key);
     var regex = /[0-9]|\./;
-    if( !regex.test(key) ) {
+    if(!regex.test(key)) {
         theEvent.returnValue = false;
-        if(theEvent.preventDefault) theEvent.preventDefault();
+        if (theEvent.preventDefault) {
+        	theEvent.preventDefault();
+        }
     }
 });
 
@@ -253,6 +268,5 @@ $refuse.click(() => {
 	decide(false);
 });
 
-// $(".round").click(() => {
-// 	$waiting.hide();
-// });
+
+

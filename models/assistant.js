@@ -113,3 +113,9 @@ exports.endGame = (gameId) => {
         where: {id: gameId}
     })
 }
+
+exports.deletePeriods = (gameId) => {
+    return Period.destroy({
+        where: {game_id: gameId}
+    });
+}

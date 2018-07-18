@@ -38,6 +38,8 @@ exports.authenticate = async (req, res, next) => {
         if (verified) {
             res.cookie(AS_PARTICIPANT, username);
             res.redirect('/play');
+        } else {
+            next();
         }
     } else {
         next();

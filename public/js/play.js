@@ -26,6 +26,7 @@ var gPeriod = {};
 
 var $accept = $("button#accept")
   , $accepted = $(".proposal.accepted")
+  , $backdrops = $(".backdrop")
   , $boxes = $(".box")
   , $complete = $("#complete")
   , $continue = $("#continue")
@@ -40,6 +41,7 @@ var $accept = $("button#accept")
   , $proposals = $(".input-box").children()
   , $propose = $("button#propose")
   , $proposed = $(".proposal.proposed")
+  , $quit = $("#quit")
   , $refuse = $("button#refuse")
   , $refused = $(".proposal.refused")
   , $remainingTime = $(".remaining-time")
@@ -148,7 +150,9 @@ const timer = new function() {
 
 
 socket.on(EVENT.COMPLETE, () => {
+	gPeriod = {};
 	$boxes.hide();
+	$backdrops.hide();
 	$complete.show();
 });
 
@@ -295,6 +299,10 @@ $refuse.click(() => {
 		return;
 	}
 	decide(false);
+});
+
+$quit.click(() => {
+	location.href = "/logout";
 });
 
 const main = () => {

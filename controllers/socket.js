@@ -115,7 +115,17 @@ Dealer.prototype.endPeriod = async function () {
     await Assistant.savePeriod(this.game.id, this.period);
     if (this.period.accepted || !this.nextPeriod()) {
         await Assistant.endGame(this.game.id);
-        this.newGame();
+        var nextGame = await Assistant.getNewGame(this.self);
+        setTimeout(() => {
+            if (!nextGame) {
+                this.toBoth(EVENT.COMPLETE, "You have finished all the games.");
+            } else {
+                this.toBoth(EVENT.WAIT, "wait for your next opponent...")
+                setTimeout(() => {
+                    this.newGame();
+                }, 5000);
+            }
+        }, 1000);
     }
 }
 

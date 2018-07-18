@@ -305,6 +305,7 @@ $quit.click(() => {
 	location.href = "/logout";
 });
 
+
 const main = () => {
 	$boxes.hide();
 	$("#game").show();

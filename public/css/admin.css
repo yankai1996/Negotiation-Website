@@ -75,7 +75,7 @@ table.games td, table.games th {
     vertical-align: middle;
 }
 
-table.games tbody tr, table.games tbody td{
+table.games tbody tr, table.games tbody td {
     cursor: pointer;
 }
 
@@ -100,11 +100,10 @@ table.games tbody td:last-child {
     color: #fff;
     background-color: red;
     cursor: pointer;
-
     z-index: 10;
     position: absolute;
     right: 0;
-    top:8px;
+    top: 8px;
 }
 
 table.games input {
@@ -158,7 +157,7 @@ table.participants td, table.participants th {
     vertical-align: middle;
 }
 
-table.participants td > .delete {
+table.participants td>.delete {
     /* position: absolute; */
     top: 8px;
     /* right: 0;
@@ -181,13 +180,14 @@ table.participants tbody tr td:first-child, table.participants th {
 
 table.participants tbody tr td:last-child p {
     color: #ddd;
+    opacity: 0;
     font-size: 20px;
-    display: none;
+    display: table-cell;
     transition: 0.3s;
 }
 
 table.participants tbody tr:hover>td:last-child p {
-    display: table-cell;
+    opacity: 1;
 }
 
 .focused {
@@ -199,40 +199,27 @@ table.participants tbody tr:hover>td:last-child p {
 table.insight {
     width: 500px;
     margin-top: 0px;
-    margin-bottom: 30px;
+    margin-bottom: 60px;
     border-collapse: collapse;
     border-spacing: 0;
     display: inline-block
 }
 
 table.insight td, table.insight th {
-    min-width: 30px;
     display: table-cell;
     padding: 8px 10px;
     font-weight: normal;
     text-align: left;
     vertical-align: middle;
-}
-
-table.insight tbody td {
-    cursor: pointer;
+    white-space: nowrap;
 }
 
 table.insight td:nth-child(6) {
     border-left: 1px solid #ccc;
 }
 
-table.insight td:last-child, table.insight th:last-child {
+table.insight td:last-child {
     width: 100%;
-    position: relative;
-}
-
-table.insight tbody td:last-child {
-    padding: 0;
-}
-
-table.insight .delete {
-    width: 70px;
 }
 
 table.insight tfoot td {
@@ -273,7 +260,7 @@ table.assignment td:first-child {
     padding-right: 16px;
 }
 
-table.assignment td:first-child > label {
+table.assignment td:first-child>label {
     margin-top: -10px;
 }
 
@@ -287,7 +274,7 @@ table.assignment td:last-child {
     position: relative;
 }
 
-table.assignment td:last-child > div {
+table.assignment td:last-child>div {
     z-index: 10;
     position: absolute;
     right: 0;
@@ -367,6 +354,8 @@ button.alt.small {
 }
 
 .panel.right {
+    position: relative;
+    height: auto;
     padding: 12px;
     margin-top: 20px !important;
     margin-left: 20px;
@@ -374,13 +363,70 @@ button.alt.small {
     display: none;
 }
 
+.delete-container {
+    position: absolute;
+    bottom: 13px;
+    right: 13px;
+    height: 34px;
+    width: 34px;
+    color: #ccc;
+    overflow: hidden;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 5;
+    transition: all 0.3s ease;
+}
+
+.delete-container:hover {
+    background: #eee;
+}
+
+.delete-container * {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.delete-container label {
+    left: 4px;
+    height: 30px;
+    width: 30px;
+    font-size: 40px;
+    line-height: 32px;
+    letter-spacing: -2px;
+    cursor: pointer;
+    transition: all 0.3 ease;
+}
+
+.delete-container .delete2 {
+    display: block !important;
+    overflow: hidden;
+    margin: 0;
+    right: 5px;
+    width: 0;
+    height: 35px;
+    text-align: center;
+    line-height: 35px;
+    font-size: 16px;
+    font-weight: 800;
+    color: #fff;
+    background-color: red;
+    cursor: pointer;
+    border-radius: 3px;
+    line-height: 35px;
+}
+
 .roles {
+    position: relative;
     padding-bottom: 10px;
     white-space: nowrap;
 }
+
 .roles label {
     padding-right: 20px
 }
+
+
 
 .turn-buttons {
     height: 30px;
@@ -429,12 +475,11 @@ button.turn {
     background-color: #eee;
 }
 
-.slider p{
+.slider p {
     padding-left: 17px;
     padding-right: 15px;
     display: inline;
     line-height: 30px;
-
 }
 
 .slider:before {
@@ -457,4 +502,3 @@ input:checked+.slider:before {
     -ms-transform: translateX(70px);
     transform: translateX(70px);
 }
-

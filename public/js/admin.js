@@ -1,24 +1,25 @@
 $(function(){
 
 
-var $logout = $(".logout")
-  , $tabButtons = $(".tab-button")
-  , $tabContents = $(".tab-content")
-  , $gameTableBody = $("#game-table-body")
-  , $parameters = $(".param")
-  , $floatOnlyInput = $(".float-only")
-  , $intOnlyInput = $(".int-only")
-  , $addGamesButton = $("button.add-games")
+var $addGamesButton = $("button.add-games")
   , $addPairsInput = $("input.add-pairs")
   , $addPairsButton = $("button.add-pairs")
-  , $participantTableBody = $("#participant-table-body")
-  , $rightPanel = $(".panel.right")
-  , $leftButton = $(".turn-buttons button").eq(0)
-  , $rightButton = $(".turn-buttons button").eq(1)
-  , $pages = $(".pages")
+  , $deleteContainer = $(".delete-container")
+  , $deleteLabel = $(".delete-container label")
+  , $deletePair = $("#delete-pair")
+  , $floatOnlyInput = $(".float-only")
+  , $gameTableBody = $("#game-table-body")
   , $insightTableBody = $("#insight-table-body")
-  // , $assignTableBody = $("#assignment-table-body")
-  // , $assignGamesButton = $("button.assign-games")
+  , $intOnlyInput = $(".int-only")
+  , $leftButton = $(".turn-buttons button").eq(0)
+  , $logout = $(".logout")
+  , $pages = $(".pages")
+  , $parameters = $(".param")
+  , $participantTableBody = $("#participant-table-body")
+  , $rightButton = $(".turn-buttons button").eq(1)
+  , $rightPanel = $(".panel.right")
+  , $tabButtons = $(".tab-button")
+  , $tabContents = $(".tab-content")
   ;
 
 // open tab
@@ -38,8 +39,7 @@ const buttonManager = new function(){
 	// hide all delete buttons
 	this.hideDelete = () => {
 		$(".delete").animate({width:'hide'}, 300);
-		$(".moved").animate({marginLeft: "+=55px"}, 300);
-		$(".moved").removeClass("moved");
+		this.hideDeletePair();
 	}
 
 	// show delete button of clicked row
@@ -53,16 +53,25 @@ const buttonManager = new function(){
 		}
 	}
 
-	this.toggleDeletePair = (index) => {
-		var $buttons = $participantTableBody.find("td .delete");
-		var $text = $participantTableBody.find("tr").eq(index).find("p");
-		if ($buttons.eq(index).css("display") == "none") {
-			this.hideDelete();
-			$buttons.eq(index).animate({width:'show'}, 300);
-			$text.animate({marginLeft: "-=55px"}, 300);
-			$text.addClass("moved");
+	this.hideDeletePair = () => {
+		if ($deletePair.width() > 0) {
+			$deleteContainer.animate({
+				width: '-=85px',
+				height: '-=10px'
+			}, 100);
+			$deletePair.animate({width:'0'}, 300);
+		}	
+	}
+
+	this.toggleDeletePair = () => {
+		if ($deletePair.width() == '0') {
+			$deleteContainer.animate({
+				width: '+=85px',
+				height: '+=10px'
+			}, 100);
+			$deletePair.animate({width:'+=80px'}, 300);
 		} else {
-			this.hideDelete();
+			this.hideDeletePair();
 		}
 	}
 
@@ -357,7 +366,9 @@ const refreshInsightTable = (games) => {
 				"</td>" +
 				"<td>" +
 					(g.is_warmup ? "Warm-Up" : "") +
-					"<div class='delete'>Remove</div>" +
+				"</td>" +
+				"<td>" +
+					(g.is_done ? "Done" : "") +
 				"</td>" +
 			"</tr>";
 		if (g.is_warmup) {
@@ -647,6 +658,10 @@ $insightTableBody.on("click", ".delete", (event) => {
 	// removeGame(index);
 });
 
+$deleteContainer.click(() => {
+	buttonManager.toggleDeletePair();
+});
+
 // $assignTableBody.on("click", ".assign", (event) => {
 // 	var number = $assignTableBody.find(".assign").index(event.currentTarget);
 // 	var index = Math.floor(number / 6);
@@ -671,7 +686,6 @@ $insightTableBody.on("click", ".delete", (event) => {
 
 // show the Games tab
 $("#Games").show();
-
 
 });
 

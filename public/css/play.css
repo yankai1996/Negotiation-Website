@@ -1,4 +1,8 @@
 @import url(https://fonts.googleapis.com/css?family=Roboto:300);
+b {
+    /* font-family: "Computer Modern", sans-serif; */
+}
+
 .hide {
     display: none;
 }
@@ -137,7 +141,7 @@ table.params td {
     vertical-align: middle;
 }
 
-table.params td:first-child{
+table.params td:first-child {
     white-space: nowrap;
 }
 
@@ -166,7 +170,7 @@ table.progress td:nth-child(2) {
     width: 30px;
 }
 
-table.progress td > div.done {
+table.progress td>div.done {
     background: #159287;
 }
 
@@ -230,7 +234,7 @@ table.timer.red {
     color: red;
 }
 
-table.timer.red  .remaining-time {
+table.timer.red .remaining-time {
     background-color: red;
 }
 
@@ -282,18 +286,18 @@ table.timer.red .time-bar {
 
 .proposal.refused {
     color: #f88;
-    box-shadow:0 0 5px 1px #f88
+    box-shadow: 0 0 5px 1px #f88
     /* box-shadow: 5px 3px 5px #f88, -1px 3px 5px #f88; */
 }
 
 .proposal.accepted {
     color: #159287;
-    box-shadow:0 0 5px 1px #159287;
+    box-shadow: 0 0 5px 1px #159287;
 }
 
 .proposal.second {
     color: #f80;
-    box-shadow:0 0 5px 1px #f80;
+    box-shadow: 0 0 5px 1px #f80;
 }
 
 .button-box {
@@ -344,7 +348,7 @@ button.disable:hover {
 
 .help {
     position: absolute;
-    bottom:0;
+    bottom: 0;
     left: 50%;
     transform: translateX(-50%);
     height: 40px;
@@ -355,4 +359,3 @@ button.disable:hover {
     font-size: 20px;
     cursor: pointer;
 }
-

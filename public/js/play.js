@@ -1,6 +1,4 @@
 
-$("#description").load("/html/description.html");
-
 const ID = $("#welcome .title h1").text().slice(-4);
 const EVENT = {
     COMPLETE: 'complete',
@@ -31,6 +29,7 @@ var $accept = $("button#accept")
   , $complete = $("#complete")
   , $continue = $("#continue")
   , $decision = $("#decision")
+  , $description = $("#description")
   , $input = $(".input-box input")
   , $game = $("#game")
   , $operation = $(".operation")
@@ -49,12 +48,18 @@ var $accept = $("button#accept")
   , $secondBuyer = $("2nd-buyer")
   , $timer = $(".timer")
   , $time = $("#time")
+  , $viewDescription = $("#view-description")
   , $waiting = $("#waiting")
   , $waitingInfo = $("#waiting-info")
   , $waitProposal = $("#wait-proposal")
   ,	$warmup = $("#warm-up")
   , $welcome = $("#welcome")
   ;
+
+
+
+$description.load("/html/description.html");
+
 
 // default address: 'http://localhost'
 var socket = io.connect();
@@ -252,6 +257,10 @@ $warmup.click(() => {
 
 $continue.click(() => {
 	getReady();
+});
+
+$viewDescription.click(() => {
+	$description.slideToggle(500);
 });
 
 $input.keypress((event) => {

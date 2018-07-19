@@ -14,17 +14,22 @@
 
   <div id="welcome" class="box bottom hide">
   	<div class="title" align="center">
-  		<h1> Welcome! <%= participantID %></h1>
+  		<h1>Welcome! <%= participantID %></h1>
   	</div>
-  	<div class="content">
-  		<p>Thank you for your participation! In this experiment, you will perform as a buyer or seller in the negotiations between supply chain partners.</p> 
-  		<div class="line"></div>
+  	<div class="content short">
+      <div>
+        <p id="welcome-info">Thank you for your participation! In this experiment, you will perform as a buyer or seller in the negotiations between supply chain partners.</p> 
+        <p class="continue-info">We've detedcted that you have not completed the experiment. Click the button to continue it.</p> 
+      </div>
+
   		<div id="description">
   			<!-- load here -->
   		</div>
   	</div>
   	<div class="padding-end" align="center">
-  		<button id="warm-up" class="big" aling="center">Let's Start a Warm-Up !</button>
+  		<button id="warm-up" class="big">Let's Start a Warm-Up !</button>
+      <button id="view-description" class="big view">Description</button>
+      <button id="continue" class="big">CONTINUE</button>
   	</div>
   </div>
 
@@ -32,18 +37,6 @@
     <div class="round">
       <div class="loader"></div>
       <div id="waiting-info"></div>
-    </div>
-  </div>
-
-  <div id="continue-page" class="box bottom hide">
-    <div class="title" align="center">
-      <h1>Welcome! <%= participantID %></h1>
-    </div>
-    <div class="content short">
-      <p>We've detedcted that you have not completed the experiment. Click the button to continue it.</p> 
-    </div>
-    <div class="padding-end" align="center">
-      <button id="continue" class="big" aling="center">CONTINUE</button>
     </div>
   </div>
 
@@ -194,8 +187,14 @@
     var status = <%= flag %>;
         if (status == 1) {
             $("#welcome").show();
+            $("#continue-info").hide();
+            $("#view-description").hide();
+            $("#continue").hide();
         } else if (status == 2) {
-            $("#continue-page").show();
+            $("#welcome").show();
+            $("#welcome-info").hide();
+            $("#warm-up").hide();
+            $("#description").hide();
         } else if (status == 3) {
             $("#complete").show();
         }

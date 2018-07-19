@@ -1,9 +1,8 @@
-const Sequelize = require('sequelize');
 const db = require('./db');
-
-var MasterGame = db.MasterGame;
-var Game = db.Game;
-var Participant = db.Participant;
+const MasterGame = db.MasterGame;
+const Game = db.Game;
+const Participant = db.Participant;
+const Period = db.Period;
 
 // get games by groups with the count of duplications
 // return type: Promise
@@ -92,7 +91,6 @@ exports.addPairs = async (n) => {
     var masterGames = await MasterGame.findAll({
         raw: true
     });
-    console.log("!!!!!!" + n)
     for (var i = 0; i < 2 * n; ) {
         var randomID = Math.random().toString(36).substring(2, 6);
         var opponent = await Participant.findOne({
@@ -175,64 +173,35 @@ exports.getGamesByParticipant = async (id) => {
     return games;
 }
 
-// remove the buyer and seller from a game
-exports.removePairFromGame = (id) => {
-    return Game.update({
-        buyer_id: null,
-        seller_id: null
-    }, {
-        where: {id: id}
-    });
-}
-
-// get all games that have not been assigned to pairs
-exports.getAvailableGames = () => {
-    return Game.findAll({
-        attributes: ['alpha', 'beta', 'gamma', 't', 'w', 
-            [Sequelize.fn('COUNT', Sequelize.col('id')), 'available']
-        ],
+// delete the pair and all the related games and periods
+exports.deletePair = async (first, second) => {
+    await Period.destroy({
         where: {
-            $and: [{buyer_id: null},
-                {seller_id: null}]
-        },
-        group: ['alpha', 'beta', 'gamma', 't', 'w'],
-        raw: true
-    })
-}
-
-// delete games that have not been assigned to pairs
-exports.deleteExtraGames = (game) => {
-    return Game.destroy({
-        where: {
-            buyer_id: null,
-            seller_id: null,
-            alpha: game.alpha,
-            beta:  game.beta,
-            gamma: game.gamma,
-            t:     game.t,
-            w:     game.w
+            $or: [{proposer: first},
+                {proposer: second}]
         }
     });
+    await Game.destroy({
+        where: {
+            $or: [{buyer_id: first},
+                {seller_id: first}]
+        }
+    });
+    await Participant.update({
+        opponent: null
+    }, {
+        where: {
+            $or: [{id: first},
+                {id: second}]
+        }
+    });
+    await Participant.destroy({
+        where: {
+            $or: [{id: first},
+                {id: second}]
+        }
+    });
+    return 2;
 }
 
-exports.assignGamesToPair = async (games) => {
-    for (var i = 0; i < games.length; i++) {
-        var g = games[i];
-        await Game.update({
-            buyer_id: g.buyer_id,
-            seller_id: g.seller_id
-        }, {
-            where: {
-                buyer_id: null,
-                seller_id: null,
-                alpha: g.alpha,
-				beta: g.beta,
-				gamma: g.gamma,
-				t: g.t,
-                w: g.w
-            },
-            limit: 1
-        });
-    }
-    return games;
-}
+

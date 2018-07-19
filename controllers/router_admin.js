@@ -168,54 +168,17 @@ const viewPair = async (req, res, next) => {
 }
 
 postRouter.post('/admin/view_pair', viewPair);
-postRouter.post('/admin/view_pair', sendError);
 
-
-// remove game from pair
-const removeGame = async (req, res, next) => {
-    await Instructor.removePairFromGame(req.body.gameId);
-    req.body.id = req.body.buyerId
+// delete the pair
+const deletePair = async (req, res, next) => {
+    await Instructor.deletePair(req.body.first, req.body.second);
     next();
 }
 
-postRouter.post('/admin/remove_game', removeGame);
-postRouter.post('/admin/remove_game', viewPair);
+postRouter.post('/admin/delete_pair', deletePair);
+postRouter.post('/admin/delete_pair', getPairs);
+postRouter.post('/admin/delete_pair', sendUpdatedPairs);
 
-
-const getAvalibaleGames = async (req, res, next) => {
-    var games = await Instructor.getAvailableGames();
-    res.send({
-        success: 1,
-        games: games
-    });
-    next();
-}
-
-postRouter.post('/admin/get_available_games', getAvalibaleGames);
-
-
-const deleteExtraGames = async (req, res, next) => {
-    await Instructor.deleteExtraGames(req.game);
-    next()
-}
-
-postRouter.post('/admin/delete_extra_games', checkParams);
-postRouter.post('/admin/delete_extra_games', deleteExtraGames);
-postRouter.post('/admin/delete_extra_games', getGames);
-postRouter.post('/admin/delete_extra_games', sendGames);
-
-
-const assignGamesToPair = async (req, res, next) => {
-    var games = JSON.parse(req.body.gamesString);
-    await Instructor.assignGamesToPair(games);
-    res.send({
-        success: 1,
-    });
-    next();
-
-}
-
-postRouter.post('/admin/assign_games_to_pair', assignGamesToPair);
 
 postRouter.post('/admin*', sendError);
 

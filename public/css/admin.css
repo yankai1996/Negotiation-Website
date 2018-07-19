@@ -365,7 +365,7 @@ button.alt.small {
 
 .delete-container {
     position: absolute;
-    bottom: 13px;
+    bottom: 18px;
     right: 13px;
     height: 34px;
     width: 34px;
@@ -402,8 +402,8 @@ button.alt.small {
     display: block !important;
     overflow: hidden;
     margin: 0;
-    right: 5px;
-    width: 0;
+    left: 34px;
+    padding: 0 18px;
     height: 35px;
     text-align: center;
     line-height: 35px;
@@ -412,7 +412,7 @@ button.alt.small {
     color: #fff;
     background-color: red;
     cursor: pointer;
-    border-radius: 3px;
+    border-radius: 2px;
     line-height: 35px;
 }
 

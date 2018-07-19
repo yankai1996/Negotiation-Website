@@ -14,6 +14,7 @@ var $addGamesButton = $("button.add-games")
   , $leftButton = $(".turn-buttons button").eq(0)
   , $logout = $(".logout")
   , $pages = $(".pages")
+  , $pairCount = $("#count")
   , $parameters = $(".param")
   , $participantTableBody = $("#participant-table-body")
   , $rightButton = $(".turn-buttons button").eq(1)
@@ -54,35 +55,24 @@ const buttonManager = new function(){
 	}
 
 	this.hideDeletePair = () => {
-		if ($deletePair.width() > 0) {
+		if ($deleteContainer.width() > 85) {
 			$deleteContainer.animate({
 				width: '-=85px',
-				height: '-=10px'
+				height: '-=10px',
+				bottom: '+=5px'
 			}, 100);
-			$deletePair.animate({width:'0'}, 300);
 		}	
 	}
 
 	this.toggleDeletePair = () => {
-		if ($deletePair.width() == '0') {
+		if ($deleteContainer.width() < 40) {
 			$deleteContainer.animate({
 				width: '+=85px',
-				height: '+=10px'
+				height: '+=10px',
+				bottom: '-=5px'
 			}, 100);
-			$deletePair.animate({width:'+=80px'}, 300);
 		} else {
 			this.hideDeletePair();
-		}
-	}
-
-	// show the Remove button
-	this.toggleRemove = (index) => {
-		var $buttons = $insightTableBody.find(".delete");
-		if ($buttons.eq(index).css("display") == "none") {
-			this.hideDelete();
-			$buttons.eq(index).animate({width:'show'}, 300);
-		} else {
-			this.hideDelete();
 		}
 	}
 
@@ -205,28 +195,26 @@ const addPairs = () => {
 			}
 		}
 	});
-
-	// update participant table
-	const updatePairs = (pairs, count) => {
-		$("#count").html(count);
-		$participantTableBody.html("");
-		pairs.forEach((p) => {
-			$participantTableBody.append(
-				"<tr" + (p.second ? " class='button'>" : ">") +
-					"<td>" +
-						 "<p>" + p.first + "</p>" + 
-						 "<p>" + p.second + "</p>" +
-					"</td>" +
-					"<td><p> 》 </p>" + 
-						"<div class='delete'>Delete</div>" + 
-					"</td>" + 
-				"</tr>");
-		});
-		pageManager.updateCurrentPage();
-	}
 }
 
-
+// update participant table
+const updatePairs = (pairs, count) => {
+	$pairCount.html(count);
+	$participantTableBody.html("");
+	pairs.forEach((p) => {
+		$participantTableBody.append(
+			"<tr" + (p.second ? " class='button'>" : ">") +
+				"<td>" +
+					 "<p>" + p.first + "</p>" + 
+					 "<p>" + p.second + "</p>" +
+				"</td>" +
+				"<td><p> 》 </p>" + 
+					"<div class='delete'>Delete</div>" + 
+				"</td>" + 
+			"</tr>");
+	});
+	pageManager.updateCurrentPage();
+}
 
 const getFirst = () => {
 	return $("tr.focused p").eq(0).text();
@@ -273,7 +261,6 @@ const showPair = (first, second) => {
 			}
 		});
 	}
-	// viewAvailableGames(first, second);
 }
 
 const pageManager = new function(){
@@ -384,201 +371,27 @@ const refreshInsightTable = (games) => {
 	cacheManager.cachePair(first, second, games);
 }
 
-// remove game from pair
-const removeGame = (index) => {
-	var $row = $insightTableBody.find("tr").eq(index);
-	var gameId = $row.attr("id");
-	var buyerId = $row.find("td").eq(0).text();
-	// post request for removing a game
+const deletePair = (first, second) => {
 	$.ajax({
-		url:  "/admin/remove_game",
+		url:  "/admin/delete_pair",
 		type: "POST",
 		data: {
-			gameId: gameId,
-			buyerId: buyerId
+			first: first,
+			second: second
 		},
 		success: (res) => {
 			if (res.success){
-				refreshInsightTable(res.games);
-				getAvailableGames();
+				updatePairs(res.pairs, res.count);
+				cacheManager.removeCachedPair(first, second);
+				$rightPanel.animate({width: 'hide'}, 500);
 			} else {
 				alert(res);
 			}
 		}
 	});
-
-	// removeCachedAvailableGames();
 }
 
-// const viewAvailableGames = (first, second) => {
-// 	$("#buyer").html(first);
-// 	$("#seller").html(second);
 
-// 	if (getCachedAvailableGames() == null){
-// 		getAvailableGames();
-// 	} else {
-// 		showAvailableGames();
-// 	}
-// }
-
-// // cache available games locally
-// const cacheAvailableGames = (games) => {
-// 	window.sessionStorage.setItem("availableGames", JSON.stringify(games));
-// }
-
-// const getCachedAvailableGames = () => {
-// 	return JSON.parse(window.sessionStorage.getItem("availableGames"));
-// }
-
-// const removeCachedAvailableGames = () => {
-// 	window.sessionStorage.removeItem("availableGames");
-// }
-
-// // get all games that have not been assigned to pairs
-// const getAvailableGames = () => {
-// 	$.ajax({
-// 		url:  "/admin/get_available_games",
-// 		type: "POST",
-// 		data: {},
-// 		success: (res) => {
-// 			if (res.success){
-// 				cacheAvailableGames(res.games);
-// 				showAvailableGames();
-// 			} else {
-// 				alert(res);
-// 			}
-// 		}
-// 	});
-// }
-
-
-// // show available games in table
-// const showAvailableGames = () => {
-// 	var games = getCachedAvailableGames();
-// 	$assignTableBody.html("");
-// 	games.forEach((g) => {
-// 		$assignTableBody.append(
-// 			"<tr>" +
-// 				"<td>" + 
-// 					"<label class='checkbox'>" +
-// 						"<input type='checkbox'>" +
-// 						"<span class='checkmark'></span>" +
-// 					"</label>" +
-// 				"</td>" +
-// 				"<td colspan='2'>" +
-// 					"<label class='switch'>" +
-// 				  		"<input class='role' type='checkbox'>" +
-// 				 		"<div class='slider'>" +
-// 				 			"<p>seller</p>" +
-// 				 			"<p>seller</p>" +
-// 				 		"</div>" +
-// 					"</label>" +
-// 				"</td>" +
-// 				"<td class='assign' id='alpha'>" + g.alpha + "</td>" +
-// 				"<td class='assign' id='beta'>" + g.beta + "</td>" +
-// 				"<td class='assign' id='gamma'>" + g.gamma + "</td>" +
-// 				"<td class='assign' id='t'>" + g.t + "</td>" +
-// 				"<td class='assign' id='w'>" + g.w + "</td>" +
-// 				"<td class='assign'>" + g.available +
-// 					"<div class='delete'>Delete</div>" + 
-// 				"</td>" +
-// 			"</tr>");
-// 	});
-// }
-
-// const showDeleteExtra = (index) => {
-// 	var $buttons = $assignTableBody.find(".delete");
-// 	if ($buttons.eq(index).css("display") == "none") {
-// 		hideDelete();
-// 		$buttons.eq(index).animate({width:'show'}, 300);
-// 	} else {
-// 		hideDelete();
-// 	}
-// } 
-
-// const deleteExtraGames = (index) => {
-// 	var data = {
-// 		alpha: parseFloat($('.assign#alpha').eq(index).text()),
-// 		beta : parseFloat($('.assign#beta') .eq(index).text()),
-// 		gamma: parseFloat($('.assign#gamma').eq(index).text()),
-// 		t 	 : parseInt  ($('.assign#t')	.eq(index).text()),
-// 		w	 : parseFloat($('.assign#w')	.eq(index).text()),
-// 	};
-// 	console.log(data);
-
-// 	// post request for deleting games
-// 	$.ajax({
-// 		url:  "/admin/delete_extra_games",
-// 		type: "POST",
-// 		data: data,
-// 		success: (res) => {
-// 			if (res.success){
-// 				$assignTableBody.find("tr").eq(index).remove();
-// 				updateGames(res.games);
-// 			} else {
-// 				alert(res);
-// 			}
-// 		}
-// 	});
-
-// 	window.sessionStorage.clear();
-
-// }
-
-// // assign games to the pair
-// const assignGames = () => {
-
-// 	var first = getFirst(),
-// 		second = getSecond();
-
-// 	var games = [];
-// 	$checkboxes = $(".checkbox input")
-// 	$checkboxes.each(function(){
-// 		if ($(this).prop("checked")){
-// 			var i = $checkboxes.index(this);
-// 			var seller, buyer;
-// 			if ($(".role").eq(i).prop("checked")){
-// 				seller = first;
-// 				buyer = second;
-// 			} else {
-// 				seller = second;
-// 				buyer = first;
-// 			}
-// 			var alpha = $(".assign#alpha").eq(i).text(),
-// 				beta  = $(".assign#beta").eq(i).text(),
-// 				gamma = $(".assign#gamma").eq(i).text(),
-// 				t     = $(".assign#t").eq(i).text(),
-// 				w     = $(".assign#w").eq(i).text();
-// 			games.push({
-// 				buyer_id: buyer,
-// 				seller_id: seller,
-// 				alpha: alpha,
-// 				beta: beta,
-// 				gamma: gamma,
-// 				t: t,
-// 				w: w
-// 			});
-// 		}
-// 	});
-
-// 	if (games) {
-// 		$.ajax({
-// 			url:  "/admin/assign_games_to_pair",
-// 			type: "POST",
-// 			data: {gamesString: JSON.stringify(games)},
-// 			success: (res) => {
-// 				if (res.success){
-// 					removeCachedPair(first, second);
-// 					showPair(first, second);
-// 					removeCachedAvailableGames();
-// 					viewAvailableGames(first, second);
-// 				} else {
-// 					alert(res);
-// 				}
-// 			}
-// 		});
-// 	}
-// }
 
 $logout.click(() => {
 	location.href = "/logout";
@@ -629,16 +442,11 @@ $addPairsButton.click(() => {
 	addPairs()
 });
 
-$participantTableBody.on("click", ".button", (event) => {
-	var index = $participantTableBody.find(".button").index(event.currentTarget);
+$participantTableBody.on('click', '.button', (event) => {
+	var index = $participantTableBody.find('.button').index(event.currentTarget);
 	buttonManager.hideDelete();
 	viewPair(index);
 })
-
-$participantTableBody.on("click", ".focused", (event) => {
-	var index = $participantTableBody.find(".button").index(event.currentTarget);
-	// showDeletePair(index);
-});
 
 $leftButton.click(() => {
 	pageManager.previousPage();
@@ -648,41 +456,16 @@ $rightButton.click(() => {
 	pageManager.nextPage();
 });
 
-$insightTableBody.on("click", "tr", (event) => {
-	var index = $insightTableBody.find("tr").index(event.currentTarget);
-	buttonManager.toggleRemove(index);
-});
-
-$insightTableBody.on("click", ".delete", (event) => {
-	var index = $insightTableBody.find(".delete").index(event.currentTarget);
-	// removeGame(index);
-});
-
 $deleteContainer.click(() => {
 	buttonManager.toggleDeletePair();
 });
 
-// $assignTableBody.on("click", ".assign", (event) => {
-// 	var number = $assignTableBody.find(".assign").index(event.currentTarget);
-// 	var index = Math.floor(number / 6);
-// 	showDeleteExtra(index);
-// });
+$deletePair.click(() => {
+	var first = getFirst();
+	var second = getSecond();
+	deletePair(first, second);
+})
 
-// $assignTableBody.on("click", ".delete", (event) => {
-// 	var index = $assignTableBody.find(".delete").index(event.currentTarget);
-// 	deleteExtraGames(index);
-// });
-
-
-// $assignGamesButton.click(() => {
-// 	assignGames();
-// });
-
-// $(window).click(function(event) {
-// 	if (!$(event.target).find("delete")){
-// 		hideDelete();
-// 	}
-// });
 
 // show the Games tab
 $("#Games").show();

@@ -60,6 +60,16 @@ const assignMasterGameToAll = async (masterGameId, params) => {
 
 // delete a group of games
 exports.deleteMasterGame = async (id) => {
+    var games = await Game.findAll({
+        attributes: ['id'],
+        where: {master_game: id},
+        raw: true
+    });
+    await Period.destroy({
+        where: {
+            game_id: {$in: games.map(g => g.id)}
+        }
+    });
     await Game.destroy({
         where: {master_game: id}
     });

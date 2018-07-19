@@ -15,8 +15,23 @@ b {
     min-height: 0px !important;
 }
 
+.content.short .line {
+    margin-top: 0;
+    padding-top: 10px;
+}
+
 .padding-end {
     margin-bottom: 40px;
+}
+
+button.big.view {
+    color: #555;
+    background: #eee;
+    margin-right: 10px;
+}
+
+button.big.view:hover {
+    background: #ddd;
 }
 
 .backdrop {

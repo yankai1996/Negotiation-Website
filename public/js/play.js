@@ -163,6 +163,7 @@ socket.on(EVENT.COMPLETE, () => {
 
 socket.on(EVENT.LOST_OP, (data) => {
 	waiting();
+	timer.stop();
 	console.log(data);
 });
 
@@ -237,8 +238,6 @@ socket.on(EVENT.WAIT, (data) => {
 
 
 
-
-
 socket.on('disconnect', () => {
 	socket.disconnect();
 	console.log("disconnect!!")
@@ -292,7 +291,7 @@ const decide = (accepted) => {
 	gPeriod.decided_at = timer.lap();
 	socket.emit(EVENT.END_PERIOD, gPeriod);
 
-	timer.reset();
+	timer.stop();
 	$operationButtons.addClass(CLASS.DISABLE);
 }
 

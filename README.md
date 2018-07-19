@@ -24,6 +24,6 @@ The following functions have been implemented:
 
 * Login/logout for the instructor and participants
 * The instructor can view/add/delete games
-* The instructor can add pairs of participants
+* The instructor can add/delete pairs of participants
 * Automatically assign games to new added pairs, and vice versa
-* Basic connection between participants and the server
+* Game play between participants

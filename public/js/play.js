@@ -159,6 +159,8 @@ socket.on(EVENT.COMPLETE, () => {
 	$boxes.hide();
 	$backdrops.hide();
 	$complete.show();
+
+	socket.disconnect()
 });
 
 socket.on(EVENT.LOST_OP, (data) => {

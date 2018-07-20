@@ -23,6 +23,7 @@ function Dealer(self, opponent, io) {
     this.io = io;
     this.game = {};
     this.period = {};
+    this.complete = false;
 }
 
 Dealer.prototype.toBuyer = function (event, data) {
@@ -38,9 +39,12 @@ Dealer.prototype.toBoth = function (event, data) {
     this.toSeller(event, data);
 }
 
-Dealer.prototype.newGame = async function () {
-    var game = await Assistant.getNewGame(this.self);
+Dealer.prototype.newGame = async function (game) {
+    if (game === undefined) {
+        game = await Assistant.getNewGame(this.self);
+    }
     if (!game) {
+        this.complete = true;
         this.toBoth(EVENT.COMPLETE, "You have finished all the games.");
     } else {
         this.game = game;
@@ -114,19 +118,27 @@ Dealer.prototype.endPeriod = async function () {
     }
     await Assistant.savePeriod(this.game.id, this.period);
     if (this.period.accepted || !this.nextPeriod()) {
-        await Assistant.endGame(this.game.id);
-        var nextGame = await Assistant.getNewGame(this.self);
-        setTimeout(() => {
-            if (!nextGame) {
-                this.toBoth(EVENT.COMPLETE, "You have finished all the games.");
-            } else {
-                this.toBoth(EVENT.WAIT, "wait for your next opponent...")
-                setTimeout(() => {
-                    this.newGame();
-                }, 5000);
-            }
-        }, 1000);
+        this.endGame();
     }
+}
+
+Dealer.prototype.endGame = async function () {
+    await Assistant.endGame(this.game, this.period);
+    var nextGame = await Assistant.getNewGame(this.self);
+    setTimeout(() => {
+        if (!nextGame) {
+            this.toBoth(EVENT.COMPLETE, "You have finished all the games.");
+        } else {
+            this.toBoth(EVENT.WAIT, "wait for your next opponent...")
+            setTimeout(() => {
+                this.newGame(nextGame);
+            }, 5000);
+        }
+    }, 1000);
+}
+
+Dealer.prototype.isComplete = function () {
+    return this.complete;
 }
 
 
@@ -178,10 +190,10 @@ exports.listen = (server) => {
         socket.on(EVENT.END_PERIOD, (period) => {
             dealer.syncPeriod(period);
             dealer.endPeriod();
-        })
+        });
 
         socket.on('disconnect', () => {
-            if (opponentIsOnline()) {
+            if (!dealer.isComplete() && opponentIsOnline()) {
                 io.to(opponent).emit(EVENT.LOST_OP, "Your opponent is lost.");
             }
         });

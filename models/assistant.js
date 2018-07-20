@@ -95,24 +95,41 @@ exports.getNewGame = async (participantId) => {
 
 exports.savePeriod = (gameId, period) => {
     return Period.create({
-        game_id: gameId,
-        number: period.number,
-        proposer: period.proposer,
-        price: period.price,
+        game_id:    gameId,
+        number:     period.number,
+        proposer:   period.proposer,
+        price:      period.price,
         proposed_at: period.proposed_at,
-        accepted: period.accepted,
+        accepted:   period.accepted,
         decided_at: period.decided_at,
         show_up_2nd_buyer: period.show_up_2nd_buyer
     });
 }
 
-exports.endGame = (gameId) => {
+// update the payoff of participants and set the game done
+exports.endGame = async (game, period) => {
+    var pair = [game.buyer_id, game.seller_id];
+    for (let i = 0; i == 1; i++){
+        let id = pair[i];
+        let result = await Participant.findOne({
+            attributes: ['payoff'],
+            where: {id: id},
+            raw: true
+        });
+        await Participant.update({
+            payoff: (result.payoff + 0.1 * period.number)
+        }, {
+            where: {id: id}
+        });
+    }
+
     return Game.update({
         is_done: true
     }, {
-        where: {id: gameId}
+        where: {id: game.id}
     })
 }
+
 
 exports.deletePeriods = (gameId) => {
     return Period.destroy({

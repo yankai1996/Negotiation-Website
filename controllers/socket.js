@@ -39,6 +39,7 @@ Dealer.prototype.toBoth = function (event, data) {
     this.toSeller(event, data);
 }
 
+// get a new game
 Dealer.prototype.newGame = async function (game) {
     if (game === undefined) {
         game = await Assistant.getNewGame(this.self);
@@ -61,6 +62,7 @@ Dealer.prototype.syncPeriod = function (period) {
     this.period = period;
 }
 
+// start the game
 Dealer.prototype.startGame = function () {
     this.toBuyer(EVENT.START, {
         alpha: this.game.alpha,
@@ -83,6 +85,7 @@ Dealer.prototype.startGame = function () {
     }, 5000);
 }
 
+// enter the next period
 Dealer.prototype.nextPeriod = function (initial = false) {
     // if it has reached the end of the game
     if (!initial && this.period.number == this.game.t) {
@@ -107,21 +110,26 @@ Dealer.prototype.nextPeriod = function (initial = false) {
     return true;
 }
 
+// send proposal to opponent
 Dealer.prototype.propose = function () {
     this.io.to(this.opponent).emit(EVENT.PROPOSE, this.period);
 }
 
+// end one period
 Dealer.prototype.endPeriod = async function () {
-    this.toBoth(EVENT.DECIDE, this.period.accepted);
+    if (!this.period.show_up_2nd_buyer) {
+        this.toBoth(EVENT.DECIDE, this.period.accepted);
+    }
     if (this.period.proposer == this.self) {
         return;
     }
     await Assistant.savePeriod(this.game.id, this.period);
-    if (this.period.accepted || !this.nextPeriod()) {
+    if (this.period.show_up_2nd_buyer || this.period.accepted || !this.nextPeriod()) {
         this.endGame();
     }
 }
 
+// end one game
 Dealer.prototype.endGame = async function () {
     await Assistant.endGame(this.game, this.period);
     var nextGame = await Assistant.getNewGame(this.self);
@@ -137,6 +145,7 @@ Dealer.prototype.endGame = async function () {
     }, 1000);
 }
 
+// if all the games have been finished
 Dealer.prototype.isComplete = function () {
     return this.complete;
 }
@@ -167,12 +176,13 @@ exports.listen = (server) => {
             return io.sockets.adapter.rooms[opponent] && opponent;
         }
 
-
+        // received the proposal from the proposer
         socket.on(EVENT.PROPOSE, (period) => {
             dealer.syncPeriod(period);
             dealer.propose();
         });
 
+        // notified that the participant is ready to start the game
         socket.on(EVENT.READY, () => {
             socket.join(self);
             if (!opponentIsOnline()) {
@@ -182,11 +192,13 @@ exports.listen = (server) => {
             }
         });
 
+        // sync the game from the opponent dealer
         socket.on(EVENT.SYNC_GAME, (game) => {
             dealer.syncGame(game);
             dealer.startGame();
         });
 
+        // received the decision or timeout
         socket.on(EVENT.END_PERIOD, (period) => {
             dealer.syncPeriod(period);
             dealer.endPeriod();

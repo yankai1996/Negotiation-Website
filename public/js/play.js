@@ -45,7 +45,7 @@ var $accept = $("button#accept")
   , $refused = $(".proposal.refused")
   , $remainingTime = $(".remaining-time")
   , $second = $(".proposal.second")
-  , $secondBuyer = $("2nd-buyer")
+  , $secondBuyer = $("#2nd-buyer")
   , $timer = $(".timer")
   , $time = $("#time")
   , $viewDescription = $("#view-description")
@@ -68,47 +68,6 @@ socket.on("connect", () => {
 	console.log("connect!")
 });
 
-
-
-const waiting = (info) => {
-	info = info || "Waiting for your opponent...";
-	$waitingInfo.html(info);
-	$waiting.show();
-}
-
-const askProposal = () => {
-	$operation.show();
-	$proposals.hide();
-	$input.show();
-	$input.val('');
-	$operationButtons.hide();
-	$propose.show();
-	$propose.removeClass(CLASS.DISABLE);
-}
-
-const waitProposal = () => {
-	$operation.show();
-	$proposals.hide();
-	$waitProposal.show();
-	$operationButtons.hide();
-	$accept.show();
-	$refuse.show();
-	$operationButtons.addClass(CLASS.DISABLE);
-}
-
-const disableProposal = () => {
-	$propose.addClass(CLASS.DISABLE);
-	$input.hide();
-	$proposed.html("Your proposal: $" +gPeriod.price);
-	$proposed.show();
-}
-
-const askDecision = () => {
-	$waitProposal.hide();
-	$proposed.html("$" + gPeriod.price);
-	$proposed.show();
-	$operationButtons.removeClass(CLASS.DISABLE);
-}
 
 const timer = new function() {
 	const time = 30;
@@ -154,6 +113,80 @@ const timer = new function() {
 }
 
 
+const waiting = (info) => {
+	info = info || "Waiting for your opponent...";
+	$waitingInfo.html(info);
+	$waiting.show();
+}
+
+const initOperations = () => {
+	$operation.show();
+	$proposals.hide();
+}
+
+const askProposal = () => {
+	initOperations();
+	$input.show();
+	$input.val('');
+	$operationButtons.hide();
+	$propose.show();
+	$propose.removeClass(CLASS.DISABLE);
+}
+
+const waitProposal = () => {
+	initOperations();
+	$waitProposal.show();
+	$operationButtons.hide();
+	$accept.show();
+	$refuse.show();
+	$operationButtons.addClass(CLASS.DISABLE);
+}
+
+const disableProposal = () => {
+	$propose.addClass(CLASS.DISABLE);
+	$input.hide();
+	$proposed.html("Your proposal: $" +gPeriod.price);
+	$proposed.show();
+}
+
+const askDecision = () => {
+	$waitProposal.hide();
+	$proposed.html("$" + gPeriod.price);
+	$proposed.show();
+	$operationButtons.removeClass(CLASS.DISABLE);
+}
+
+const getReady = () => {
+	waiting();
+	setTimeout(() => {
+		socket.emit(EVENT.READY);
+	}, 5000);
+}
+
+const showSecondBuyer = () => {
+	if (gPeriod.show_up_2nd_buyer) {
+		initOperations();
+		$second.show();
+		$secondBuyer.show();
+		setTimeout(() => {
+			socket.emit(EVENT.END_PERIOD, gPeriod);
+		}, 5000);
+		return true;
+	}
+	$secondBuyer.hide();
+	return false;
+}
+
+const decide = (accepted) => {
+	gPeriod.accepted = accepted;
+	gPeriod.decided_at = timer.lap();
+	socket.emit(EVENT.END_PERIOD, gPeriod);
+
+	timer.stop();
+	$operationButtons.addClass(CLASS.DISABLE);
+}
+
+
 socket.on(EVENT.COMPLETE, () => {
 	gPeriod = {};
 	$boxes.hide();
@@ -161,6 +194,16 @@ socket.on(EVENT.COMPLETE, () => {
 	$complete.show();
 
 	socket.disconnect()
+});
+
+socket.on(EVENT.DECIDE, (accepted) => {
+	timer.stop();
+	$proposals.hide();
+	if (accepted) {
+		$accepted.show();
+	} else {
+		$refused.show();
+	}
 });
 
 socket.on(EVENT.LOST_OP, (data) => {
@@ -172,7 +215,6 @@ socket.on(EVENT.LOST_OP, (data) => {
 socket.on(EVENT.NEW_PERIOD, (period) => {
 	gPeriod = period;
 
-	// var delay = period.number == 1 ? 1000 : 0;
 	$preparation.fadeOut(1000);
 
 	setTimeout(() => {
@@ -180,15 +222,14 @@ socket.on(EVENT.NEW_PERIOD, (period) => {
 		var t = $progressLabel.html().split('/')[1];
 		$progressLabel.html(period.number + "/" + t);
 
-		// if (period.show_up_2nd_buyer) {
-		// 	$secondBuyer.show()
-		// }
-		if (period.proposer == ID) {
-			askProposal();
-		} else {
-			waitProposal();
+		if (!showSecondBuyer()) {
+			if (period.proposer == ID) {
+				askProposal();
+			} else {
+				waitProposal();
+			}
+			timer.restart();;
 		}
-		timer.restart();;
 	}, 1000);
 });
 
@@ -219,16 +260,6 @@ socket.on(EVENT.SYNC_GAME, (game) => {
 	socket.emit(EVENT.SYNC_GAME, game);
 });
 
-socket.on(EVENT.DECIDE, (accepted) => {
-	timer.stop();
-	$proposals.hide();
-	if (accepted) {
-		$accepted.show();
-	} else {
-		$refused.show();
-	}
-})
-
 socket.on(EVENT.TEST, (data) => {
 	console.log(data);
 });
@@ -238,19 +269,6 @@ socket.on(EVENT.WAIT, (data) => {
 	console.log(data);
 });
 
-
-
-socket.on('disconnect', () => {
-	socket.disconnect();
-	console.log("disconnect!!")
-})
-
-const getReady = () => {
-	waiting();
-	setTimeout(() => {
-		socket.emit(EVENT.READY);
-	}, 5000);
-}
 
 $warmup.click(() => {
 	getReady();
@@ -288,15 +306,6 @@ $propose.click(() => {
 	disableProposal();
 });
 
-const decide = (accepted) => {
-	gPeriod.accepted = accepted;
-	gPeriod.decided_at = timer.lap();
-	socket.emit(EVENT.END_PERIOD, gPeriod);
-
-	timer.stop();
-	$operationButtons.addClass(CLASS.DISABLE);
-}
-
 $accept.click(() => {
 	if ($accept.hasClass(CLASS.DISABLE)) {
 		return;
@@ -316,12 +325,6 @@ $quit.click(() => {
 });
 
 
-const main = () => {
-	$boxes.hide();
-	$("#game").show();
-	$decision.show();
-}
-// main();
 
 
 

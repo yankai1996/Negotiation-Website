@@ -103,10 +103,6 @@ const timer = new function() {
 		$timer.removeClass(CLASS.RED);
 		$remainingTime.css('width', '100%');
 	}
-	this.restart = () => {
-		this.reset();
-		this.start();
-	}
 	this.lap = () => {
 		return time - count;
 	}
@@ -221,6 +217,7 @@ socket.on(EVENT.NEW_PERIOD, (period) => {
 		$progressRow.find('div').eq(period.number - 1).addClass(CLASS.DONE);
 		var t = $progressLabel.html().split('/')[1];
 		$progressLabel.html(period.number + "/" + t);
+		timer.reset();
 
 		if (!showSecondBuyer()) {
 			if (period.proposer == ID) {
@@ -228,7 +225,7 @@ socket.on(EVENT.NEW_PERIOD, (period) => {
 			} else {
 				waitProposal();
 			}
-			timer.restart();;
+			timer.start();;
 		}
 	}, 1000);
 });

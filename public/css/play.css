@@ -66,6 +66,12 @@ button.big.view:hover {
     transform: translateY(-50%);
 }
 
+.round>p {
+    width: 90%;
+    margin: auto;
+    text-align: center;
+}
+
 .loader {
     position: absolute;
     top: 0;

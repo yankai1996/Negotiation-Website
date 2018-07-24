@@ -84,7 +84,9 @@ const timer = new function() {
 	        }
 	        if (count == 0) {
 	            this.reset();
-	            socket.emit(EVENT.END_PERIOD, gPeriod);
+	            if (isMyTurn()) {
+	            	socket.emit(EVENT.END_PERIOD, gPeriod);
+	            }
 	        }
 	    }, 1000);
 
@@ -124,7 +126,13 @@ const waiting = (info) => {
 }
 
 const isMyTurn = () => {
-	
+	if ($input.is(':visible')) {
+		return true;
+	}
+	if (!$accept.hasClass(CLASS.DISABLE)) {
+		return true;
+	}
+	return false;
 }
 
 const initOperations = () => {

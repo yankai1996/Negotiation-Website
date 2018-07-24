@@ -139,7 +139,6 @@ table.striped tbody tr:nth-child(odd) {
 /* Tabel Participants */
 
 table.participants {
-    margin-top: 20px;
     margin-bottom: 30px;
     border-collapse: collapse;
     border-spacing: 0;
@@ -343,22 +342,23 @@ button.alt.small {
 
 /* Panel */
 
-.flexbox {
-    display: flex;
-    margin-top: -20px;
+.divide-box {
+    height: 100%;
+    margin-bottom: 60px;
 }
 
 .panel.left {
+    float: left;
     width: 120px;
-    min-width: 120px;
 }
 
 .panel.right {
     position: relative;
-    height: auto;
-    padding: 12px;
+    padding-top: 12px;
+    padding-left: 30px;
+    padding-bottom: 20px;
     margin-top: 20px !important;
-    margin-left: 20px;
+    margin-left: 150px;
     border: 1px solid #ccc!important;
     display: none;
 }

@@ -14,6 +14,7 @@ const EVENT = {
     SYNC_GAME: 'sync game',
     TEST: 'test',
     WAIT: 'wait opponent',
+    WARMED_UP: 'warmed up'
 }
 
 
@@ -134,10 +135,12 @@ Dealer.prototype.endGame = async function () {
     await Assistant.endGame(this.game, this.period);
     var nextGame = await Assistant.getNewGame(this.self);
     setTimeout(() => {
-        if (!nextGame) {
+        if (this.game.is_warmup) {
+            this.toBoth(EVENT.WARMED_UP);
+        } else if (!nextGame) {
             this.toBoth(EVENT.COMPLETE, "You have finished all the games.");
         } else {
-            this.toBoth(EVENT.WAIT, "wait for your next opponent...")
+            this.toBoth(EVENT.WAIT, "Waiting for your next opponent...")
             setTimeout(() => {
                 this.newGame(nextGame);
             }, 5000);
@@ -186,7 +189,7 @@ exports.listen = (server) => {
         socket.on(EVENT.READY, () => {
             socket.join(self);
             if (!opponentIsOnline()) {
-                socket.emit(EVENT.WAIT, "Please wait!");
+                socket.emit(EVENT.WAIT, "Waiting for your opponent...");
             } else {
                 dealer.newGame();
             }
@@ -206,7 +209,7 @@ exports.listen = (server) => {
 
         socket.on('disconnect', () => {
             if (!dealer.isComplete() && opponentIsOnline()) {
-                io.to(opponent).emit(EVENT.LOST_OP, "Your opponent is lost.");
+                io.to(opponent).emit(EVENT.LOST_OP, "Your opponent is lost!");
             }
         });
 

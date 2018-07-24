@@ -12,14 +12,18 @@
 
 <body>
 
-  <div id="welcome" class="box bottom hide">
+  <div id="welcome-page" class="box bottom hide">
   	<div class="title" align="center">
-  		<h1>Welcome! <%= participantID %></h1>
+  		<h1 id="welcome">Welcome! 
+        <label id="participant-id"><%= participantID %></label>
+      </h1>
+      <h1 id="good-job" class="hide">Good Job!</h1>
   	</div>
   	<div class="content short">
       <div>
         <p id="welcome-info">Thank you for your participation! In this experiment, you will perform as a buyer or seller in the negotiations between supply chain partners.</p> 
-        <p class="continue-info">We've detedcted that you have not completed the experiment. Click the button to continue it.</p> 
+        <p id="continue-info">We've detedcted that you have not completed the experiment. Click the button to continue it.</p> 
+        <p id="good-job-info" class="hide">You have finished the warm-up game. Let's start the real game now! </p>
       </div>
 
   		<div id="description">
@@ -49,8 +53,7 @@
         <tr>
           <td>&alpha; =</td>
           <td class="alpha"></td>
-<!--         </tr>
-        <tr> -->
+
           <td>&beta; =</td>
           <td class="beta"></td>
 
@@ -164,7 +167,7 @@
     
   </div>
 
-  <div id="complete" class="box bottom hide">
+  <div id="complete-page" class="box bottom hide">
     <div class="title" align="center">
       <h1>Thank you very much!</h1>
     </div>
@@ -181,18 +184,18 @@
   <script type="text/javascript" src="/js/play.js"></script>
   <script type="text/javascript">
     var status = <%= flag %>;
-        if (status == 1) {
-            $("#welcome").show();
-            $("#continue-info").hide();
-            $("#view-description").hide();
-            $("#continue").hide();
-        } else if (status == 2) {
-            $("#welcome").show();
-            $("#welcome-info").hide();
-            $("#warm-up").hide();
-            $("#description").hide();
-        } else if (status == 3) {
-            $("#complete").show();
+    if (status == 1) {
+        $("#welcome-page").show();
+        $("#continue-info").hide();
+        $("#view-description").hide();
+        $("#continue").hide();
+    } else if (status == 2) {
+        $("#welcome-page").show();
+        $("#welcome-info").hide();
+        $("#warm-up").hide();
+        $("#description").hide();
+    } else if (status == 3) {
+        $("#complete-page").show();
         }
   </script>
 </body>

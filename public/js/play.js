@@ -1,5 +1,5 @@
 
-const ID = $("#welcome .title h1").text().slice(-4);
+const ID = $("#participant-id").text();
 const EVENT = {
     COMPLETE: 'complete',
     DECIDE: 'decide',
@@ -13,6 +13,7 @@ const EVENT = {
     SYNC_GAME: 'sync game',
     TEST: 'test',
     WAIT: 'wait opponent',
+    WARMED_UP: 'warmed up'
 }
 const INFO = {
 	ACCEPTED: "Proposal Accpeted!",
@@ -38,7 +39,7 @@ var gPeriod = {};
 var $accept = $("button#accept")
   , $backdrops = $(".backdrop")
   , $boxes = $(".box")
-  , $complete = $("#complete")
+  , $completePage = $("#complete-page")
   , $continue = $("#continue")
   , $decision = $("#decision")
   , $description = $("#description")
@@ -61,7 +62,6 @@ var $accept = $("button#accept")
   , $waiting = $("#waiting")
   , $waitingInfo = $("#waiting-info")
   ,	$warmup = $("#warm-up")
-  , $welcome = $("#welcome")
   ;
 
 
@@ -83,7 +83,7 @@ const timer = new function() {
 		        }, 1000);
 	        }
 	        if (count == 0) {
-	            this.reset();
+	            this.stop();
 	            if (isMyTurn()) {
 	            	socket.emit(EVENT.END_PERIOD, gPeriod);
 	            }
@@ -123,6 +123,7 @@ const waiting = (info) => {
 	info = info || "Waiting for your opponent...";
 	$waitingInfo.html(info);
 	$waiting.show();
+	$operation.hide();
 }
 
 const isMyTurn = () => {
@@ -159,8 +160,6 @@ const waitProposal = () => {
 }
 
 const disableProposal = () => {
-	$proposal.stop();
-	$proposal.css('backgroundColor', '#eee');
 	$propose.addClass(CLASS.DISABLE);
 	showProposal("Your proposal: $" + gPeriod.price);
 }
@@ -168,6 +167,8 @@ const disableProposal = () => {
 const askDecision = () => {
 	showProposal("$" + gPeriod.price);
 	$operationButtons.removeClass(CLASS.DISABLE);
+	$proposal.stop();
+	$proposal.css('backgroundColor', '#eee');
 }
 
 const getReady = () => {
@@ -217,14 +218,14 @@ socket.on(EVENT.COMPLETE, () => {
 	gPeriod = {};
 	$boxes.hide();
 	$backdrops.hide();
-	$complete.show();
+	$completePage.show();
 
 	socket.disconnect()
 });
 
 socket.on(EVENT.DECIDE, (decision) => {
 	timer.stop();
-	console.log(decision);
+	gPeriod = {};
 	if (decision.accepted) {
 		showProposal('ACCEPTED');
 	} else if (decision.decided_at) {
@@ -234,10 +235,9 @@ socket.on(EVENT.DECIDE, (decision) => {
 	}
 });
 
-socket.on(EVENT.LOST_OP, (data) => {
-	waiting();
+socket.on(EVENT.LOST_OP, (info) => {
+	waiting(info);
 	timer.stop();
-	console.log(data);
 });
 
 socket.on(EVENT.NEW_PERIOD, (period) => {
@@ -293,9 +293,22 @@ socket.on(EVENT.TEST, (data) => {
 	console.log(data);
 });
 
-socket.on(EVENT.WAIT, (data) => {
-	waiting();
-	console.log(data);
+socket.on(EVENT.WAIT, (info) => {
+	waiting(info);
+});
+
+socket.on(EVENT.WARMED_UP, () => {
+	$("#game").hide();
+	$("#welcome-page").show();
+	$("#welcome").hide();
+	$("#good-job").show();
+    $("#welcome-info").hide();
+	$("#continue-info").hide();
+	$("#good-job-info").show();
+	$warmup.hide();
+	$description.hide();
+	$viewDescription.show();
+	$continue.show();
 });
 
 

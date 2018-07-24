@@ -5,7 +5,6 @@ var $addGamesButton = $("button.add-games")
   , $addPairsInput = $("input.add-pairs")
   , $addPairsButton = $("button.add-pairs")
   , $deleteContainer = $(".delete-container")
-  , $deleteLabel = $(".delete-container label")
   , $deletePair = $("#delete-pair")
   , $floatOnlyInput = $(".float-only")
   , $gameTableBody = $("#game-table-body")
@@ -190,6 +189,7 @@ const addPairs = () => {
 		success: (res) => {
 			if (res.success){
 				updatePairs(res.pairs, res.count);
+				$rightPanel.animate({width: 'hide'}, 500);
 			} else {
 				alert(res);
 			}

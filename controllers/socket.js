@@ -118,7 +118,10 @@ Dealer.prototype.propose = function () {
 // end one period
 Dealer.prototype.endPeriod = async function () {
     if (!this.period.show_up_2nd_buyer) {
-        this.toBoth(EVENT.DECIDE, this.period.accepted);
+        this.toBoth(EVENT.DECIDE, {
+            accepted: this.period.accepted,
+            decided_at: this.period.decided_at
+        });
     }
     if (this.period.proposer == this.self) {
         return;
@@ -131,7 +134,7 @@ Dealer.prototype.endPeriod = async function () {
 
 // end one game
 Dealer.prototype.endGame = async function () {
-    await Assistant.endGame(this.game, this.period);
+    // await Assistant.endGame(this.game, this.period);
     var nextGame = await Assistant.getNewGame(this.self);
     setTimeout(() => {
         if (!nextGame) {

@@ -36,7 +36,7 @@
   <div id="waiting" class="backdrop">
     <div class="round">
       <div class="loader"></div>
-      <div id="waiting-info"></div>
+      <p id="waiting-info"></p>
     </div>
   </div>
 
@@ -145,15 +145,11 @@
           <div class="operation hide">
             <div class="input-box">
               <input type="text" placeholder="Propose a price" autofocus="autofocus">
-              <div class="proposal proposed"></div>
-              <div id="wait-proposal" class="proposal">Waiting for proposal...</div> 
-              <div class="proposal refused">Proposal Refused!</div>
-              <div class="proposal accepted">Proposal Accpeted!</div>
-              <div class="proposal second">2nd Buyer Offered!</div>
+              <div class="proposal"></div>
             </div>
             <div class="button-box">
               <button id="propose" class="alt"">Propose</button>
-              <button id="accept" class="alt disable">Accept</button>
+              <button id="accept" class="alt">Accept</button>
               <button id="refuse" class="alt">Refuse</button>
             </div>
           </div>

@@ -4,6 +4,7 @@ const EVENT = {
     COMPLETE: 'complete',
     DECIDE: 'decide',
     END_PERIOD: 'end period',
+    LEAVE_ROOM: 'leave room',
     LOGIN: 'login',
     LOST_OP: 'lost opponent',
     NEW_PERIOD: 'new period',
@@ -65,7 +66,7 @@ var $accept = $("button#accept")
   ;
 
 
-const timer = new function() {
+var timer = new function() {
 	const time = 30;
 	var count = time;
 
@@ -120,17 +121,17 @@ socket.on("connect", () => {
 
 
 const waiting = (info) => {
-	info = info || "Waiting for your opponent...";
+	info = info || "Connecting...";
 	$waitingInfo.html(info);
 	$waiting.show();
 	$operation.hide();
 }
 
 const isMyTurn = () => {
-	if ($input.is(':visible')) {
+	if (gPeriod.proposer == ID && gPeriod.price == null) {
 		return true;
 	}
-	if (!$accept.hasClass(CLASS.DISABLE)) {
+	if (gPeriod.proposer != ID && gPeriod.price != null) {
 		return true;
 	}
 	return false;
@@ -183,9 +184,11 @@ const showSecondBuyer = () => {
 		initOperations();
 		showProposal('SECOND');
 		$secondBuyer.show();
-		setTimeout(() => {
-			socket.emit(EVENT.END_PERIOD, gPeriod);
-		}, 3000);
+		if (isMyTurn()) {
+			setTimeout(() => {
+				socket.emit(EVENT.END_PERIOD, gPeriod);
+			}, 3000);
+		}
 		return true;
 	}
 	$secondBuyer.hide();
@@ -309,6 +312,8 @@ socket.on(EVENT.WARMED_UP, () => {
 	$description.hide();
 	$viewDescription.show();
 	$continue.show();
+
+	socket.emit(EVENT.LEAVE_ROOM);
 });
 
 

@@ -5,6 +5,7 @@ const EVENT = {
     COMPLETE: 'complete',
     DECIDE: 'decide',
     END_PERIOD: 'end period',
+    LEAVE_ROOM: 'leave room',
     LOGIN: 'login',
     LOST_OP: 'lost opponent',
     NEW_PERIOD: 'new period',
@@ -206,6 +207,10 @@ exports.listen = (server) => {
             dealer.syncPeriod(period);
             dealer.endPeriod();
         });
+
+        socket.on(EVENT.LEAVE_ROOM, () => {
+            socket.leave(self);
+        })
 
         socket.on('disconnect', () => {
             if (!dealer.isComplete() && opponentIsOnline()) {

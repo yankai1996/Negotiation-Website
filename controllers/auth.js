@@ -1,10 +1,11 @@
 // Authentication middelwares
 var db = require('../models/db');
 var Participant = db.Participant;
+var config = require('../config').adminConfig;
 
 // admin username & password
-const USERNAME = 'admin';
-const PASSWORD = 'admin';
+const USERNAME = config.username;
+const PASSWORD = config.password;
 
 const AS_INSTRUCTOR = 'instructor';
 const AS_PARTICIPANT = 'participant';

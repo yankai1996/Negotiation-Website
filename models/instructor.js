@@ -4,9 +4,8 @@ const Game = db.Game;
 const Participant = db.Participant;
 const Period = db.Period;
 
-// get games by groups with the count of duplications
-// return type: Promise
-exports.getGames = () => { 
+// get all master games
+exports.getMasterGames = () => { 
     return MasterGame.findAll({
         raw: true
     });
@@ -14,6 +13,23 @@ exports.getGames = () => {
 
 const generateGameId = (seed) => {
     return ("0" + seed).slice(-2) + Date.now();
+}
+
+const generateParticipantId = () => {
+    var letters = "abcdefghijklmnopqrstuvwxyz";
+    var digits = "0123456789";
+    var possible = digits + letters;
+
+    var base = "";
+    for (let i = 0; i < 3; i++) {
+        base += possible.charAt(Math.floor(Math.random() * possible.length));
+    }
+    var pos = Math.floor(Math.random() * 4)
+    var id = base.slice(0, pos) +
+        digits.charAt(Math.floor(Math.random() * digits.length)) +
+        base.slice(pos);
+
+    return id;
 }
 
 // add a group of games
@@ -32,11 +48,10 @@ exports.addMasterGame = async (params) => {
         w:      params.w,
         is_warmup: noMasterGame
     });
-    assignMasterGameToAll(masterGameId, params);
-    return params;
+    assignMasterGameToAll(masterGameId, params.gamma);
 }
 
-const assignMasterGameToAll = async (masterGameId, params) => {
+const assignMasterGameToAll = async (masterGameId, gamma) => {
     var pairs = await getPairs();
     for (var i in pairs) {
         var first = pairs[i].first;
@@ -53,7 +68,7 @@ const assignMasterGameToAll = async (masterGameId, params) => {
             master_game: masterGameId,
             buyer_id: buyer,
             seller_id: seller,
-            exists_2nd_buyer: Math.random() < params.gamma
+            exists_2nd_buyer: Math.random() < gamma
         });
     }
 }
@@ -73,16 +88,16 @@ exports.deleteMasterGame = async (id) => {
     await Game.destroy({
         where: {master_game: id}
     });
-    MasterGame.destroy({
+    await MasterGame.destroy({
         where: {id: id}
     });
     return 1;
 }
 
 // count the number of participants
-exports.countParticipants = () => { 
-    return Participant.count();
-}
+// exports.countParticipants = () => { 
+//     return Participant.count();
+// }
 
 const assignMasterGamesToPair = async (masterGames, buyer, seller) => {
     for (var i in masterGames) {
@@ -102,7 +117,7 @@ exports.addPairs = async (n) => {
         raw: true
     });
     for (var i = 0; i < 2 * n; ) {
-        var randomID = Math.random().toString(36).substring(2, 6);
+        var randomID = generateParticipantId();
         var opponent = await Participant.findOne({
             where: {opponent: null}
         });

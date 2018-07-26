@@ -6,8 +6,8 @@ var Instructor = require('../models/instructor');
 
 
 // add games to request
-const getGames = async (req, res, next) => {
-    var games = await Instructor.getGames();
+const getMasterGames = async (req, res, next) => {
+    var games = await Instructor.getMasterGames();
     req.games = games;
     next();
 }
@@ -38,7 +38,7 @@ const sendError = (req, res) => {
 }
 
 getRouter.get('/admin', auth.checkAuthInstructor);
-getRouter.get('/admin', getGames);
+getRouter.get('/admin', getMasterGames);
 getRouter.get('/admin', getPairs);
 getRouter.get('/admin', renderAdmin);
 getRouter.get('/admin', sendError);
@@ -107,7 +107,7 @@ const sendGames = (req, res, next) => {
 
 postRouter.post('/admin/add_games', checkParams);
 postRouter.post('/admin/add_games', addGames);
-postRouter.post('/admin/add_games', getGames);
+postRouter.post('/admin/add_games', getMasterGames);
 postRouter.post('/admin/add_games', sendGames);
 
 

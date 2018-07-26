@@ -208,8 +208,8 @@ const updatePairs = (pairs, count) => {
 					 "<p>" + p.first + "</p>" + 
 					 "<p>" + p.second + "</p>" +
 				"</td>" +
-				"<td><p> 》 </p>" + 
-					"<div class='delete'>Delete</div>" + 
+				"<td>" +
+					"<p> 》 </p>" + 
 				"</td>" + 
 			"</tr>");
 	});
@@ -265,14 +265,18 @@ const showPair = (first, second) => {
 
 const pageManager = new function(){
 
-	this._pageSize = 10;
+	const pageSize = 10;
 
 	this._getCurrentPage = () => {
 		return parseInt($pages.text());
 	}
 
+	this._getRowCount = () => {
+		return $participantTableBody.find("tr").length;
+	}
+
 	this._getPageCount = () => {
-		return Math.ceil($participantTableBody.find("tr").length / this._pageSize);
+		return Math.ceil(this._getRowCount() / pageSize);
 	}
 
 	this._displayPairs = (start, end) => {
@@ -281,37 +285,37 @@ const pageManager = new function(){
 		for (var i = start; i < end; i++){
 			$rows.eq(i).show();
 		}
-		var pageCount = Math.ceil($rows.length / this._pageSize);
-		$pages.text(Math.ceil((start + 1) / this._pageSize) + "/" + pageCount);
+		$pages.text(Math.ceil((start + 1) / pageSize) + "/" + this._getPageCount());
 	}
 
 	this.previousPage = () => {
 		var currentPage = this._getCurrentPage();
 		if (currentPage > 1){
-			var start = (currentPage - 2) * this._pageSize,
-				end = start + this._pageSize;
+			var start = (currentPage - 2) * pageSize;
+			var end = start + pageSize;
 			this._displayPairs(start, end);
 		}
 	}
 
 	this.nextPage = () => {
-		var pageCount = this._getPageCount(),
-			currentPage = this._getCurrentPage();
-		if (currentPage < pageCount){
-			var start = currentPage * this._pageSize,
-				end = Math.min(start + this._pageSize, $participantTableBody.find("tr").length);
+		var currentPage = this._getCurrentPage();
+		if (currentPage < this._getPageCount()){
+			var start = currentPage * pageSize;
+			var end = Math.min(start + pageSize, this._getRowCount());
 			this._displayPairs(start, end);
 		}
 	}
 
 	this.updateCurrentPage = () => {
-		var start = (this._getCurrentPage() - 1) * this._pageSize;
-			end = Math.min(start + this._pageSize, $participantTableBody.find("tr").length);
+		var start = (this._getCurrentPage() - 1) * pageSize;
+		if (start >= this._getRowCount()) {
+			start -= pageSize;
+		}
+		var end = Math.min(start + pageSize, this._getRowCount());
 		this._displayPairs(start, end);
 	}
 
-	return this._displayPairs(0, this._pageSize);
-
+	return this._displayPairs(0, pageSize);
 }
 
 const cacheManager = new function(){
@@ -332,6 +336,8 @@ const cacheManager = new function(){
 	this.clearAll = () => {
 		window.sessionStorage.clear();
 	}
+
+	return this.clearAll();
 
 }
 

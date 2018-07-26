@@ -58,8 +58,8 @@ exports.getNewGame = async (participantId) => {
         },
         raw: true
     });
-
     var masterGame;
+    
     if (game) {
         masterGame = warmup;
     } else {
@@ -93,7 +93,18 @@ exports.getNewGame = async (participantId) => {
     return game;
 }
 
-exports.savePeriod = (gameId, period) => {
+exports.savePeriod = async (gameId, period) => {
+    // var existsPeriod = await Period.findOne({
+    //     where: {
+    //         game_id: gameId,
+    //         number: period.number
+    //     }
+    // }).then((result) => {
+    //     return result !== null;
+    // });
+    // if (existsPeriod) {
+    //     return;
+    // }
     return Period.create({
         game_id:    gameId,
         number:     period.number,
@@ -109,15 +120,17 @@ exports.savePeriod = (gameId, period) => {
 // update the payoff of participants and set the game done
 exports.endGame = async (game, period) => {
     var pair = [game.buyer_id, game.seller_id];
-    for (let i = 0; i == 1; i++){
+    for (let i = 0; i < 2; i++){
         let id = pair[i];
-        let result = await Participant.findOne({
+        let payoff = await Participant.findOne({
             attributes: ['payoff'],
             where: {id: id},
             raw: true
+        }).then((result) => {
+            return result.payoff;
         });
         await Participant.update({
-            payoff: (result.payoff + 0.1 * period.number)
+            payoff: (payoff + 15 - 0.1 * period.number)
         }, {
             where: {id: id}
         });

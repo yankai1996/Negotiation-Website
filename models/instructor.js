@@ -61,7 +61,7 @@ const assignMasterGameToAll = async (masterGameId, gamma) => {
         }).then((result) => {
             result !== null;
         })
-        var buyer = fisrtIsBuyer ? first: second;
+        var buyer = fisrtIsBuyer ? first : second;
         var seller = fisrtIsBuyer ? second : first;
         Game.create({
             id: generateGameId(i),
@@ -75,14 +75,16 @@ const assignMasterGameToAll = async (masterGameId, gamma) => {
 
 // delete a group of games
 exports.deleteMasterGame = async (id) => {
-    var games = await Game.findAll({
+    var gameIds = await Game.findAll({
         attributes: ['id'],
         where: {master_game: id},
         raw: true
+    }).then((result) => {
+        return result.map(game => game.id)
     });
     await Period.destroy({
         where: {
-            game_id: {$in: games.map(g => g.id)}
+            game_id: {$in: gameIds}
         }
     });
     await Game.destroy({
@@ -94,10 +96,6 @@ exports.deleteMasterGame = async (id) => {
     return 1;
 }
 
-// count the number of participants
-// exports.countParticipants = () => { 
-//     return Participant.count();
-// }
 
 const assignMasterGamesToPair = async (masterGames, buyer, seller) => {
     for (var i in masterGames) {
@@ -118,10 +116,11 @@ exports.addPairs = async (n) => {
     });
     for (var i = 0; i < 2 * n; ) {
         var randomID = generateParticipantId();
-        var opponent = await Participant.findOne({
+        var opponentID = await Participant.findOne({
             where: {opponent: null}
+        }).then((result) => {
+            return result ? result.id : null;
         });
-        var opponentID = opponent ? opponent.id : null;
 
         await Participant.create({
             id: randomID,
@@ -129,7 +128,7 @@ exports.addPairs = async (n) => {
             opponent: opponentID
         }).then((result) => {
             i++;
-            if (opponent){
+            if (opponentID){
                 Participant.update({
                     opponent: randomID
                 }, {

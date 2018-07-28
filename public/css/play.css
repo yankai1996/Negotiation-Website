@@ -369,14 +369,21 @@ button.disable:hover {
 
 .help {
     position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
+    top: 0;
+    left: 0;
     height: 40px;
-    width: 80px;
+    width: 40px;
+    font-family: "Roboto", sans-serif;
+    text-align: center;
+    line-height: 40px;
     background: #159287;
-    border-radius: 40px 40px 0 0;
+    border-radius: 0 0 100% 0;
     color: #fff;
     font-size: 20px;
     cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.help:hover {
+    background: #11746b
 }

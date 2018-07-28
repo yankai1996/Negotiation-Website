@@ -73,6 +73,8 @@
 
   <div id="game" class="box bottom hide">
 
+    <div class="help"></div>
+
     <div class="title" align="center">
       <h1>Your Role: 
         <label class="role"></label>
@@ -158,10 +160,7 @@
           </div>
 
         </div>
-
       </div>
-
-      <!-- <div class="help"><p></p></div> -->
       
     </div>
     
@@ -184,6 +183,7 @@
   <script type="text/javascript" src="/js/play.js"></script>
   <script type="text/javascript">
     var status = <%= flag %>;
+    // var status = 4;
     if (status == 1) {
         $("#welcome-page").show();
         $("#continue-info").hide();
@@ -196,7 +196,9 @@
         $("#description").hide();
     } else if (status == 3) {
         $("#complete-page").show();
-        }
+    } else {
+      $("#game").show();
+    }
   </script>
 </body>
 

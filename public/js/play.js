@@ -85,9 +85,7 @@ var timer = new function() {
 	        }
 	        if (count == 0) {
 	            this.stop();
-	            if (isMyTurn()) {
-	            	socket.emit(EVENT.END_PERIOD, gPeriod);
-	            }
+	            endPeriod();
 	        }
 	    }, 1000);
 
@@ -121,20 +119,11 @@ socket.on("connect", () => {
 
 
 const waiting = (info) => {
-	info = info || "Connecting...";
+	info = info || "Waiting for your opponent...";
 	$waitingInfo.html(info);
 	$waiting.show();
-	$operation.hide();
-}
-
-const isMyTurn = () => {
-	if (gPeriod.proposer == ID && gPeriod.price == null) {
-		return true;
-	}
-	if (gPeriod.proposer != ID && gPeriod.price != null) {
-		return true;
-	}
-	return false;
+	// $operation.hide();
+	// $secondBuyer.hide();
 }
 
 const initOperations = () => {
@@ -184,21 +173,35 @@ const showSecondBuyer = () => {
 		initOperations();
 		showProposal('SECOND');
 		$secondBuyer.show();
-		if (isMyTurn()) {
-			setTimeout(() => {
-				socket.emit(EVENT.END_PERIOD, gPeriod);
-			}, 3000);
-		}
+		setTimeout(() => {
+			endPeriod();
+		}, 3000);
 		return true;
 	}
 	$secondBuyer.hide();
 	return false;
 }
 
+const isMyTurn = () => {
+	if (gPeriod.proposer == ID && gPeriod.price == null) {
+		return true;
+	}
+	if (gPeriod.proposer != ID && gPeriod.price != null) {
+		return true;
+	}
+	return false;
+}
+
+const endPeriod = () => {
+	if (isMyTurn()) {
+		socket.emit(EVENT.END_PERIOD, gPeriod);
+	}
+}
+
 const decide = (accepted) => {
 	gPeriod.accepted = accepted;
 	gPeriod.decided_at = timer.lap();
-	socket.emit(EVENT.END_PERIOD, gPeriod);
+	endPeriod();
 
 	timer.stop();
 	$operationButtons.addClass(CLASS.DISABLE);
@@ -274,6 +277,7 @@ socket.on(EVENT.START, (params) => {
 	$boxes.hide();
 	$waiting.hide();
 	$secondBuyer.hide();
+	$operation.hide();
 	$game.show();
 
 	for (let i in params) {

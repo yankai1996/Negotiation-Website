@@ -27,3 +27,9 @@ The following functions have been implemented:
 * The instructor can add/delete pairs of participants
 * Automatically assign games to new added pairs, and vice versa
 * Game play between participants
+
+## Remaining Problems
+
+* Compability of different browsers
+* Security
+* Re-establishing the game when the browser is refreshed

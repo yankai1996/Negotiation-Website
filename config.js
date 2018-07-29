@@ -11,7 +11,13 @@ var dbConfig = {
 var adminConfig = {
     username: 'admin',
     password: 'admin'
+};
+
+// custom your port number here
+var serverConfig = {
+    port: 8888
 }
 
 exports.dbConfig = dbConfig;
 exports.adminConfig = adminConfig;
+exports.serverConfig = serverConfig;

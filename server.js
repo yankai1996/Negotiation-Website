@@ -8,6 +8,7 @@ var express = require('express')
   , login  = require('./controllers/router_login')
   , admin  = require('./controllers/router_admin')
   , play   = require('./controllers/router_play')
+  , config = require('./config').serverConfig
   ;
 
 var app = express()
@@ -36,6 +37,6 @@ app.use(function(req, res){
     res.end();
 });
 
-server.listen(8888, () => {
-    console.log("Server is running on port 8888!")
+server.listen(config.port, () => {
+    console.log("Server is running on port " + config.port + "!");
 });

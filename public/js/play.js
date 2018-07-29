@@ -110,20 +110,16 @@ var timer = new function() {
 $description.load("/html/description.html");
 
 
-// default address: 'http://localhost'
 var socket = io.connect();
-socket.on("connect", () => {
-	socket.emit(EVENT.LOGIN, ID);
-	console.log("connect!")
-});
+socket.on(EVENT.LOGIN, (data, respond) => {
+	respond(ID);
+})
 
 
 const waiting = (info) => {
 	info = info || "Waiting for your opponent...";
 	$waitingInfo.html(info);
 	$waiting.show();
-	// $operation.hide();
-	// $secondBuyer.hide();
 }
 
 const initOperations = () => {

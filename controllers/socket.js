@@ -163,7 +163,7 @@ exports.listen = (server) => {
         var self, opponent, dealer;
 
         // initialization triggered once login
-        socket.on(EVENT.LOGIN, async (id) => {
+        socket.emit(EVENT.LOGIN, 'What is your ID?', async (id) => {
             self = id;
             var result = await Assistant.getOpponent(self);
             if (result.opponent) {
@@ -175,9 +175,9 @@ exports.listen = (server) => {
             }
         });
 
-
+        // check if the opponent is online
         const opponentIsOnline = () => {
-            return io.sockets.adapter.rooms[opponent] && opponent;
+            return opponent && io.sockets.adapter.rooms[opponent];
         }
 
         // received the proposal from the proposer
@@ -202,7 +202,7 @@ exports.listen = (server) => {
             dealer.startGame();
         });
 
-        // received the decision or timeout
+        // received when decision is made or time is out
         socket.on(EVENT.END_PERIOD, (period) => {
             dealer.syncPeriod(period);
             dealer.endPeriod();

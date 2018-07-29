@@ -346,7 +346,11 @@ $propose.click(() => {
 	if ($propose.hasClass(CLASS.DISABLE)) {
 		return;
 	}
-	gPeriod.price = parseFloat($input.val());
+	var price = parseFloat($input.val());
+	if (isNaN(price)) {
+		return;
+	}
+	gPeriod.price = price;
 	gPeriod.proposed_at = timer.lap();
 	socket.emit(EVENT.PROPOSE, gPeriod);
 

@@ -140,7 +140,7 @@ table.params2 td {
 }
 
 table.params2 td:nth-child(2n+1) {
-    width: 36px;
+    width: 30px;
 }
 
 table.params {

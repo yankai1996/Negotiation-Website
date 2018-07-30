@@ -3,7 +3,6 @@ var Assistant = require('../models/assistant');
 
 const EVENT = {
     COMPLETE: 'complete',
-    DECIDE: 'decide',
     END_PERIOD: 'end period',
     LEAVE_ROOM: 'leave room',
     LOGIN: 'login',
@@ -11,6 +10,7 @@ const EVENT = {
     NEW_PERIOD: 'new period',
     PROPOSE: 'propose',
     READY: 'ready',
+    RESULT: 'decide',
     START: 'start',
     SYNC_GAME: 'sync game',
     TEST: 'test',
@@ -119,12 +119,7 @@ Dealer.prototype.propose = function () {
 
 // end one period
 Dealer.prototype.endPeriod = async function () {
-    if (!this.period.show_up_2nd_buyer) {
-        this.toBoth(EVENT.DECIDE, {
-            accepted: this.period.accepted,
-            decided_at: this.period.decided_at
-        });
-    }
+    this.toBoth(EVENT.RESULT, this.period);
     await Assistant.savePeriod(this.game.id, this.period);
     if (this.period.show_up_2nd_buyer || this.period.accepted || !this.nextPeriod()) {
         this.endGame();

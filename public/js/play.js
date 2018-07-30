@@ -2,7 +2,6 @@
 const ID = $("#participant-id").text();
 const EVENT = {
     COMPLETE: 'complete',
-    DECIDE: 'decide',
     END_PERIOD: 'end period',
     LEAVE_ROOM: 'leave room',
     LOGIN: 'login',
@@ -10,6 +9,7 @@ const EVENT = {
     NEW_PERIOD: 'new period',
     PROPOSE: 'propose',
     READY: 'ready',
+    RESULT: 'decide',
     START: 'start',
     SYNC_GAME: 'sync game',
     TEST: 'test',
@@ -130,7 +130,6 @@ const initOperations = () => {
 }
 
 const askProposal = () => {
-	initOperations();
 	$input.show();
 	$input.val('');
 	$propose.show();
@@ -138,7 +137,6 @@ const askProposal = () => {
 }
 
 const waitProposal = () => {
-	initOperations();
 	showProposal('WAIT');
 	$accept.show();
 	$refuse.show();
@@ -162,20 +160,6 @@ const getReady = () => {
 	setTimeout(() => {
 		socket.emit(EVENT.READY);
 	}, 5000);
-}
-
-const showSecondBuyer = () => {
-	if (gPeriod.show_up_2nd_buyer) {
-		initOperations();
-		showProposal('SECOND');
-		$secondBuyer.show();
-		setTimeout(() => {
-			endPeriod();
-		}, 3000);
-		return true;
-	}
-	$secondBuyer.hide();
-	return false;
 }
 
 const isMyTurn = () => {
@@ -225,12 +209,15 @@ socket.on(EVENT.COMPLETE, () => {
 	socket.disconnect()
 });
 
-socket.on(EVENT.DECIDE, (decision) => {
+socket.on(EVENT.RESULT, (period) => {
 	timer.stop();
 	gPeriod = {};
-	if (decision.accepted) {
+	if (period.show_up_2nd_buyer) {
+		showProposal('SECOND');
+		$secondBuyer.show();
+	} else if (period.accepted) {
 		showProposal('ACCEPTED');
-	} else if (decision.decided_at) {
+	} else if (period.decided_at) {
 		showProposal('REFUSED');
 	} else {
 		showProposal('NONE');
@@ -252,14 +239,16 @@ socket.on(EVENT.NEW_PERIOD, (period) => {
 		var t = $progressLabel.html().split('/')[1];
 		$progressLabel.html(period.number + "/" + t);
 		timer.reset();
+		initOperations();
 
-		if (!showSecondBuyer()) {
-			if (period.proposer == ID) {
-				askProposal();
-			} else {
-				waitProposal();
-			}
-			timer.start();;
+		if (period.show_up_2nd_buyer) {
+			endPeriod();
+		} else if (period.proposer == ID) {
+			askProposal();
+			timer.start();
+		} else {
+			waitProposal();
+			timer.start();
 		}
 	}, 1000);
 });
@@ -280,7 +269,7 @@ socket.on(EVENT.START, (params) => {
 		$("." + i).html(params[i]);
 	}
 	$preparation.fadeIn(1000);
-	$progressLabel.html("1/" + params.t)
+	$progressLabel.html("0/" + params.t)
 	$progressRow.children().slice(2).detach();
 	for (let i = 0; i < params.t; i++) {
 		$progressRow.append("<td><div></div></td>");
@@ -347,7 +336,7 @@ $propose.click(() => {
 		return;
 	}
 	var price = parseFloat($input.val());
-	if (isNaN(price)) {
+	if (isNaN(price) || price < 0) {
 		return;
 	}
 	gPeriod.price = price;

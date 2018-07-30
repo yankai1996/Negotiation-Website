@@ -1,3 +1,4 @@
+$(function(){
 
 const ID = $("#participant-id").text();
 const EVENT = {
@@ -187,6 +188,7 @@ const decide = (accepted) => {
 	$operationButtons.addClass(CLASS.DISABLE);
 }
 
+// show proposal information
 const showProposal = (info) => {
 	$input.hide();
 	$proposal.attr('class', CLASS.PROPOSAL);
@@ -200,6 +202,7 @@ const showProposal = (info) => {
 }
 
 
+// all games have been completed
 socket.on(EVENT.COMPLETE, () => {
 	gPeriod = {};
 	$boxes.hide();
@@ -209,6 +212,7 @@ socket.on(EVENT.COMPLETE, () => {
 	socket.disconnect()
 });
 
+// receiving the result of the current period
 socket.on(EVENT.RESULT, (period) => {
 	timer.stop();
 	gPeriod = {};
@@ -365,6 +369,6 @@ $quit.click(() => {
 });
 
 
-
+});
 
 

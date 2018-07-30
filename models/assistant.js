@@ -45,7 +45,6 @@ exports.existUnfinishedGames = (participantId) => {
 exports.getNewGame = async (participantId) => {
     // get the warmup game first
     var warmup = await MasterGame.findOne({
-        attributes:['id', 'alpha', 'beta', 'gamma', 't', 'w', 'is_warmup'],
         where: {is_warmup: true},
         raw: true
     });
@@ -94,17 +93,6 @@ exports.getNewGame = async (participantId) => {
 }
 
 exports.savePeriod = async (gameId, period) => {
-    // var existsPeriod = await Period.findOne({
-    //     where: {
-    //         game_id: gameId,
-    //         number: period.number
-    //     }
-    // }).then((result) => {
-    //     return result !== null;
-    // });
-    // if (existsPeriod) {
-    //     return;
-    // }
     return Period.create({
         game_id:    gameId,
         number:     period.number,

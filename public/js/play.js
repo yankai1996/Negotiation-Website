@@ -1,6 +1,7 @@
 $(function(){
 
 const ID = $("#participant-id").text();
+const TIME = 60;
 const EVENT = {
     COMPLETE: 'complete',
     END_PERIOD: 'end period',
@@ -43,7 +44,6 @@ var $accept = $("button#accept")
   , $boxes = $(".box")
   , $completePage = $("#complete-page")
   , $continue = $("#continue")
-  , $decision = $("#decision")
   , $description = $("#description")
   , $input = $(".input-box input")
   , $game = $("#game")
@@ -56,10 +56,8 @@ var $accept = $("button#accept")
   , $propose = $("button#propose")
   , $quit = $("#quit")
   , $refuse = $("button#refuse")
-  , $remainingTime = $(".remaining-time")
   , $secondBuyer = $("#2nd-buyer")
   , $timer = $(".timer")
-  , $time = $("#time")
   , $viewDescription = $("#view-description")
   , $waiting = $("#waiting")
   , $waitingInfo = $("#waiting-info")
@@ -67,45 +65,51 @@ var $accept = $("button#accept")
   ;
 
 
-var timer = new function() {
-	const time = 30;
-	var count = time;
-
-	this.start = () => {
-		$remainingTime.animate({width: '0%'}, time*1000);
-		this.set = setInterval(() => {
-	        count--;
-	        $time.html(('0' + count).slice(-2)); 
-	        if (count == 10) {
-	        	$timer.addClass(CLASS.RED);
-	        }
-	        if ($proposal.hasClass(CLASS.WAIT)) {
-	        	$proposal.animate({
-		        	backgroundColor: count % 2 ? '#fafafa' : '#eee'
-		        }, 1000);
-	        }
-	        if (count == 0) {
-	            this.stop();
-	            endPeriod();
-	        }
-	    }, 1000);
-
-	}
-	this.stop = () => {
-		clearInterval(this.set);
-		$remainingTime.stop();
-	}
-	this.reset = () => {
-		this.stop();
-		count = time;
-		$time.html(time);
-		$timer.removeClass(CLASS.RED);
-		$remainingTime.css('width', '100%');
-	}
-	this.lap = () => {
-		return time - count;
-	}
+function Timer($timer) {
+	this.$timer = $timer;
+	this.$clock = $timer.find(".clock");
+	this.$timeBar = $timer.find("td .time-bar");
+	this.count = TIME;
 }
+
+Timer.prototype.start = function () {
+	this.$timeBar.animate({width: '0%'}, this.count * 1000);
+	this.interval = setInterval(() => {
+		this.count--;
+		this.$clock.html(('0' + this.count).slice(-2)); 
+		if (this.count == 10) {
+			this.$timer.addClass(CLASS.RED);
+		}
+		if ($proposal.hasClass(CLASS.WAIT)) {
+			$proposal.animate({
+				backgroundColor: this.count % 2 ? '#fafafa' : '#eee'
+			}, 1000);
+		}
+		if (this.count == 0) {
+			this.stop();
+			endPeriod();
+		}
+	}, 1000);
+}
+
+Timer.prototype.stop = function () {
+	clearInterval(this.interval);
+	this.$timeBar.stop();
+}
+
+Timer.prototype.reset = function () {
+	this.stop();
+	this.count = TIME;
+	this.$clock.html(TIME);
+	this.$timer.removeClass(CLASS.RED);
+	this.$timeBar.css('width', '100%');
+}
+
+Timer.prototype.lap = function () {
+	return TIME - this.count;
+}
+
+var timer = new Timer($timer);
 
 
 $description.load("/html/description.html");

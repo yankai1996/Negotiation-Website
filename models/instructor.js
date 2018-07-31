@@ -34,10 +34,12 @@ const generateParticipantId = () => {
 
 // add a group of games
 exports.addMasterGame = async (params) => {
-    var noMasterGame = await MasterGame.findOne().then((result) => {
+    var noWarmup = await MasterGame.findOne({
+        where: {is_warmup: true}
+    }).then((result) => {
         return result == null;
     });
-    console.log(params)
+    
     var masterGameId = generateGameId(0);
     await MasterGame.create({
         id:     masterGameId,
@@ -46,7 +48,7 @@ exports.addMasterGame = async (params) => {
         gamma:  params.gamma,
         t:      params.t,
         w:      params.w,
-        is_warmup: noMasterGame
+        is_warmup: noWarmup
     });
     assignMasterGameToAll(masterGameId, params.gamma);
 }

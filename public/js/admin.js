@@ -307,7 +307,7 @@ const pageManager = new function(){
 	}
 
 	this.updateCurrentPage = () => {
-		var start = (this._getCurrentPage() - 1) * pageSize;
+		var start = Math.max(0, this._getCurrentPage() - 1) * pageSize;
 		if (start >= this._getRowCount()) {
 			start -= pageSize;
 		}

@@ -36,6 +36,12 @@ body {
     border-top: none;
 }
 
+.tab-content.bottom {
+    height: auto;
+    /* padding-bottom: 20px; */
+    margin-bottom: 20px;
+}
+
 .logout {
     position: absolute;
     right: 0;
@@ -425,8 +431,6 @@ button.alt.small {
 .roles label {
     padding-right: 20px
 }
-
-
 
 .turn-buttons {
     height: 30px;

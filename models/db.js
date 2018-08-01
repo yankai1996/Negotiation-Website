@@ -112,6 +112,10 @@ var Game = sequelize.define('game', {
         type: Sequelize.BOOLEAN,
         allowNull: false
     },
+    buyer_payoff: Sequelize.FLOAT(6,2),
+    seller_payoff: Sequelize.FLOAT(6,2),
+    periods: Sequelize.INTEGER(2),
+    waiting_cost: Sequelize.FLOAT(4,2),
     is_done: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
@@ -137,12 +141,16 @@ var Period = sequelize.define('period', {
         type: Sequelize.INTEGER(2),
         allowNull: false
     },
-    proposer: {
+    proposer_id: {
         type: Sequelize.STRING(4),
         references: {
             model: 'participant',
             key: 'id'
         },
+        allowNull:false
+    },
+    proposer_role: { // "buyer" or "seller"
+        type: Sequelize.STRING(6),
         allowNull: false
     },
     price: Sequelize.FLOAT(6,2),

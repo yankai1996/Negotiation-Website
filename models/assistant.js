@@ -96,7 +96,8 @@ exports.savePeriod = async (gameId, period) => {
     return Period.create({
         game_id:    gameId,
         number:     period.number,
-        proposer:   period.proposer,
+        proposer_id:   period.proposer_id,
+        proposer_role: period.proposer_role,
         price:      period.price,
         proposed_at: period.proposed_at,
         accepted:   period.accepted,
@@ -108,45 +109,48 @@ exports.savePeriod = async (gameId, period) => {
 // update the payoff of participants and set the game done
 exports.endGame = async (game, period) => {
 
-    var buyerPayoff = await Participant.findOne({
-        attributes: ['payoff'],
-        where: {id: period.buyer_id},
+    var buyerPayoff, sellerPayoff;
+
+    if (period.accepted) {
+        buyerPayoff = 12 - period.price - 0.1 * period.number;
+        sellerPayoff = period.price - 0.1 * period.number;
+    } else if (period.exists_2nd_buyer) {
+        buyerPayoff =  -0.1 * period.number;
+        sellerPayoff = 17 - 0.1 * period.number;
+    } else {
+        buyerPayoff =  -0.1 * period.number;
+        sellerPayoff = -0.1 * period.number;
+    }
+
+    var buyerTotalPayoff = buyerPayoff + await Participant.findOne({
+        where: {id: game.buyer_id},
         raw: true
     }).then((result) => {
         return result.payoff;
     });
-    if (period.accepted) {
-        buyerPayoff += 12 - period.price - 0.1 * period.number;
-    } else {
-        buyerPayoff -= 0.1 * period.number;
-    }
     await Participant.update({
-        payoff: buyerPayoff
+        payoff: buyerTotalPayoff
     }, {
-        where: {id: period.buyer_id}
+        where: {id: game.buyer_id}
     });
 
-    var sellerPayoff = await Participant.findOne({
-        attributes: ['payoff'],
-        where: {id: period.seller_id},
+    var sellerTotalPayoff = sellerPayoff + await Participant.findOne({
+        where: {id: game.seller_id},
         raw: true
     }).then((result) => {
         return result.payoff;
     });
-    if (period.accepted) {
-        sellerPayoff += period.price - 0.1 * period.number;
-    } else if (game.exists_2nd_buyer) {
-        sellerPayoff += 17 - 0.1 * period.number;
-    } else {
-        sellerPayoff -= 0.1 * period.number;
-    }
     await Participant.update({
-        payoff: sellerPayoff
+        payoff: sellerTotalPayoff
     }, {
-        where: {id: period.seller_id}
+        where: {id: game.seller_id}
     });
 
     return Game.update({
+        buyer_payoff: buyerPayoff,
+        seller_payoff: sellerPayoff,
+        periods: period.number,
+        waiting_cost: 0.1 * period.number,
         is_done: true
     }, {
         where: {id: game.id}

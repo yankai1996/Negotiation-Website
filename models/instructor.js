@@ -203,8 +203,8 @@ exports.getGamesByParticipant = async (id) => {
 exports.deletePair = async (first, second) => {
     await Period.destroy({
         where: {
-            $or: [{proposer: first},
-                {proposer: second}]
+            $or: [{proposer_id: first},
+                {proposer_id: second}]
         }
     });
     await Game.destroy({

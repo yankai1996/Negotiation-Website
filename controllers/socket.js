@@ -84,7 +84,7 @@ Dealer.prototype.startGame = function () {
     });
     setTimeout(() => {
         this.nextPeriod(true);
-    }, 5000);
+    }, 10000);
 }
 
 // enter the next period
@@ -94,13 +94,18 @@ Dealer.prototype.nextPeriod = function (initial = false) {
         return false;
     }
 
+    var proposerId = Math.random() < this.game.beta
+        ? this.game.buyer_id 
+        : this.game.seller_id;
+
     this.period = {
         number: initial 
             ? 1
             : this.period.number + 1,
-        proposer: Math.random() < this.game.beta
-            ? this.game.buyer_id 
-            : this.game.seller_id,
+        proposer_id: proposerId,
+        proposer_role: proposerId == this.game.buyer_id
+            ? 'buyer'
+            : 'seller',
         price: null,
         proposed_at: null,
         accepted: false,

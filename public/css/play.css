@@ -167,6 +167,11 @@ table.params td:nth-child(3) {
     padding-left: 20px;
 }
 
+table.params tr.highlight {
+    font-weight: bold;
+    color: #159287;
+}
+
 table.params tr:last-child td {
     height: 40px;
     vertical-align: bottom;

@@ -1,7 +1,6 @@
 $(function(){
 
 const ID = $("#participant-id").text();
-const TIME = 60;
 const EVENT = {
     COMPLETE: 'complete',
     END_PERIOD: 'end period',
@@ -28,13 +27,21 @@ const INFO = {
 const CLASS = {
 	ACCEPTED: 'accepted',
 	DISABLE: 'disable',
+	DONE: 'done',
+	HIGHLIGHT: 'highlight',
 	NONE: 'refused',
+	PROPOSAL: 'proposal',
 	RED: 'red',
 	REFUSED: 'refused',
-	PROPOSAL: 'proposal',
 	SECOND: 'second',
 	WAIT: 'wait',
-	DONE: 'done'
+}
+const DEFAULT = {
+	alpha: 0.3,
+	beta: 0.6,
+	gamma: 0.2,
+	t: 10,
+	w: 17
 }
 
 var gPeriod = {};
@@ -66,10 +73,11 @@ var $accept = $("button#accept")
 
 
 function Timer($timer) {
+	this.time = 60;
+	this.count = this.time;
 	this.$timer = $timer;
 	this.$clock = $timer.find(".clock");
-	this.$timeBar = $timer.find("td .time-bar");
-	this.count = TIME;
+	this.$timeBar = $timer.find("td .time-bar");	
 }
 
 Timer.prototype.start = function () {
@@ -99,14 +107,14 @@ Timer.prototype.stop = function () {
 
 Timer.prototype.reset = function () {
 	this.stop();
-	this.count = TIME;
-	this.$clock.html(TIME);
+	this.count = this.time;
+	this.$clock.html(this.time);
 	this.$timer.removeClass(CLASS.RED);
 	this.$timeBar.css('width', '100%');
 }
 
 Timer.prototype.lap = function () {
-	return TIME - this.count;
+	return this.time - this.count;
 }
 
 var timer = new Timer($timer);
@@ -233,7 +241,13 @@ socket.on(EVENT.NEW_GAME, (params) => {
 	$game.show();
 
 	for (let i in params) {
-		$("." + i).html(params[i]);
+		let $param = $("." + i)
+		$param.html(params[i]);
+		if (DEFAULT[i] && params[i] != DEFAULT[i]) {
+			$param.parent().addClass(CLASS.HIGHLIGHT);
+		} else {
+			$param.parent().removeClass(CLASS.HIGHLIGHT);
+		}
 	}
 	$preparation.fadeIn(1000);
 	$progressLabel.html("0/" + params.t)

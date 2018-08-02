@@ -65,8 +65,9 @@ Dealer.prototype.syncPeriod = function (period) {
 }
 
 // start the game
-Dealer.prototype.startGame = function () {
+Dealer.prototype.startGame = async function () {
     var preparationSeconds = 10;
+    var gamesLeft = await Assistant.countUnfinishedGames(this.self) - 1;
     this.toBuyer(EVENT.NEW_GAME, {
         alpha: this.game.alpha,
         beta: this.game.beta,
@@ -74,7 +75,8 @@ Dealer.prototype.startGame = function () {
         t: this.game.t,
         w: this.game.w,
         role: 'buyer',
-        preparationSeconds: preparationSeconds
+        preparationSeconds: preparationSeconds,
+        gamesLeft: gamesLeft
     });
     this.toSeller(EVENT.NEW_GAME, {
         alpha: this.game.alpha,
@@ -83,7 +85,8 @@ Dealer.prototype.startGame = function () {
         t: this.game.t,
         w: this.game.w,
         role: 'seller',
-        preparationSeconds: preparationSeconds
+        preparationSeconds: preparationSeconds,
+        gamesLeft: gamesLeft
     });
     setTimeout(() => {
         this.nextPeriod(true);

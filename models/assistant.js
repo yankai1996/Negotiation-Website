@@ -41,6 +41,16 @@ exports.existUnfinishedGames = (participantId) => {
     });
 }
 
+exports.countUnfinishedGames = (participantId) => {
+    return Game.count({
+        where: {
+            is_done: false,
+            $or: [{buyer_id: participantId},
+                {seller_id: participantId}]
+        }
+    });
+}
+
 // get a game that has not been done
 exports.getNewGame = async (participantId) => {
     // get the warmup game first

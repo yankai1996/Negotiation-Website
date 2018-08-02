@@ -54,6 +54,7 @@ var $accept = $("button#accept")
   , $description = $("#description")
   , $input = $(".input-box input")
   , $game = $("#game")
+  , $gamesLeft = $("#games-left")
   , $operation = $(".operation")
   , $operationButtons = $(".button-box button")
   , $preparation = $("#preparation")
@@ -267,7 +268,8 @@ socket.on(EVENT.NEW_GAME, (data) => {
 			$param.parent().removeClass(CLASS.HIGHLIGHT);
 		}
 	}
-	$progressLabel.html("0/" + data.t)
+	$gamesLeft.html(data.gamesLeft);
+	$progressLabel.html("0/" + data.t);
 	$progressRow.children().slice(2).detach();
 	for (let i = 0; i < data.t; i++) {
 		$progressRow.append("<td><div></div></td>");

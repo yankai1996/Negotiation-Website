@@ -411,3 +411,13 @@ button.disable:hover {
 .help:hover {
     background: #11746b
 }
+
+.top-right {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding-top: 10px;
+    padding-right: 20px;
+    font-family: "Roboto", sans-serif;
+    font-size: 18px;
+}

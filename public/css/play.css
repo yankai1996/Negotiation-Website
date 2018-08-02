@@ -119,11 +119,16 @@ button.big.view:hover {
     text-transform: capitalize;
 }
 
+.preparation-time {
+    font-size: 30px;
+    padding-bottom: 10px;
+}
+
 table.params-preparation {
     width: 100%;
     color: #fff;
     margin-top: 20px;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     font-size: 20px;
 }
 

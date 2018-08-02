@@ -66,13 +66,15 @@ Dealer.prototype.syncPeriod = function (period) {
 
 // start the game
 Dealer.prototype.startGame = function () {
+    var preparationSeconds = 10;
     this.toBuyer(EVENT.NEW_GAME, {
         alpha: this.game.alpha,
         beta: this.game.beta,
         gamma: this.game.gamma,
         t: this.game.t,
         w: this.game.w,
-        role: 'buyer'
+        role: 'buyer',
+        preparationSeconds: preparationSeconds
     });
     this.toSeller(EVENT.NEW_GAME, {
         alpha: this.game.alpha,
@@ -80,11 +82,12 @@ Dealer.prototype.startGame = function () {
         gamma: this.game.gamma,
         t: this.game.t,
         w: this.game.w,
-        role: 'seller'
+        role: 'seller',
+        preparationSeconds: preparationSeconds
     });
     setTimeout(() => {
         this.nextPeriod(true);
-    }, 10000);
+    }, 1000 * preparationSeconds);
 }
 
 // enter the next period
@@ -190,7 +193,7 @@ exports.listen = (server) => {
         socket.on(EVENT.READY, () => {
             socket.join(self);
             if (!opponentIsOnline()) {
-                socket.emit(EVENT.WAIT, "Waiting for your opponent...");
+                socket.emit(EVENT.WAIT, "looking for your opponent...");
             } else {
                 dealer.newGame();
             }

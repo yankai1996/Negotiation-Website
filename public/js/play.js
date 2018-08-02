@@ -57,6 +57,7 @@ var $accept = $("button#accept")
   , $operation = $(".operation")
   , $operationButtons = $(".button-box button")
   , $preparation = $("#preparation")
+  , $preparationTime = $(".preparation-time")
   , $progressRow = $("#progress-row")
   , $progressLabel = $("#progress-label")
   , $proposal = $(".proposal")
@@ -186,6 +187,22 @@ const isMyTurn = () => {
 	return false;
 }
 
+const prepare = (time) => {
+	var count = time;
+	$preparationTime.html(count);
+	$preparation.fadeIn(1000);
+	var interval = setInterval(() => {
+		count--;
+		if (count > 0) {
+			$preparationTime.html(count);
+		} else {
+			$preparationTime.html("Start!");
+			clearInterval(interval);
+			$preparation.fadeOut(1000);
+		}
+	}, 1000);
+}
+
 // show proposal information
 const showProposal = (info) => {
 	$input.hide();
@@ -233,28 +250,29 @@ socket.on(EVENT.LOST_OP, (info) => {
 	timer.stop();
 });
 
-socket.on(EVENT.NEW_GAME, (params) => {
+socket.on(EVENT.NEW_GAME, (data) => {
 	$boxes.hide();
 	$waiting.hide();
+	$game.show();
 	$secondBuyer.hide();
 	$operation.hide();
-	$game.show();
+	timer.reset();
 
-	for (let i in params) {
-		let $param = $("." + i)
-		$param.html(params[i]);
-		if (DEFAULT[i] && params[i] != DEFAULT[i]) {
+	for (let i in data) {
+		let $param = $("." + i);
+		$param.html(data[i]);
+		if (DEFAULT[i] && data[i] != DEFAULT[i]) {
 			$param.parent().addClass(CLASS.HIGHLIGHT);
 		} else {
 			$param.parent().removeClass(CLASS.HIGHLIGHT);
 		}
 	}
-	$preparation.fadeIn(1000);
-	$progressLabel.html("0/" + params.t)
+	$progressLabel.html("0/" + data.t)
 	$progressRow.children().slice(2).detach();
-	for (let i = 0; i < params.t; i++) {
+	for (let i = 0; i < data.t; i++) {
 		$progressRow.append("<td><div></div></td>");
 	}
+	prepare(data.preparationSeconds);
 });
 
 socket.on(EVENT.NEW_PERIOD, (period) => {

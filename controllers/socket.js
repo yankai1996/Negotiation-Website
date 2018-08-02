@@ -7,11 +7,11 @@ const EVENT = {
     LEAVE_ROOM: 'leave room',
     LOGIN: 'login',
     LOST_OP: 'lost opponent',
+    NEW_GAME: 'new game',
     NEW_PERIOD: 'new period',
     PROPOSE: 'propose',
     READY: 'ready',
     RESULT: 'decide',
-    START: 'start',
     SYNC_GAME: 'sync game',
     TEST: 'test',
     WAIT: 'wait opponent',
@@ -66,7 +66,7 @@ Dealer.prototype.syncPeriod = function (period) {
 
 // start the game
 Dealer.prototype.startGame = function () {
-    this.toBuyer(EVENT.START, {
+    this.toBuyer(EVENT.NEW_GAME, {
         alpha: this.game.alpha,
         beta: this.game.beta,
         gamma: this.game.gamma,
@@ -74,7 +74,7 @@ Dealer.prototype.startGame = function () {
         w: this.game.w,
         role: 'buyer'
     });
-    this.toSeller(EVENT.START, {
+    this.toSeller(EVENT.NEW_GAME, {
         alpha: this.game.alpha,
         beta: this.game.beta,
         gamma: this.game.gamma,
@@ -119,7 +119,7 @@ Dealer.prototype.nextPeriod = function (initial = false) {
 
 // send proposal to opponent
 Dealer.prototype.propose = function () {
-    this.io.to(this.opponent).emit(EVENT.PROPOSE, this.period);
+    this.toBoth(EVENT.PROPOSE, this.period);
 }
 
 // end one period

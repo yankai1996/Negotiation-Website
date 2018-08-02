@@ -12,7 +12,11 @@ exports.getMasterGames = () => {
 }
 
 const generateGameId = (seed) => {
-    return ("0" + seed).slice(-2) + Date.now();
+    if (seed == null) {
+        return "00" + Date.now();
+    } else {
+        return Date.now() + "-" + ("0" + seed).slice(-2);
+    }
 }
 
 const generateParticipantId = () => {
@@ -40,7 +44,7 @@ exports.addMasterGame = async (params) => {
         return result == null;
     });
     
-    var masterGameId = generateGameId(0);
+    var masterGameId = generateGameId();
     await MasterGame.create({
         id:     masterGameId,
         alpha:  params.alpha,

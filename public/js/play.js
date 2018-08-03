@@ -167,9 +167,19 @@ const getReady = () => {
 }
 
 const initPeriod = () => {
-	$progressRow.find('div').eq(gPeriod.number - 1).addClass(CLASS.DONE);
+	var $grids = $progressRow.find('div');
+	var $current = $grids.eq(gPeriod.number - 1);
+	$current.addClass(CLASS.DONE);
+	var $gridsDone = $progressRow.find('div.done');
+	if ($grids.length - $gridsDone.length < 2) {
+		$gridsDone.css('backgroundColor', '#f55');
+	} else if ($gridsDone.length / $grids.length > 0.5) {
+		$gridsDone.css('backgroundColor', '#fa0');
+	}
+
 	var t = $progressLabel.html().split('/')[1];
 	$progressLabel.html(gPeriod.number + "/" + t);
+
 	$operation.show();
 	$input.hide();
 	$proposal.hide();

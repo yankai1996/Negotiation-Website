@@ -273,15 +273,15 @@ table.timer td:first-child {
 }
 
 table.timer.red {
-    color: red;
+    color: #f55
 }
 
 table.timer.red .time-bar {
-    background-color: red;
+    background-color: #f55;
 }
 
 table.timer.red .time-bar-container {
-    border-color: red;
+    border-color: #f55;
 }
 
 /* Operation Panel */

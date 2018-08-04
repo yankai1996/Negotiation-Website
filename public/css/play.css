@@ -41,7 +41,7 @@ button.big.view:hover {
     right: -5;
     text-align: center;
     vertical-align: middle;
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: rgba(0, 0, 0, 0.3);
 }
 
 .round {
@@ -55,6 +55,7 @@ button.big.view:hover {
     background: #fff;
     font-family: "Roboto", sans-serif;
     text-align: center;
+    box-shadow: 0 0 15px 4px #888;
 }
 
 .round>* {
@@ -74,7 +75,6 @@ button.big.view:hover {
     top: 0;
     left: 0;
     border: 16px solid #f3f3f3;
-    /* border: 16px solid #fff; */
     border-radius: 50%;
     border-top: 16px solid #159287;
     width: 200px;
@@ -106,30 +106,40 @@ button.big.view:hover {
     margin: auto;
     top: 50%;
     transform: translateY(-50%);
-    width: 400px;
-    padding: 20px;
-    background: #159287;
-    color: #fff;
+    width: 256px;
+    padding: 40px;
+    /* padding-top: 40px; */
+    background: #fff;
     font-family: "Roboto", sans-serif;
-    font-size: 20px;
-    border-radius: 5px;
+    font-size: 16px;
+    text-align: center;
+    box-shadow: 0 0 15px 4px #888;
 }
 
 .role {
     text-transform: capitalize;
 }
 
+.preparation-content div {
+    font-size: 20px;
+}
+
 .preparation-time {
-    font-size: 30px;
-    padding-bottom: 10px;
+    margin: auto;
+    width: 100px;
+    height: 100px;
+    line-height: 100px;
+    font-size: 40px;
+    color: #159287;
+    border: 1px solid #159287;
+    border-radius: 50%;
 }
 
 table.params-preparation {
-    width: 100%;
-    color: #fff;
+    margin: auto;
+    /* width: 100%; */
     margin-top: 20px;
     margin-bottom: 20px;
-    font-size: 20px;
 }
 
 table.params-preparation td {
@@ -141,9 +151,9 @@ table.params-preparation td {
     white-space: nowrap;
 }
 
-table.params-preparation td:nth-child(2n+1) {
+/* table.params-preparation td:nth-child(2n+1) {
     width: 30px;
-}
+} */
 
 table.params {
     font-family: "Roboto", sans-serif;
@@ -172,7 +182,7 @@ table.params td:nth-child(3) {
     padding-left: 20px;
 }
 
-table.params tr.highlight {
+table tr.highlight {
     font-weight: bold;
     color: #159287;
 }

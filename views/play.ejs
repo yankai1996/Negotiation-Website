@@ -46,23 +46,27 @@
 
   <div id="preparation" class="backdrop">
     <div class="preparation-content">
-      <div>Your role:
+      <div>Your role: 
         <label class="role"></label>
       </div>
       <table class="params-preparation">
         <tr>
           <td>&alpha; =</td>
           <td class="alpha"></td>
-
+        </tr>
+        <tr>
           <td>&beta; =</td>
           <td class="beta"></td>
-
+        </tr>
+        <tr>
           <td>&gamma; =</td>
           <td class="gamma"></td>
-
+        </tr>
+        <tr>
           <td>T =</td>
           <td class="t"></td>
-
+        </tr>
+        <tr>
           <td>w =</td>
           <td class="w"></td>
         </tr>
@@ -78,6 +82,11 @@
   <div id="game" class="box bottom hide">
 
     <div class="help"></div>
+
+    <div class="top-right">
+      <label>Games Left: </label> 
+      <label id="games-left"></label>
+    </div>
 
     <div class="title" align="center">
       <h1>Your Role: 
@@ -208,6 +217,7 @@
         $("#complete-page").show();
     } else {
       $("#game").show();
+      $("#preparation").show();
     }
   </script>
 </body>

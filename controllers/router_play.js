@@ -23,7 +23,6 @@ const renderPlay = (req, res) => {
     res.render('play', {
         participantID: req.cookies.participant,
         flag: req.status
-        // flag: 2
     });
 }
 

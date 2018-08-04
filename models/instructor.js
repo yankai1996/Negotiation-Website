@@ -231,7 +231,37 @@ exports.deletePair = async (first, second) => {
                 {id: second}]
         }
     });
-    return 2;
+    return true;
+}
+
+exports.resetPair = async (first, second) => {
+    await Period.destroy({
+        where: {
+            $or: [{proposer_id: first},
+                {proposer_id: second}]
+        }
+    });
+    await Game.update({
+        buyer_payoff: null,
+        seller_payoff: null,
+        periods: null,
+        cost: null,
+        is_done: false
+    }, {
+        where: {
+            $or: [{buyer_id: first},
+                {seller_id: first}]
+        }
+    });
+    await Participant.update({
+        payoff: 40
+    }, {
+        where: {
+            $or: [{id: first},
+                {id: second}]
+        }
+    });
+    return true;
 }
 
 

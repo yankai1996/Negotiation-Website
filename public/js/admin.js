@@ -16,6 +16,7 @@ var $addGamesButton = $("button.add-games")
   , $pairCount = $("#count")
   , $parameters = $(".param")
   , $participantTableBody = $("#participant-table-body")
+  , $resetPair = $("#reset-pair")
   , $rightButton = $(".turn-buttons button").eq(1)
   , $rightPanel = $(".panel.right")
   , $tabButtons = $(".tab-button")
@@ -36,6 +37,8 @@ const openTab = (index) => {
 
 const buttonManager = new function(){
 
+	const hiddenWidth = 170;
+
 	// hide all delete buttons
 	this.hideDelete = () => {
 		$(".delete").animate({width:'hide'}, 300);
@@ -54,22 +57,22 @@ const buttonManager = new function(){
 	}
 
 	this.hideDeletePair = () => {
-		if ($deleteContainer.width() > 85) {
+		if ($deleteContainer.width() > hiddenWidth) {
 			$deleteContainer.animate({
-				width: '-=85px',
+				width: '-=' + hiddenWidth + 'px',
 				height: '-=10px',
 				bottom: '+=5px'
-			}, 100);
+			}, 0);
 		}	
 	}
 
 	this.toggleDeletePair = () => {
 		if ($deleteContainer.width() < 40) {
 			$deleteContainer.animate({
-				width: '+=85px',
+				width: '+=' + hiddenWidth + 'px',
 				height: '+=10px',
 				bottom: '-=5px'
-			}, 100);
+			}, 0);
 		} else {
 			this.hideDeletePair();
 		}
@@ -397,6 +400,24 @@ const deletePair = (first, second) => {
 	});
 }
 
+const resetPair = (first, second) => {
+	$.ajax({
+		url:  "/admin/reset_pair",
+		type: "POST",
+		data: {
+			first: first,
+			second: second
+		},
+		success: (res) => {
+			if (res.success){
+				cacheManager.removeCachedPair(first, second);
+				refreshInsightTable(res.games);
+			} else {
+				alert(res);
+			}
+		}
+	});
+}
 
 
 $logout.click(() => {
@@ -470,7 +491,13 @@ $deletePair.click(() => {
 	var first = getFirst();
 	var second = getSecond();
 	deletePair(first, second);
-})
+});
+
+$resetPair.click(() => {
+	var first = getFirst();
+	var second = getSecond();
+	resetPair(first, second);
+});
 
 
 // show the Games tab

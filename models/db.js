@@ -26,7 +26,7 @@ var Participant = sequelize.define('participant', {
     },
     payoff: {
         type: Sequelize.FLOAT(5,2),
-        defaultValue: 0
+        defaultValue: 40
     }, 
     opponent: {
         type: Sequelize.STRING(4),
@@ -115,7 +115,7 @@ var Game = sequelize.define('game', {
     buyer_payoff: Sequelize.FLOAT(6,2),
     seller_payoff: Sequelize.FLOAT(6,2),
     periods: Sequelize.INTEGER(2),
-    waiting_cost: Sequelize.FLOAT(4,2),
+    cost: Sequelize.FLOAT(4,2),
     is_done: {
         type: Sequelize.BOOLEAN,
         allowNull: false,

@@ -156,7 +156,7 @@ exports.endGame = async (game, period) => {
         where: {id: game.seller_id}
     });
 
-    var cost = 0.1 * period.number;
+    var cost = +(0.1 * period.number).toFixed(2);
 
     return Game.update({
         buyer_payoff: buyerPayoff,

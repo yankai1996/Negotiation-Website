@@ -156,14 +156,24 @@ exports.endGame = async (game, period) => {
         where: {id: game.seller_id}
     });
 
+    var waiting_cost = 0.1 * period.number;
+
     return Game.update({
         buyer_payoff: buyerPayoff,
         seller_payoff: sellerPayoff,
         periods: period.number,
-        waiting_cost: 0.1 * period.number,
+        waiting_cost: waiting_cost,
         is_done: true
     }, {
         where: {id: game.id}
+    }).then((result) => {
+        return {
+            price: period.price,
+            cost: waiting_cost,
+            exists2ndBuyer: game.exists_2nd_buyer,
+            buyerProfit: buyerPayoff,
+            sellerProfit: sellerPayoff
+        }
     })
 }
 

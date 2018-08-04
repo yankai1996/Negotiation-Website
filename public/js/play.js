@@ -3,6 +3,7 @@ $(function(){
 const ID = $("#participant-id").text();
 const EVENT = {
     COMPLETE: 'complete',
+    DECISION: 'decision',
     END_PERIOD: 'end period',
     LEAVE_ROOM: 'leave room',
     LOGIN: 'login',
@@ -11,7 +12,7 @@ const EVENT = {
     NEW_PERIOD: 'new period',
     PROPOSE: 'propose',
     READY: 'ready',
-    RESULT: 'decide',
+    RESULT: 'result',
     SYNC_GAME: 'sync game',
     TEST: 'test',
     WAIT: 'wait opponent',
@@ -36,13 +37,6 @@ const CLASS = {
 	SECOND: 'second',
 	WAIT: 'wait',
 }
-const DEFAULT = {
-	alpha: 0.3,
-	beta: 0.6,
-	gamma: 0.2,
-	t: 10,
-	w: 17
-}
 
 var gPeriod = {};
 
@@ -64,7 +58,9 @@ var $accept = $("button#accept")
   , $proposal = $(".proposal")
   , $propose = $("button#propose")
   , $quit = $("#quit")
+  , $ready = $(".ready")
   , $refuse = $("button#refuse")
+  , $result = $("#result")
   , $secondBuyer = $("#2nd-buyer")
   , $timer = $(".timer#timer1")
   , $viewDescription = $("#view-description")
@@ -228,7 +224,7 @@ const showProposal = (info) => {
 }
 
 const waiting = (info) => {
-	info = info || "Waiting for your opponent...";
+	info = info || "Looking for your opponent...";
 	$waitingInfo.html(info);
 	$backdrops.hide();
 	$waiting.show();
@@ -251,6 +247,21 @@ socket.on(EVENT.COMPLETE, () => {
 	socket.disconnect()
 });
 
+// receiving the result of the current period
+socket.on(EVENT.DECISION, (period) => {
+	timer.stop();
+	gPeriod = {};
+	if (period.show_up_2nd_buyer) {
+		showProposal('SECOND');
+		$secondBuyer.show();
+	} else if (period.accepted) {
+		showProposal('ACCEPTED');
+	} else if (period.decided_at) {
+		showProposal('REFUSED');
+	} else {
+		showProposal('NONE');
+	}
+});
 
 socket.on(EVENT.LOGIN, (data, respond) => {
 	respond(ID);
@@ -269,10 +280,17 @@ socket.on(EVENT.NEW_GAME, (data) => {
 	$operation.hide();
 	timer.reset();
 
+	const defaultParams = {
+		alpha: 0.3,
+		beta: 0.6,
+		gamma: 0.2,
+		t: 10,
+		w: 17
+	};
 	for (let i in data) {
 		let $param = $("." + i);
 		$param.html(data[i]);
-		if (DEFAULT[i] && data[i] != DEFAULT[i]) {
+		if (defaultParams[i] && data[i] != defaultParams[i]) {
 			$param.parent().addClass(CLASS.HIGHLIGHT);
 		} else {
 			$param.parent().removeClass(CLASS.HIGHLIGHT);
@@ -290,8 +308,7 @@ socket.on(EVENT.NEW_GAME, (data) => {
 socket.on(EVENT.NEW_PERIOD, (period) => {
 	gPeriod = period;
 
-	const delay = 1000;
-	$preparation.fadeOut(delay);
+	$preparation.fadeOut(1000);
 	setTimeout(() => {
 		initPeriod();
 		if (period.show_up_2nd_buyer) {
@@ -303,7 +320,7 @@ socket.on(EVENT.NEW_PERIOD, (period) => {
 			waitProposal();
 			timer.start();
 		}
-	}, delay);
+	}, 1000);
 });
 
 socket.on(EVENT.PROPOSE, (period) => {
@@ -315,20 +332,19 @@ socket.on(EVENT.PROPOSE, (period) => {
 	timer.start();
 });
 
-// receiving the result of the current period
-socket.on(EVENT.RESULT, (period) => {
-	timer.stop();
-	gPeriod = {};
-	if (period.show_up_2nd_buyer) {
-		showProposal('SECOND');
-		$secondBuyer.show();
-	} else if (period.accepted) {
-		showProposal('ACCEPTED');
-	} else if (period.decided_at) {
-		showProposal('REFUSED');
-	} else {
-		showProposal('NONE');
+socket.on(EVENT.RESULT, (result) => {
+	for (let i in result) {
+		if (i == 'exists2ndBuyer') {
+			$("#exists2ndBuyer").html(result[i]);
+		} else if (result[i] < 0) {
+			$("#" + i).html("-$" + (-result[i]));
+		} else {
+			$("#" + i).html("$" + result[i]);
+		}
 	}
+	setTimeout(() => {
+		$result.show();
+	}, 1000);
 });
 
 socket.on(EVENT.SYNC_GAME, (game) => {
@@ -361,11 +377,7 @@ socket.on(EVENT.WARMED_UP, () => {
 });
 
 
-$warmup.click(() => {
-	getReady();
-});
-
-$continue.click(() => {
+$ready.click(() => {
 	getReady();
 });
 
@@ -390,7 +402,7 @@ $propose.click(() => {
 	if ($propose.hasClass(CLASS.DISABLE)) {
 		return;
 	}
-	var price = parseFloat($input.val());
+	var price = parseFloat($input.val()).toFixed(2);
 	if (isNaN(price) || price < 0) {
 		return;
 	}

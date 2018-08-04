@@ -31,9 +31,9 @@
   		</div>
   	</div>
   	<div class="padding-end" align="center">
-  		<button id="warm-up" class="big">Let's Start a Warm-Up !</button>
+  		<button id="warm-up" class="big ready">Let's Start a Warm-Up !</button>
       <button id="view-description" class="big view">Description</button>
-      <button id="continue" class="big">CONTINUE</button>
+      <button id="continue" class="big ready">CONTINUE</button>
   	</div>
   </div>
 
@@ -49,7 +49,7 @@
       <div>Your role: 
         <label class="role"></label>
       </div>
-      <table class="params-preparation">
+      <table>
         <tr>
           <td>&alpha; =</td>
           <td class="alpha"></td>
@@ -76,7 +76,32 @@
   </div>
 
   <div id="result" class="backdrop">
-    <div></div>
+    <div class="result-content">
+      <h2>Outcome</h2>
+      <table>
+        <tr>
+          <td>Final Price: </td>
+          <td id="price"></td>
+        </tr>
+        <tr>
+          <td>Second Buyer: </td>
+          <td id="exists2ndBuyer"></td>
+        </tr>
+        <tr>
+          <td>Cost: </td>
+          <td id="cost"></td>
+        </tr>
+        <tr>
+          <td>Your Profit: </td>
+          <td id="selfProfit"></td>
+        </tr>
+        <tr>
+          <td>Opponent's Profit: </td>
+          <td id="opponentProfit"></td>
+        </tr>
+      </table>
+      <button class="big ready">CONTINUE</button>
+    </div>
   </div>
 
   <div id="game" class="box bottom hide">
@@ -217,7 +242,7 @@
         $("#complete-page").show();
     } else {
       $("#game").show();
-      $("#preparation").show();
+      $("#result").show();
     }
   </script>
 </body>

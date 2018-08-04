@@ -3,6 +3,7 @@ var Assistant = require('../models/assistant');
 
 const EVENT = {
     COMPLETE: 'complete',
+    DECISION: 'decision',
     END_PERIOD: 'end period',
     LEAVE_ROOM: 'leave room',
     LOGIN: 'login',
@@ -11,7 +12,7 @@ const EVENT = {
     NEW_PERIOD: 'new period',
     PROPOSE: 'propose',
     READY: 'ready',
-    RESULT: 'decide',
+    RESULT: 'result',
     SYNC_GAME: 'sync game',
     TEST: 'test',
     WAIT: 'wait opponent',
@@ -130,7 +131,7 @@ Dealer.prototype.propose = function () {
 
 // end one period
 Dealer.prototype.endPeriod = async function () {
-    this.toBoth(EVENT.RESULT, this.period);
+    this.toBoth(EVENT.DECISION, this.period);
     await Assistant.savePeriod(this.game.id, this.period);
     if (this.period.show_up_2nd_buyer || this.period.accepted || !this.nextPeriod()) {
         this.endGame();
@@ -139,20 +140,34 @@ Dealer.prototype.endPeriod = async function () {
 
 // end one game
 Dealer.prototype.endGame = async function () {
-    await Assistant.endGame(this.game, this.period);
-    var nextGame = await Assistant.getNewGame(this.self);
-    setTimeout(() => {
-        if (this.game.is_warmup) {
-            this.toBoth(EVENT.WARMED_UP);
-        } else if (!nextGame) {
-            this.toBoth(EVENT.COMPLETE, "You have finished all the games.");
-        } else {
-            this.toBoth(EVENT.WAIT, "Waiting for your next opponent...")
-            setTimeout(() => {
-                this.newGame(nextGame);
-            }, 5000);
-        }
-    }, 1000);
+    var result = await Assistant.endGame(this.game, this.period);
+    // var nextGame = await Assistant.getNewGame(this.self);
+    // setTimeout(() => {
+    //     if (this.game.is_warmup) {
+    //         this.toBoth(EVENT.WARMED_UP);
+    //     } else if (!nextGame) {
+    //         this.toBoth(EVENT.COMPLETE, "You have finished all the games.");
+    //     } else {
+    //         this.toBoth(EVENT.WAIT, "Waiting for your next opponent...")
+    //         setTimeout(() => {
+    //             this.newGame(nextGame);
+    //         }, 5000);
+    //     }
+    // }, 1000);
+    this.toBuyer(EVENT.RESULT, {
+        price: result.price,
+        exists2ndBuyer: result.exists2ndBuyer,
+        cost: result.cost,
+        selfProfit: result.buyerProfit,
+        opponentProfit: result.sellerProfit
+    });
+    this.toSeller(EVENT.RESULT, {
+        price: result.price,
+        exists2ndBuyer: result.exists2ndBuyer,
+        cost: result.cost,
+        selfProfit: result.sellerProfit,
+        opponentProfit: result.buyerProfit
+    });
 }
 
 // if all the games have been finished
@@ -196,7 +211,7 @@ exports.listen = (server) => {
         socket.on(EVENT.READY, () => {
             socket.join(self);
             if (!opponentIsOnline()) {
-                socket.emit(EVENT.WAIT, "looking for your opponent...");
+                socket.emit(EVENT.WAIT, "Looking for your opponent...");
             } else {
                 dealer.newGame();
             }

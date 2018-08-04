@@ -1,7 +1,7 @@
 @import url(https://fonts.googleapis.com/css?family=Roboto:300);
 h1 {
   font-family: "Roboto", sans-serif;
-  font-weight: 100;
+  font-weight: 300;
   color: #159287;
 }
 
@@ -26,7 +26,7 @@ h1 {
 
 .form label {
   font-family: "Roboto", sans-serif;
-  font-weight: bold;
+  font-weight: 300;
   text-transform: uppercase;
   position: absolute;
   color: #159287;
@@ -66,6 +66,7 @@ h1 {
 
 .form input {
   font-family: "Roboto", sans-serif;
+  font-weight: 300;
   outline: 0;
   background: #f2f2f2;
   width: 90%;
@@ -87,6 +88,7 @@ h1 {
 
 .form button {
   font-family: "Roboto", sans-serif;
+  font-weight: 300;
   text-transform: uppercase;
   outline: 0;
   background: #159287;
@@ -107,6 +109,7 @@ h1 {
 
 #show {
   font-family: "Roboto", sans-serif;
+  font-weight: 300;
   height: 14px;
   padding-left: 15px;
   text-align: left;

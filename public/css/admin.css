@@ -1,6 +1,19 @@
 @import url(https://fonts.googleapis.com/css?family=Roboto:300);
 body {
     font-family: "Roboto", sans-serif;
+    font-weight: 300;
+}
+
+h3 {
+    font-weight: 300;
+}
+
+table {
+    font-weight: 300;
+}
+
+table thead th {
+    font-weight: 400;
 }
 
 /* Tabs */
@@ -102,7 +115,7 @@ table.games tbody td:last-child {
     text-align: center;
     line-height: 35px;
     font-size: 16px;
-    font-weight: 800;
+    font-weight: 300;
     color: #fff;
     background-color: red;
     cursor: pointer;
@@ -213,7 +226,7 @@ table.insight {
 table.insight td, table.insight th {
     display: table-cell;
     padding: 8px 10px;
-    font-weight: normal;
+    font-weight: 300;
     text-align: left;
     vertical-align: middle;
     white-space: nowrap;
@@ -256,7 +269,7 @@ table.assignment tbody .assign {
 table.assignment td, table.assignment th {
     display: table-cell;
     padding: 8px 10px;
-    font-weight: normal;
+    font-weight: 300;
     text-align: left;
     vertical-align: middle;
 }
@@ -414,7 +427,7 @@ button.alt.small {
     text-align: center;
     line-height: 35px;
     font-size: 16px;
-    font-weight: 800;
+    font-weight: 300;
     color: #fff;
     background-color: red;
     cursor: pointer;

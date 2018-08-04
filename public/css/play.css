@@ -54,6 +54,7 @@ button.big.view:hover {
     border-radius: 50%;
     background: #fff;
     font-family: "Roboto", sans-serif;
+    font-weight: 300;
     text-align: center;
     box-shadow: 0 0 15px 4px #888;
 }
@@ -109,13 +110,13 @@ button.big.view:hover {
     width: 300px;
     padding: 10px 40px 30px 40px;
     background: #fff;
-    /* font-family: "Roboto", sans-serif; */
     text-align: center;
     box-shadow: 0 0 15px 4px #888;
 }
 
 .result-content table {
     font-family: "Roboto", sans-serif;
+    font-weight: 300;
     margin: 30px auto
 }
 
@@ -138,6 +139,7 @@ button.big.view:hover {
     padding: 40px;
     background: #fff;
     font-family: "Roboto", sans-serif;
+    font-weight: 300;
     font-size: 16px;
     text-align: center;
     box-shadow: 0 0 15px 4px #888;
@@ -184,6 +186,7 @@ button.big.view:hover {
 
 table.params {
     font-family: "Roboto", sans-serif;
+    font-weight: 300;
     margin: auto;
     margin-top: 20px;
     margin-bottom: 30px;
@@ -223,12 +226,9 @@ table.params tr:last-child td label {
     margin-right: 30px;
 }
 
-.information {
-    font-family: "Roboto", sans-serif;
-}
-
 table.progress {
     font-family: "Roboto", sans-serif;
+    font-weight: 300;
     width: 100%;
 }
 
@@ -259,6 +259,7 @@ table.progress td>div.done {
     margin-top: 20px;
     margin-bottom: -20px;
     font-family: "Roboto", sans-serif;
+    font-weight: 300;
 }
 
 .panel.left {
@@ -399,7 +400,7 @@ button.alt {
     border-top: 1px solid #ddd;
     border-radius: 5px;
     font-size: 16px;
-    font-weight: 100;
+    font-weight: 300;
     color: #666;
     background: #fff;
     outline: none;
@@ -435,6 +436,7 @@ button.disable:hover {
     height: 40px;
     width: 40px;
     font-family: "Roboto", sans-serif;
+    font-weight: 300;
     text-align: center;
     line-height: 40px;
     background: #159287;
@@ -456,5 +458,6 @@ button.disable:hover {
     padding-top: 10px;
     padding-right: 20px;
     font-family: "Roboto", sans-serif;
+    font-weight: 300;
     font-size: 18px;
 }

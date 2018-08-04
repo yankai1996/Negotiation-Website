@@ -16,7 +16,6 @@ const EVENT = {
     SYNC_GAME: 'sync game',
     TEST: 'test',
     WAIT: 'wait opponent',
-    WARMED_UP: 'warmed up'
 }
 
 
@@ -43,10 +42,8 @@ Dealer.prototype.toBoth = function (event, data) {
 }
 
 // get a new game
-Dealer.prototype.newGame = async function (game) {
-    if (game === undefined) {
-        game = await Assistant.getNewGame(this.self);
-    }
+Dealer.prototype.newGame = async function () {
+    var game = await Assistant.getNewGame(this.self);
     if (!game) {
         this.complete = true;
         this.toBoth(EVENT.COMPLETE, "You have finished all the games.");
@@ -75,6 +72,7 @@ Dealer.prototype.startGame = async function () {
         gamma: this.game.gamma,
         t: this.game.t,
         w: this.game.w,
+        isWarmup: this.game.is_warmup,
         role: 'buyer',
         preparationSeconds: preparationSeconds,
         gamesLeft: gamesLeft
@@ -85,6 +83,7 @@ Dealer.prototype.startGame = async function () {
         gamma: this.game.gamma,
         t: this.game.t,
         w: this.game.w,
+        isWarmup: this.game.is_warmup,
         role: 'seller',
         preparationSeconds: preparationSeconds,
         gamesLeft: gamesLeft
@@ -141,19 +140,6 @@ Dealer.prototype.endPeriod = async function () {
 // end one game
 Dealer.prototype.endGame = async function () {
     var result = await Assistant.endGame(this.game, this.period);
-    // var nextGame = await Assistant.getNewGame(this.self);
-    // setTimeout(() => {
-    //     if (this.game.is_warmup) {
-    //         this.toBoth(EVENT.WARMED_UP);
-    //     } else if (!nextGame) {
-    //         this.toBoth(EVENT.COMPLETE, "You have finished all the games.");
-    //     } else {
-    //         this.toBoth(EVENT.WAIT, "Waiting for your next opponent...")
-    //         setTimeout(() => {
-    //             this.newGame(nextGame);
-    //         }, 5000);
-    //     }
-    // }, 1000);
     this.toBuyer(EVENT.RESULT, {
         price: result.price,
         exists2ndBuyer: result.exists2ndBuyer,

@@ -16,7 +16,6 @@ const EVENT = {
     SYNC_GAME: 'sync game',
     TEST: 'test',
     WAIT: 'wait opponent',
-    WARMED_UP: 'warmed up'
 }
 const INFO = {
 	ACCEPTED: "Proposal Accpeted!",
@@ -39,6 +38,7 @@ const CLASS = {
 }
 
 var gPeriod = {};
+var gWarmup = false;
 
 var $accept = $("button#accept")
   , $backdrops = $(".backdrop")
@@ -155,13 +155,6 @@ const endPeriod = () => {
 	}
 }
 
-const getReady = () => {
-	waiting();
-	setTimeout(() => {
-		socket.emit(EVENT.READY);
-	}, 5000);
-}
-
 const initPeriod = () => {
 	var $grids = $progressRow.find('div');
 	var $current = $grids.eq(gPeriod.number - 1);
@@ -250,7 +243,6 @@ socket.on(EVENT.COMPLETE, () => {
 // receiving the result of the current period
 socket.on(EVENT.DECISION, (period) => {
 	timer.stop();
-	gPeriod = {};
 	if (period.show_up_2nd_buyer) {
 		showProposal('SECOND');
 		$secondBuyer.show();
@@ -279,6 +271,8 @@ socket.on(EVENT.NEW_GAME, (data) => {
 	$secondBuyer.hide();
 	$operation.hide();
 	timer.reset();
+
+	gWarmup = data.isWarmup;
 
 	const defaultParams = {
 		alpha: 0.3,
@@ -360,25 +354,30 @@ socket.on(EVENT.WAIT, (info) => {
 	waiting(info);
 });
 
-socket.on(EVENT.WARMED_UP, () => {
-	$("#game").hide();
-	$("#welcome-page").show();
-	$("#welcome").hide();
-	$("#good-job").show();
-    $("#welcome-info").hide();
-	$("#continue-info").hide();
-	$("#good-job-info").show();
-	$warmup.hide();
-	$description.hide();
-	$viewDescription.show();
-	$continue.show();
-
-	socket.emit(EVENT.LEAVE_ROOM);
-});
-
-
 $ready.click(() => {
-	getReady();
+	if (!gWarmup) {
+		waiting();
+		setTimeout(() => {
+			socket.emit(EVENT.READY);
+		}, 5000);
+	} else {
+		$("#game").hide();
+		$("#welcome-page").show();
+		$("#welcome").hide();
+		$("#good-job").show();
+	    $("#welcome-info").hide();
+		$("#continue-info").hide();
+		$("#good-job-info").show();
+		$backdrops.hide();
+		$warmup.hide();
+		$description.hide();
+		$viewDescription.show();
+		$continue.show();
+
+		socket.emit(EVENT.LEAVE_ROOM);
+		gWarmup = false;
+	}
+
 });
 
 $viewDescription.click(() => {
@@ -402,7 +401,7 @@ $propose.click(() => {
 	if ($propose.hasClass(CLASS.DISABLE)) {
 		return;
 	}
-	var price = parseFloat($input.val()).toFixed(2);
+	var price = +parseFloat($input.val()).toFixed(2);
 	if (isNaN(price) || price < 0) {
 		return;
 	}
@@ -429,7 +428,6 @@ $refuse.click(() => {
 $quit.click(() => {
 	location.href = "/logout";
 });
-
 
 $description.load("/html/description.html");
 

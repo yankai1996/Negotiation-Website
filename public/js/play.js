@@ -232,12 +232,11 @@ const waitProposal = () => {
 
 // all games have been completed
 socket.on(EVENT.COMPLETE, () => {
-	gPeriod = {};
 	$boxes.hide();
 	$backdrops.hide();
 	$completePage.show();
 
-	socket.disconnect()
+	socket.disconnect();
 });
 
 // receiving the result of the current period
@@ -327,9 +326,11 @@ socket.on(EVENT.PROPOSE, (period) => {
 });
 
 socket.on(EVENT.RESULT, (result) => {
+	socket.emit(EVENT.LEAVE_ROOM);
 	for (let i in result) {
 		if (i == 'exists2ndBuyer') {
-			$("#exists2ndBuyer").html(result[i]);
+			var existence = result[i] ? "Exists" : "No"
+			$("#exists2ndBuyer").html(existence);
 		} else if (result[i] < 0) {
 			$("#" + i).html("-$" + (-result[i]));
 		} else {
@@ -355,7 +356,12 @@ socket.on(EVENT.WAIT, (info) => {
 });
 
 $ready.click(() => {
-	if (!gWarmup) {
+	if ($gamesLeft.html() == '0') {
+		$boxes.hide();
+		$backdrops.hide();
+		$completePage.show();
+		// socket.disconnect();
+	} else if (!gWarmup) {
 		waiting();
 		setTimeout(() => {
 			socket.emit(EVENT.READY);
@@ -374,9 +380,9 @@ $ready.click(() => {
 		$viewDescription.show();
 		$continue.show();
 
-		socket.emit(EVENT.LEAVE_ROOM);
 		gWarmup = false;
 	}
+	gPeriod = {};
 
 });
 
@@ -387,14 +393,18 @@ $viewDescription.click(() => {
 $input.keypress((event) => {
 	var theEvent = event || window.event;
     var key = theEvent.keyCode || theEvent.which;
-    key = String.fromCharCode(key);
-    var regex = /[0-9]|\./;
-    if(!regex.test(key)) {
-        theEvent.returnValue = false;
-        if (theEvent.preventDefault) {
-        	theEvent.preventDefault();
-        }
-    }
+    if (key === 13) {
+    	$propose.click();
+    } else {
+    	key = String.fromCharCode(key);
+	    var regex = /[0-9]|\./;
+	    if(!regex.test(key)) {
+	        theEvent.returnValue = false;
+	        if (theEvent.preventDefault) {
+	        	theEvent.preventDefault();
+	        }
+	    }
+    }  
 });
 
 $propose.click(() => {

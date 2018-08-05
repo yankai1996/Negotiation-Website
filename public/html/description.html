@@ -3,33 +3,25 @@
 
 <div id="buyer-problem">
     <h3>The Buyer’s Problem</h3>
-    <p>You are buying a unique product from the seller. If you obtain the product, you can resell it for $15 in the market. Only
-    you can access the market, but it will close in <b>T</b> periods from now. In each period, either you or the seller will propose
-    a price for this product and the other party will decide whether to accept or to reject the price. If the price accepted,
-    the negotiation ends; otherwise, the negotiation enters the next period. In each period, you will incur a fixed negotiation
-    cost of $0.1 unless the negotiation has ended. If the agreement is not reached after <b>T</b> periods, there will be no transaction.</p>
-    <p>There are two uncertainties in this process. First, the party that propose the price in each period is random. The probability
-    of you proposing the price is <b>&beta;</b>. Second, in <b>&gamma;</b> percent of the games, there is another buyer who will buy the product
-    at the price <b>w</b> if the agreement between you and the seller is not reached after <b>T</b> periods. If the second buyer exists,
-    in each period, there is an <b>&alpha;</b> probability that both you and the seller will be notified of his existence. It is possible
-    that you are in a game in which the second buyer exists but neither you nor the seller knows of his existence until the
-    negotiation ends.</p>
-    <p>Your goal is to maximize your profit by deciding on how to propose the price and when to strike a deal.</p>
+    <p>
+        You are buying a unique product from the seller. If you obtain the product, you can resell it for <b>$12</b> in the market. Only you can access the market, but it will close in <b>T = 10</b> periods from now. In each period, either you or the seller will propose a price for this product and the other party will decide whether to accept or to reject the price. If the price accepted, the negotiation ends; otherwise, the negotiation enters the next period. In each period, you will incur a fixed negotiation cost of <b>$0.1</b> unless the negotiation has ended. If the agreement is not reached after T periods, there will be no transaction.
+    </p>
+    <p>
+        There are two uncertainties in this process. First, the party that propose the price in each period is random. The probability of you proposing the price is <b>&beta; = 0.6</b>. Second, in <b>&gamma; = 0.2</b> of the games, there is another buyer who will buy the product at the price <b>w = 17</b> if the agreement between you and the seller is not reached after T periods. If the second buyer exists, in each period, there is an <b>&alpha; = 0.3</b> probability that both you and the seller will be notified of his existence. In this case, the transaction will immediately happen between the seller and the second buyer and the negotiation ends. It is possible that you are in a game in which the second buyer exists but neither you nor the seller knows of his existence until the negotiation ends.
+    </p>
+    <p>
+        Your goal is to maximize your profit by deciding on how to propose the price and when to strike a deal.
+    </p>
 </div>
 
 <div id="seller-problem">
     <h3>The Seller’s Problem</h3>
-    <p>You are selling a unique product to the buyer. If the buyer obtains the product, he can resell it for $15 in the market.
-    Only he can access the market, and it will close in <b>T</b> periods from now. in each period, you or the buyer will propose
-    a price for this product and the other party will decide whether to accept or reject the price. If the price is accepted,
-    the negotiation ends; otherwise, the negotiation enters the next period. In each period, you will incur a fixed negotiation
-    cost of $0.1 unless the negotiation has ended. If the agreement is not reached after <b>T</b> periods, you lose the opportunity
-    of selling to this buyer.</p>
-    <p>There are two uncertainties in this process. First, the party that propose the price in each period is random. The probability
-    of you proposing the price is <b>(1 - &beta;)</b>. Second, in <b>&gamma;</b> percent of the game sessions, there is another buyer who will
-    buy the product at the price <b>w</b> if the agreement between you and the buyer is not reached after <b>T</b> periods. If the second
-    buyer exists, in each period, there is an <b>&alpha;</b> probability that both you and the buyer will be notified of his existence.
-    It is possible that you are in a game in which the second buyer exists but neither you nor the seller knows of his existence
-    until the negotiation ends.</p>
-    <p>Your goal is to maximize your profit by deciding on how to propose the price and when to strike a deal.</p>
+    <p>
+        You are selling a unique product to the buyer. If the buyer obtains the product, he can resell it for <b>$12</b> in the market. Only he can access the market, and it will close in <b>T = 10</b> periods from now. In each period, you or the buyer will propose a price for this product and the other party will decide whether to accept or reject the price. If the price is accepted, the negotiation ends; otherwise, the negotiation enters the next period. In each period, you will incur a fixed negotiation cost of <b>$0.1</b> unless the negotiation has ended. If the agreement is not reached after T periods, you lose the opportunity of selling to this buyer.
+    </p>
+    <p>
+        There are two uncertainties in this process. First, the party that propose the price in each period is random. The probability of you proposing the price is <b>(1 - &beta;) = 0.4</b>. Second, in <b>&gamma; = 0.2</b> of the game sessions, there is another buyer who will buy the product at the price <b>w = 17</b> if the agreement between you and the buyer is not reached after T periods. If the second buyer exists, in each period, there is an <b>&alpha; = 0.3</b> probability that both you and the buyer will be notified of his existence. In this case, the transaction will immediately happen between you and the second buyer and the negotiation ends. It is possible that you are in a game in which the second buyer exists but neither you nor the seller knows of his existence until the negotiation ends.</p>
+    <p>
+        Your goal is to maximize your profit by deciding on how to propose the price and when to strike a deal.
+    </p>
 </div>

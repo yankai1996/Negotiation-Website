@@ -149,7 +149,9 @@ const complete = () => {
 		success: (res) => {
 			if (res.success){
 				var summary = res.summary;
+				var totalProfit = 0; 
 				summary.forEach((s) => {
+					totalProfit += s.selfProfit
 					$("#summary-table-body").append(
 						"<tr>" + 
 							"<td>" + (summary.indexOf(s) + 1) + "</td>" +
@@ -160,6 +162,8 @@ const complete = () => {
 							"<td>" + s.selfProfit + "</td>" +
 						"</tr>");
 				});
+				$("#total-profit").html("$" + totalProfit);
+				$("#final-payoff").html("$" + (totalProfit + 40));
 			} else {
 				alert(res);
 			}

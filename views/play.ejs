@@ -215,7 +215,7 @@
       <h1>Thank you very much!</h1>
     </div>
     <div class="content short">
-      <table class="summary striped bordered">
+      <table class="summary striped">
         <thead>
           <th></th>
           <th>Price</th>
@@ -225,6 +225,17 @@
           <th>Your Profit</th>
         </thead>
         <tbody id="summary-table-body"></tbody>
+        <tfoot>
+          <tr><td colspan="6"></td></tr>
+          <tr>
+            <td colspan="5">Totol Profit: </td>
+            <td id="total-profit"></td>
+          </tr>
+          <tr>
+            <td colspan="5">Your Payoff: </td>
+            <td id="final-payoff"></td>
+          </tr>
+        </tfoot>
       </table>
       <!-- <p>You have finished all the games.</p> -->
     </div>

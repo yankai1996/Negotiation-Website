@@ -475,8 +475,16 @@ table.summary {
     font-weight: 300;
 }
 
-table,summary thead {
+table.summary thead {
     font-weight: 400;
+}
+
+table.summary tbody {
+    border: 1px solid #ccc;
+}
+
+table.summary thead {
+    border: 1px solid #ccc;
 }
 
 table.summary td, table.summary th {
@@ -487,8 +495,16 @@ table.summary td, table.summary th {
     vertical-align: middle;
 }
 
-table.summary tbody tr td:first-child, table.summary th:first-child {
+table.summary tbody td:first-child, table.summary th:first-child {
     min-width: 0;
+    padding-left: 16px;
+}
+
+table.summary tfoot td:first-child {
+    min-height: 20px;
+    text-align: right;
+    font-weight: 400;
+    border: none;
 }
 
 table.summary td.green {

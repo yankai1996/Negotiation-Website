@@ -31,18 +31,32 @@ table thead th {
     border: 0;
     outline: none;
     cursor: pointer;
-    padding: 14px 16px;
+    padding: 12px 16px;
     transition: 0.3s;
     font-size: 16;
     font-weight: 400;
+    filter: opacity(60%)
 }
 
 .tab-button:hover {
     background-color: #ddd;
+    filter: none;
+}
+
+.tab-button img {
+    width: 22px;
+    height: 22px;
+    margin-bottom: -4px;
+    padding-right: 5px;
+}
+
+.icon.games {
+    background: url('/image/games.png')
 }
 
 .tab-button.active {
     background-color: #fff;
+    filter: none;
 }
 
 .tab-content {
@@ -402,10 +416,15 @@ button.alt.small {
     background: #eee;
 }
 
+.delete-container > div:hover {
+    filter: grayscale(30%);
+}
+
 .delete-container * {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
+    transition: all 0.3s ease;
 }
 
 .delete-container label {
@@ -419,7 +438,7 @@ button.alt.small {
     transition: all 0.3 ease;
 }
 
-.delete-container .delete2 {
+.delete-container .delete-pair {
     display: block !important;
     overflow: hidden;
     margin: 0;
@@ -432,6 +451,24 @@ button.alt.small {
     font-weight: 300;
     color: #fff;
     background-color: red;
+    cursor: pointer;
+    border-radius: 2px;
+    line-height: 35px;
+}
+
+.delete-container .reset-pair {
+    display: block !important;
+    overflow: hidden;
+    margin: 0;
+    left: 120px;
+    padding: 0 18px;
+    height: 35px;
+    text-align: center;
+    line-height: 35px;
+    font-size: 16px;
+    font-weight: 300;
+    color: #fff;
+    background-color: #2048ff;
     cursor: pointer;
     border-radius: 2px;
     line-height: 35px;

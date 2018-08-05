@@ -66,7 +66,23 @@ button.big:hover {
     white-space: nowrap;
 }
 
+/* Table Bordered and Striped */
+
+table.bordered {
+    border: 1px solid #ccc!important
+}
+
+table.bordered tbody {
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc
+}
+
+table.striped tbody tr:nth-child(odd) {
+    background-color: #f1f1f1
+}
+
 /* The checkbox */
+
 .checkbox {
     display: block;
     position: relative;
@@ -78,6 +94,7 @@ button.big:hover {
 }
 
 /* Hide the browser's default checkbox */
+
 .checkbox input {
     position: absolute;
     opacity: 0;
@@ -85,6 +102,7 @@ button.big:hover {
 }
 
 /* Create a custom checkbox */
+
 .checkmark {
     position: absolute;
     top: 0;
@@ -95,16 +113,19 @@ button.big:hover {
 }
 
 /* On mouse-over, add a grey background color */
-.checkbox:hover input ~ .checkmark {
+
+.checkbox:hover input~.checkmark {
     background-color: #ccc;
 }
 
 /* When the checkbox is checked, add a blue background */
-.checkbox input:checked ~ .checkmark {
+
+.checkbox input:checked~.checkmark {
     background-color: #159287;
 }
 
 /* Create the checkmark/indicator (hidden when not checked) */
+
 .checkmark:after {
     content: "";
     position: absolute;
@@ -112,11 +133,13 @@ button.big:hover {
 }
 
 /* Show the checkmark when checked */
-.checkbox input:checked ~ .checkmark:after {
+
+.checkbox input:checked~.checkmark:after {
     display: block;
 }
 
 /* Style the checkmark/indicator */
+
 .checkbox .checkmark:after {
     left: 5px;
     top: 1px;

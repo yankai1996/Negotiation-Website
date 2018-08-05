@@ -1,4 +1,4 @@
-@import url(https://fonts.googleapis.com/css?family=Roboto:300);
+@import url(https://fonts.googleapis.com/css?family=Roboto:300,400);
 
 .hide {
     display: none;
@@ -460,4 +460,41 @@ button.disable:hover {
     font-family: "Roboto", sans-serif;
     font-weight: 300;
     font-size: 18px;
+}
+
+table.summary {
+    margin: auto;
+    margin-top: 30px;
+    margin-bottom: 40px;
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 80%;
+    background-color: #fff;
+    display: table;
+    font-family: "Roboto", sans-serif;
+    font-weight: 300;
+}
+
+table,summary thead {
+    font-weight: 400;
+}
+
+table.summary td, table.summary th {
+    min-width: 60px;
+    padding: 8px;
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+}
+
+table.summary tbody tr td:first-child, table.summary th:first-child {
+    min-width: 0;
+}
+
+table.summary td.green {
+    color: #080
+}
+
+table.summary td.red {
+    color: #d00
 }

@@ -134,6 +134,43 @@ const askProposal = () => {
 	$propose.removeClass(CLASS.DISABLE);
 }
 
+const complete = () => {
+	const checkCell = (flag) => {
+		return flag 
+			? "<td class='green'>&#10004;</td>"
+			: "<td class='red'>&#10007;</td>";
+	}
+
+
+	$.ajax({
+		url:  "/play/complete",
+		type: "POST",
+		data: {id: ID},
+		success: (res) => {
+			if (res.success){
+				var summary = res.summary;
+				summary.forEach((s) => {
+					$("#summary-table-body").append(
+						"<tr>" + 
+							"<td>" + (summary.indexOf(s) + 1) + "</td>" +
+							"<td>" + s.price + "</td>" +
+							"<td>" + s.cost + "</td>" +
+							checkCell(s.exists2ndBuyer) +
+							"<td>" + s.opponentProfit + "</td>" +
+							"<td>" + s.selfProfit + "</td>" +
+						"</tr>");
+				});
+			} else {
+				alert(res);
+			}
+		}
+	});
+
+	$boxes.hide();
+	$backdrops.hide();
+	$completePage.show();
+}
+
 const decide = (accepted) => {
 	gPeriod.accepted = accepted;
 	gPeriod.decided_at = timer.lap();
@@ -357,9 +394,7 @@ socket.on(EVENT.WAIT, (info) => {
 
 $ready.click(() => {
 	if ($gamesLeft.html() == '0') {
-		$boxes.hide();
-		$backdrops.hide();
-		$completePage.show();
+		complete();
 		// socket.disconnect();
 	} else if (!gWarmup) {
 		waiting();
@@ -439,7 +474,14 @@ $quit.click(() => {
 	location.href = "/logout";
 });
 
-$description.load("/html/description.html");
+const main = () => {
+	$description.load("/html/description.html");
+	if ($completePage.is(':visible')) {
+		complete();
+	}
+}
+main();
+
 
 });
 

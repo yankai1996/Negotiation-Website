@@ -30,5 +30,17 @@ getRouter.get('/play', auth.checkAuthParticipant);
 getRouter.get('/play', getStatus);
 getRouter.get('/play', renderPlay);
 
+
+const getSummary = async (req, res) => {
+    var summary = await Assistant.getSummary(req.body.id);
+    res.send({
+        success: 1,
+        summary: summary
+    });
+}
+
+postRouter.post('/play/complete', getSummary);
+
+
 exports.get = getRouter;
-// exports.post = postRouter;
+exports.post = postRouter;

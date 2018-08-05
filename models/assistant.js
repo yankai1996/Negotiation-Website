@@ -183,3 +183,34 @@ exports.deletePeriods = (gameId) => {
         where: {game_id: gameId}
     });
 }
+
+
+exports.getSummary = async (id) => {
+    var warmupId = await MasterGame.findOne({
+        where: {is_warmup: true}
+    }).then((result) => {
+        return result.id;
+    });
+    var summary = await Game.findAll({
+        where: {
+            $not: [{master_game: warmupId}],
+            $or: [{buyer_id: id},
+                {seller_id: id}]
+        }
+    }).then((result) => {
+        return result.map((g) => {
+            return {
+                price: g.seller_payoff + g.cost,
+                cost: g.cost,
+                exists2ndBuyer: g.exists_2nd_buyer,
+                selfProfit: g.buyer_id == id
+                    ? g.buyer_payoff
+                    : g.seller_payoff,
+                opponentProfit: g.buyer_id == id
+                    ? g.seller_payoff
+                    : g.buyer_payoff,
+            }
+        });
+    });
+    return summary;
+}

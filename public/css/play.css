@@ -464,7 +464,7 @@ button.disable:hover {
 
 table.summary {
     margin: auto;
-    margin-top: 30px;
+    margin-top: 40px;
     margin-bottom: 40px;
     border-collapse: collapse;
     border-spacing: 0;
@@ -475,7 +475,7 @@ table.summary {
     font-weight: 300;
 }
 
-table.summary thead {
+table.summary thead th{
     font-weight: 400;
 }
 
@@ -507,10 +507,10 @@ table.summary tfoot td:first-child {
     border: none;
 }
 
-table.summary td.green {
+table td.green {
     color: #080
 }
 
-table.summary td.red {
+table td.red {
     color: #d00
 }

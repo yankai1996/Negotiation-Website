@@ -1,4 +1,10 @@
-@import url(https://fonts.googleapis.com/css?family=Roboto:300);
+@import url(https://fonts.googleapis.com/css?family=Roboto:300,400);
+b {
+    /* font-family: "Roboto", sans-serif; */
+    color: #159287;
+    /* font-weight: 300; */
+}
+
 button {
     cursor: pointer;
 }

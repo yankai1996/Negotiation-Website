@@ -92,7 +92,7 @@ table thead th {
 table.games {
     margin: auto;
     margin-top: 20px;
-    margin-bottom: 30px;
+    margin-bottom: 40px;
     border-collapse: collapse;
     border-spacing: 0;
     width: 80%;
@@ -363,7 +363,7 @@ button.alt.small {
 
 .divide-box {
     height: 100%;
-    margin-bottom: 60px;
+    margin-bottom: 40px;
 }
 
 .panel.left {

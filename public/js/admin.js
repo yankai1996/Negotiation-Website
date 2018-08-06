@@ -12,7 +12,6 @@ var $addGamesButton = $("button.add-games")
   , $insightTableBody = $("#insight-table-body")
   , $intOnlyInput = $(".int-only")
   , $leftButton = $(".turn-buttons button").eq(0)
-  , $logout = $(".logout")
   , $pages = $(".pages")
   , $pairCount = $("#count")
   , $parameters = $(".param")
@@ -421,10 +420,6 @@ const resetPair = (first, second) => {
 }
 
 
-$logout.click(() => {
-	location.href = "/logout";
-});
-
 $tabButtons.click((event) => {
 	var index = $tabButtons.index(event.currentTarget);
 	openTab(index);
@@ -501,7 +496,8 @@ $resetPair.click(() => {
 });
 
 $download.click(() => {
-	window.location = "/admin/download";
+	// window.location = "/admin/download";
+	// location.href = "/admin/download"
 });
 
 

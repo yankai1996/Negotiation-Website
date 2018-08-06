@@ -68,6 +68,27 @@ button.big:hover {
     background: #11746b;
 }
 
+a.button.big {
+    font-family: "Roboto", sans-serif;
+    font-weight: 300;
+    outline: 0;
+    background: #159287;
+    border: 0;
+    padding: 15px;
+    line-height: 50px;
+    color: #fff;
+    font-size: 16px;
+    text-decoration: none;
+    /* margin-top: 20px; */
+    -webkit-transition: all 0.3s ease;
+    transition: all 0.3s ease;
+    cursor: pointer!important;
+}
+
+a.button.big:hover {
+    background: #11746b;
+}
+
 .no-wrap {
     white-space: nowrap;
 }

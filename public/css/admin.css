@@ -76,6 +76,7 @@ table thead th {
     right: 0;
     background: #159287;
     text-transform: uppercase;
+    text-decoration: none;
     padding: 15px;
     color: #fff;
     font-size: 14px;

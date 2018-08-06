@@ -21,7 +21,7 @@
   	</div>
   	<div class="content short">
       <div>
-        <p id="welcome-info">Thank you for your participation! In this experiment, you will perform as a buyer or seller in the negotiations between supply chain partners.</p> 
+        <p id="welcome-info">Thank you for your participation! In this experiment, you will perform as a buyer or seller in the negotiations between supply chain partners. Before we formally start the experiment, let's have a warm-up game first!</p> 
         <p id="continue-info">We've detedcted that you have not completed the experiment. Click the button to continue it.</p> 
         <p id="good-job-info" class="hide">You have finished the warm-up game. Let's start the real game now! </p>
       </div>
@@ -84,7 +84,7 @@
           <td id="price"></td>
         </tr>
         <tr>
-          <td>Second Buyer: </td>
+          <td>2nd Buyer Exists: </td>
           <td id="exists2ndBuyer"></td>
         </tr>
         <tr>
@@ -114,7 +114,7 @@
     </div>
 
     <div class="title" align="center">
-      <h1>Your Role: 
+      <h1><%= participantID %> - Role: 
         <label class="role"></label>
       </h1>
     </div>
@@ -212,9 +212,10 @@
 
   <div id="complete-page" class="box bottom hide">
     <div class="title" align="center">
-      <h1>Thank you very much!</h1>
+      <h1>Thank you very much! <%= participantID %></h1>
     </div>
     <div class="content short">
+      <p align="center">You have finished all the games.</p>
       <table class="summary striped">
         <thead>
           <th></th>
@@ -237,10 +238,10 @@
           </tr>
         </tfoot>
       </table>
-      <!-- <p>You have finished all the games.</p> -->
+      
     </div>
     <div class="padding-end" align="center">
-      <button id="quit" class="big" aling="center">QUIT</button>
+      <button id="quit" class="big" align="center">QUIT</button>
     </div>
   </div>
 
@@ -264,7 +265,7 @@
         $("#complete-page").show();
     } else {
       $("#game").show();
-      $("#result").show();
+      // $("#result").show();
     }
   </script>
 </body>

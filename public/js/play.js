@@ -28,6 +28,7 @@ const CLASS = {
 	ACCEPTED: 'accepted',
 	DISABLE: 'disable',
 	DONE: 'done',
+	GREEN: 'green',
 	HIGHLIGHT: 'highlight',
 	NONE: 'refused',
 	PROPOSAL: 'proposal',
@@ -135,10 +136,13 @@ const askProposal = () => {
 }
 
 const complete = () => {
-	const checkCell = (flag) => {
-		return flag 
-			? "<td class='green'>&#10004;</td>"
-			: "<td class='red'>&#10007;</td>";
+	const checkCell = (param) => {
+		if (param === null || param === false) {
+			return "<td class='red'>&#10007;</td>";
+		} else if (param === true) {
+			return "<td class='green'>&#10004;</td>";
+		}
+		return "<td>" + param + "</td>";
 	}
 
 
@@ -155,13 +159,14 @@ const complete = () => {
 					$("#summary-table-body").append(
 						"<tr>" + 
 							"<td>" + (summary.indexOf(s) + 1) + "</td>" +
-							"<td>" + s.price + "</td>" +
+							checkCell(s.price) +
 							"<td>" + s.cost + "</td>" +
 							checkCell(s.exists2ndBuyer) +
 							"<td>" + s.opponentProfit + "</td>" +
 							"<td>" + s.selfProfit + "</td>" +
 						"</tr>");
 				});
+				totalProfit = +totalProfit.toFixed(2);
 				$("#total-profit").html("$" + totalProfit);
 				$("#final-payoff").html("$" + (totalProfit + 40));
 			} else {
@@ -368,14 +373,24 @@ socket.on(EVENT.PROPOSE, (period) => {
 
 socket.on(EVENT.RESULT, (result) => {
 	socket.emit(EVENT.LEAVE_ROOM);
+	var $exists2ndBuyer = $("#exists2ndBuyer");
 	for (let i in result) {
-		if (i == 'exists2ndBuyer') {
-			var existence = result[i] ? "Exists" : "No"
-			$("#exists2ndBuyer").html(existence);
+		$("#" + i).removeClass();
+		if (i == "exists2ndBuyer") {
+			if (result[i]) {
+				$exists2ndBuyer.html("&#10004");
+				$exists2ndBuyer.addClass(CLASS.GREEN);
+			} else {
+				$exists2ndBuyer.html("&#10007");
+				$exists2ndBuyer.addClass(CLASS.RED);
+			}
+		} else if (result[i] == null) {
+			$("#" + i).html("&#10007");
+			$("#" + i).addClass(CLASS.RED);
 		} else if (result[i] < 0) {
-			$("#" + i).html("-$" + (-result[i]));
+			$("#" + i).html("-$" + (-result[i].toFixed(2)));
 		} else {
-			$("#" + i).html("$" + result[i]);
+			$("#" + i).html("$" + (+result[i].toFixed(2)));
 		}
 	}
 	setTimeout(() => {

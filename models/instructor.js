@@ -291,6 +291,8 @@ exports.getExcel = async () => {
                     case "string":
                         sheet.cell(row, j + 1).string(item);
                         break;
+                    default:
+                        sheet.cell(row, j + 1).string("");
                 }
             }
         } 
@@ -308,7 +310,7 @@ exports.getExcel = async () => {
     var gameList = await Game.findAll({raw: true});
     list2sheet(gameList, gameSheet);
 
-    var periodSheet = workbook.addWorksheet("Games")
+    var periodSheet = workbook.addWorksheet("Periods")
     var periodList = await Period.findAll({
         attributes: {exclude: ['id']},
         raw: true

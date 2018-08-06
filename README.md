@@ -34,4 +34,3 @@ The following functions have been implemented:
 * Safari dropping web socket connection when page not in focus for a while
 * Security for fake socket connection
 * Re-establishing the game when the browser is refreshed
-* Unknown flaws in the downloaded excel 

@@ -192,6 +192,17 @@ postRouter.post('/admin/reset_pair', resetPair);
 postRouter.post('/admin/reset_pair', viewPair);
 
 
+const downloadExcel = async (req, res, next) => {
+    if (!auth.isInstructor(req.cookies)) {
+        next();
+        return;
+    }
+    var workbook = await Instructor.getExcel();
+    workbook.write('ExcelFile.xlsx', res);
+}
+
+postRouter.get('/admin/download', downloadExcel)
+
 postRouter.post('/admin*', sendError);
 
 exports.get = getRouter;

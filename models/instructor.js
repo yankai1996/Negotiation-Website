@@ -270,17 +270,51 @@ exports.resetPair = async (first, second) => {
 exports.getExcel = async () => {
     var workbook = new excel.Workbook();
 
+    const list2sheet = (list, sheet) => {
+        var keys = Object.keys(list[0]);
+        for (let i = 0; i < keys.length; i++) {
+            sheet.cell(1, i + 1).string(keys[i]);
+        }
+        for (let i = 0; i < list.length; i++) {
+            let row = i + 2;
+            let record = list[i];
+            for (let j = 0; j < keys.length; j++) {
+                let item = record[keys[j]];
+                var type = typeof item;
+                switch (type) {
+                    case "number": 
+                        sheet.cell(row, j + 1).number(item);
+                        break;
+                    case "boolean":
+                        sheet.cell(row, j + 1).bool(item);
+                        break;
+                    case "string":
+                        sheet.cell(row, j + 1).string(item);
+                        break;
+                }
+            }
+        } 
+    }
+
     var participantSheet = workbook.addWorksheet("Participants");
     var participantList = await Participant.findAll({raw: true});
-    participantSheet.cell(1, 1).string("id");
-    participantSheet.cell(1, 2).string("payoff");
-    participantSheet.cell(1, 3).string("opponent");
-    for (let i = 0; i < participantList.length; i++) {
-        let row = i + 2;
-        let p = participantList[i];
-        participantSheet.cell(row, 1).string(p.id);
-        participantSheet.cell(row, 2).number(p.payoff);
-        participantSheet.cell(row, 3).number(p.opponent);
-    }
+    list2sheet(participantList, participantSheet);
+
+    var masterGameSheet = workbook.addWorksheet("Master Games")
+    var masterGameList = await MasterGame.findAll({raw: true});
+    list2sheet(masterGameList, masterGameSheet);
+
+    var gameSheet = workbook.addWorksheet("Games")
+    var gameList = await Game.findAll({raw: true});
+    list2sheet(gameList, gameSheet);
+
+    var periodSheet = workbook.addWorksheet("Games")
+    var periodList = await Period.findAll({
+        attributes: {exclude: ['id']},
+        raw: true
+    });
+    list2sheet(periodList, periodSheet);
+
+    return workbook;
 }
 

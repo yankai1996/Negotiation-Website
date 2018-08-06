@@ -6,6 +6,7 @@ var $addGamesButton = $("button.add-games")
   , $addPairsButton = $("button.add-pairs")
   , $deleteContainer = $(".delete-container")
   , $deletePair = $("#delete-pair")
+  , $download = $("#download")
   , $floatOnlyInput = $(".float-only")
   , $gameTableBody = $("#game-table-body")
   , $insightTableBody = $("#insight-table-body")
@@ -497,6 +498,10 @@ $resetPair.click(() => {
 	var first = getFirst();
 	var second = getSecond();
 	resetPair(first, second);
+});
+
+$download.click(() => {
+	window.location = "/admin/download";
 });
 
 

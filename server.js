@@ -30,6 +30,7 @@ app.use(login.post);
 app.use(admin.get);
 app.use(admin.post);
 app.use(play.get);
+app.use(play.post);
 
 app.use(function(req, res){
     res.writeHead(404);
@@ -40,3 +41,4 @@ app.use(function(req, res){
 server.listen(config.port, () => {
     console.log("Server is running on port " + config.port + "!");
 });
+

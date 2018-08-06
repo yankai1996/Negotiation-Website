@@ -25,7 +25,6 @@ function Dealer(self, opponent, io) {
     this.io = io;
     this.game = {};
     this.period = {};
-    this.complete = false;
 }
 
 Dealer.prototype.toBuyer = function (event, data) {
@@ -45,7 +44,6 @@ Dealer.prototype.toBoth = function (event, data) {
 Dealer.prototype.newGame = async function () {
     var game = await Assistant.getNewGame(this.self);
     if (!game) {
-        this.complete = true;
         this.toBoth(EVENT.COMPLETE, "You have finished all the games.");
     } else {
         this.game = game;
@@ -156,11 +154,6 @@ Dealer.prototype.endGame = async function () {
     });
 }
 
-// if all the games have been finished
-Dealer.prototype.isComplete = function () {
-    return this.complete;
-}
-
 
 exports.listen = (server) => {
     var io = socketio.listen(server);
@@ -220,7 +213,7 @@ exports.listen = (server) => {
         })
 
         socket.on('disconnect', () => {
-            if (!dealer.isComplete() && opponentIsOnline()) {
+            if (opponentIsOnline()) {
                 io.to(opponent).emit(EVENT.LOST_OP, "Your opponent is lost!");
             }
         });

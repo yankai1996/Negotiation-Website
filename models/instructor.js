@@ -1,3 +1,4 @@
+const excel = require('excel4node');
 const db = require('./db');
 const MasterGame = db.MasterGame;
 const Game = db.Game;
@@ -242,6 +243,7 @@ exports.resetPair = async (first, second) => {
         }
     });
     await Game.update({
+        price: null,
         buyer_payoff: null,
         seller_payoff: null,
         periods: null,
@@ -264,4 +266,21 @@ exports.resetPair = async (first, second) => {
     return true;
 }
 
+
+exports.getExcel = async () => {
+    var workbook = new excel.Workbook();
+
+    var participantSheet = workbook.addWorksheet("Participants");
+    var participantList = await Participant.findAll({raw: true});
+    participantSheet.cell(1, 1).string("id");
+    participantSheet.cell(1, 2).string("payoff");
+    participantSheet.cell(1, 3).string("opponent");
+    for (let i = 0; i < participantList.length; i++) {
+        let row = i + 2;
+        let p = participantList[i];
+        participantSheet.cell(row, 1).string(p.id);
+        participantSheet.cell(row, 2).number(p.payoff);
+        participantSheet.cell(row, 3).number(p.opponent);
+    }
+}
 

@@ -112,6 +112,7 @@ var Game = sequelize.define('game', {
         type: Sequelize.BOOLEAN,
         allowNull: false
     },
+    price: Sequelize.FLOAT(6,2),
     buyer_payoff: Sequelize.FLOAT(6,2),
     seller_payoff: Sequelize.FLOAT(6,2),
     periods: Sequelize.INTEGER(2),

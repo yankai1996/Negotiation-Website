@@ -145,6 +145,7 @@ exports.endGame = async (game, period) => {
     }
     
     return Game.update({
+        price: period.price,
         buyer_payoff: buyerPayoff,
         seller_payoff: sellerPayoff,
         periods: period.number,
@@ -186,7 +187,7 @@ exports.getSummary = async (id) => {
     }).then((result) => {
         return result.map((g) => {
             return {
-                price: g.seller_payoff + g.cost,
+                price: g.price,
                 cost: g.cost,
                 exists2ndBuyer: g.exists_2nd_buyer,
                 selfProfit: g.buyer_id == id

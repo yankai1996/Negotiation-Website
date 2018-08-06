@@ -98,7 +98,9 @@ Dealer.prototype.nextPeriod = function (initial = false) {
         return false;
     }
 
-    var proposerId = Math.random() < this.game.beta
+    var random = Math.random();
+    this.toBuyer(EVENT.TEST, random + "<" + this.game.beta + "?");
+    var proposerId = random < this.game.beta
         ? this.game.buyer_id 
         : this.game.seller_id;
 

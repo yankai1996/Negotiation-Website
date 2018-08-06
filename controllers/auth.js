@@ -25,6 +25,16 @@ const verifyParticipant = (username) => {
     });
 }
 
+const isInstructor = (cookies) => {
+    return cookies[AS_INSTRUCTOR] && cookies[AS_INSTRUCTOR] == USERNAME;
+}
+exports.isInstructor = isInstructor;
+
+const isParticipant = (cookies) => {
+    return cookies[AS_PARTICIPANT];
+}
+exports.isParticipant = isParticipant;
+
 exports.authenticate = async (req, res, next) => {
     var loginAs = req.body.loginAs
       , username = req.body.username
@@ -49,7 +59,7 @@ exports.authenticate = async (req, res, next) => {
 
 // check if the instructor has logged in
 exports.checkAuthInstructor = (req, res, next) => {
-    if (!req.cookies.instructor) {
+    if (!isInstructor(req.cookies)) {
         res.redirect('/login');
     } else {
         next();
@@ -58,7 +68,7 @@ exports.checkAuthInstructor = (req, res, next) => {
 
 // check if the participant has logged in
 exports.checkAuthParticipant = (req, res, next) => {
-    if (!req.cookies.participant) {
+    if (!isParticipant(req.cookies)) {
         res.redirect('/login')
     } else {
         next();
@@ -66,9 +76,9 @@ exports.checkAuthParticipant = (req, res, next) => {
 }
 
 exports.checkAuth = (req, res, next) => {
-    if (req.cookies.instructor) {
+    if (isInstructor(req.cookies)) {
         res.redirect('/admin');
-    } else if (req.cookies.participant) {
+    } else if (isParticipant(req.cookies)) {
         res.redirect('/play');
     } else {
         next()

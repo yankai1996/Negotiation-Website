@@ -4,6 +4,8 @@ $(function(){
 var $addGamesButton = $("button.add-games")
   , $addPairsInput = $("input.add-pairs")
   , $addPairsButton = $("button.add-pairs")
+  , $clearAll = $(".clear.all")
+  , $clearParticipants = $(".clear.participants")
   , $deleteContainer = $(".delete-container")
   , $deletePair = $("#delete-pair")
   , $download = $(".download")
@@ -421,6 +423,25 @@ const resetPair = (first, second) => {
 	});
 }
 
+const clearData = (scope) => {
+	$.ajax({
+		url:  "/admin/clear",
+		type: "POST",
+		data: {scope: scope},
+		success: (res) => {
+			if (res.success){
+				updatePairs(res.pairs, res.count);
+				cacheManager.clearAll();
+				if (scope == "all") {
+					$gameTableBody.html("");
+				}
+			} else {
+				alert(res);
+			}
+		}
+	});
+}
+
 
 $tabButtons.click((event) => {
 	var index = $tabButtons.index(event.currentTarget);
@@ -554,7 +575,7 @@ const animateDownload = () => {
 		$backCircle.hide();
 		$label.hide();
 		$download.animate({
-			width: 130,
+			width: 182,
 		}, 300);
 
 		$download.append("<a href='/admin/download' download></a>");
@@ -572,10 +593,24 @@ const animateDownload = () => {
 
 	runAnimations(animations);
 
-
 }
 
 $download.click(animateDownload);
+
+$clearParticipants.click(() => {
+	var info = "Do you want to clear all participants? " + 
+		"The experiment data will also be deleted.";
+	if (confirm(info)){
+		clearData("participants");
+	}
+});
+
+$clearAll.click(() => {
+	var info = "Do you want to clear all the data?"
+	if (confirm(info)){
+		clearData("all");
+	}
+});
 
 $pause.click(() => {
 	$pause.addClass("paused");

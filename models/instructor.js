@@ -131,7 +131,7 @@ exports.addPairs = async (n) => {
 
         await Participant.create({
             id: randomID,
-            payoff: 0,
+            payoff: 40,
             opponent: opponentID
         }).then((result) => {
             i++;
@@ -277,9 +277,8 @@ exports.getExcel = async () => {
         }
         for (let i = 0; i < list.length; i++) {
             let row = i + 2;
-            let record = list[i];
             for (let j = 0; j < keys.length; j++) {
-                let item = record[keys[j]];
+                let item = list[i][keys[j]];
                 var type = typeof item;
                 switch (type) {
                     case "number": 
@@ -320,3 +319,36 @@ exports.getExcel = async () => {
     return workbook;
 }
 
+exports.clearParticipants = async () => {
+    var ids = await Participant.findAll({
+        attributes: ['id'],
+        where: {payoff: 40}
+    }).then((result) => {
+        return result.map(g => g.id)
+    });
+    await Period.destroy({
+        where: {proposer_id: ids}
+    });
+    await Game.destroy({
+        where: {
+            $or: [{buyer_id: ids},
+                {seller_id: ids}]
+        }
+    });
+    await Participant.update({
+        opponent: null
+    }, {
+        where: {payoff: 40}
+    });
+    await Participant.destroy({
+        where: {payoff: 40}
+    })
+}
+
+exports.clearAll = async () => {
+    await Period.destroy();
+    await Game.destroy();
+    await Participant.update();
+    await Participant.destroy();
+    await MasterGame.destroy();
+}

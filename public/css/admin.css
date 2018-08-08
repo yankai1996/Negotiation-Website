@@ -335,14 +335,12 @@ input.alt {
 /* Button */
 
 button.alt {
-    height: 100%;
-    max-height: 30px;
+    height: 34px;
     padding: 0px 25px;
-    line-height: 30px;
     background-color: #fff;
-    box-shadow: inset 0 0 0 2px #dfdfdf;
-    border-radius: 3px;
-    border: none;
+    border-radius: 17px;
+    border: 1px solid #ccc;
+    outline: 0;
     font-size: 16px;
     color: #555;
     background: #fff;
@@ -350,12 +348,13 @@ button.alt {
 }
 
 button.alt:hover {
-    background: #f4f4f4;
+    background: #f1f1f1;
 }
 
 button.alt.small {
     width: 100%;
-    line-height: 28px;
+    height: 28px;
+    border-radius: 14px;
     font-size: 14px;
     padding: 0px 10px;
 }
@@ -477,9 +476,18 @@ button.alt.small {
 
 button.turn {
     width: 30px;
+    height: 30px;
+    line-height: 20px;
     color: #ccc;
     padding: 0;
+    border-radius: 3px;
 }
+
+button.turn:hover {
+    background: #f1f1f1;
+    color: #ccc;
+}
+
 
 .pages {
     width: 50px;
@@ -490,29 +498,35 @@ button.turn {
 
 .setting-box {
     width: 100%;
-    min-width: 600px;
+    min-width: 500px;
     padding: 20px 0;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #ccc;
     text-align: center
 }
 
 table.settings {
-    width: 100%;
-    min-width: 600px;
+    margin: 10px auto;
     border-collapse: collapse;
     font-family: "Roboto", sans-serif;
     font-weight: 300;
 }
 
 table.settings td {
+    position: relative;
     /* border-bottom: 1px solid #ddd; */
-    border: 1px solid #ddd;
-    padding: 20px 0;
-    text-align: center;
+    border-bottom: 1px solid #ddd;
+    height: 90px;
+    padding: 20px 30px;
 }
 
-table.settings td:first-child {
-    width: 200px;
+table.settings tr td:first-child {
+    width: 100px;
+    white-space: nowrap;
+    /* border-color: #ddd transparent; */
+}
+table.settings tr td:nth-child(2) {
+    text-align: center;
+    /* border-right: none; */
 }
 
 a.download {
@@ -520,7 +534,7 @@ a.download {
     font-family: "Roboto", sans-serif;
     font-weight: 300;
     border: 1px solid #159287;
-    width: 130px;
+    width: 182px;
     height: 46px;
     line-height: 46px;
     border-radius: 23px;
@@ -619,6 +633,7 @@ a.download .circle {
     width: 5px;
     height: 16px;
     background: #fff;
+    cursor: pointer;
 }
 
 .resume {
@@ -679,4 +694,44 @@ a.download .circle {
     border-style: solid;
     border-width: 8px 0 8px 16px;
     border-color: transparent transparent transparent #fff;
+    cursor: pointer;
+}
+
+.clear.participants {
+    position: relative;
+    font-family: "Roboto", sans-serif;
+    font-weight: 300;
+    border: 1px solid red;
+    width: 182px;
+    height: 46px;
+    line-height: 46px;
+    border-radius: 23px;
+    display: inline-block;
+    color: red;
+    background: #fff;
+    font-size: 16px;
+    text-decoration: none;
+    text-align: center;
+    vertical-align: middle;
+    -webkit-transition: all 0.3s ease;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.clear.all {
+    width: 170px;
+    height: 43px;
+    margin: auto;
+    line-height: 43px;
+    border: 1px solid red;
+    color: red;
+    text-align: center;
+    cursor: pointer;
+    -webkit-transition: all 0.3s ease;
+    transition: all 0.3s ease;
+}
+
+.clear:hover {
+    background: red;
+    color: #fff;
 }

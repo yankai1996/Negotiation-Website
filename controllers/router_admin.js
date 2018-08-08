@@ -203,6 +203,21 @@ const downloadExcel = async (req, res, next) => {
 
 postRouter.get('/admin/download', downloadExcel)
 
+
+const clear = async (req, res, next) => {
+    var scope = req.body.scope;
+    if (scope == "participants") {
+        await Instructor.clearParticipants();
+    } else if (scope == "all") {
+        // await Instructor.clearAll();
+    }
+    next();
+}
+
+postRouter.post('/admin/clear', clear);
+postRouter.post('/admin/clear', getPairs);
+postRouter.post('/admin/clear', sendUpdatedPairs);
+
 postRouter.post('/admin*', sendError);
 
 exports.get = getRouter;

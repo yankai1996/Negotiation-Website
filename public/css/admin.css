@@ -363,7 +363,7 @@ button.alt.small {
 /* Panel */
 
 .divide-box {
-    height: 100%;
+    min-height: 710px;
     margin-bottom: 40px;
 }
 
@@ -394,7 +394,7 @@ button.alt.small {
     border-radius: 5px;
     cursor: pointer;
     z-index: 5;
-    transition: all 0.3s ease;
+    transition: background-color 0.3s ease;
 }
 
 .delete-container:hover {
@@ -420,7 +420,6 @@ button.alt.small {
     line-height: 32px;
     letter-spacing: -2px;
     cursor: pointer;
-    transition: all 0.3 ease;
 }
 
 .delete-container .delete-pair {
@@ -542,4 +541,74 @@ input:checked+.slider:before {
     -webkit-transform: translateX(70px);
     -ms-transform: translateX(70px);
     transform: translateX(70px);
+}
+
+.setting-box {
+    width: 100%;
+    min-width: 600px;
+    padding: 20px 0;
+    border-bottom: 1px solid #ddd;
+    text-align: center
+}
+
+a.download {
+    position: relative;
+    font-family: "Roboto", sans-serif;
+    font-weight: 300;
+    border: 1px solid #159287;
+    width: 130px;
+    height: 46px;
+    line-height: 46px;
+    border-radius: 23px;
+    display: inline-block;
+    color: #159287;
+    background: #fff;
+    font-size: 16px;
+    text-decoration: none;
+    text-align: center;
+    vertical-align: middle;
+    -webkit-transition: color 0.3s ease;
+    transition: color 0.3s ease;
+    -webkit-transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+}
+
+a.download:hover {
+    color: #fff;
+    background: #159287;
+}
+
+a.download.nohover {
+    transition: 0s;
+    -webkit-transitio: none;
+}
+
+a.download.nohover:hover {
+    color: #159287;
+    background: #fff;
+    cursor: default;
+}
+
+a.download * {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateY(-50%) translateX(-50%);
+}
+
+a.download p {
+    margin: auto;
+}
+
+a.download label {
+    color: #fff;
+    display: none;
+    z-index: 100;
+}
+
+a.download .circle {
+    height: 48px;
+    width: 48px;
+    border-radius: 50%;
 }

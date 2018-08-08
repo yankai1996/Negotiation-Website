@@ -6,7 +6,7 @@ var $addGamesButton = $("button.add-games")
   , $addPairsButton = $("button.add-pairs")
   , $deleteContainer = $(".delete-container")
   , $deletePair = $("#delete-pair")
-  , $download = $("#download")
+  , $download = $(".download")
   , $floatOnlyInput = $(".float-only")
   , $gameTableBody = $("#game-table-body")
   , $insightTableBody = $("#insight-table-body")
@@ -62,7 +62,7 @@ const buttonManager = new function(){
 				width: '-=' + hiddenWidth + 'px',
 				height: '-=10px',
 				bottom: '+=5px'
-			}, 0);
+			}, 300);
 		}	
 	}
 
@@ -72,7 +72,7 @@ const buttonManager = new function(){
 				width: '+=' + hiddenWidth + 'px',
 				height: '+=10px',
 				bottom: '-=5px'
-			}, 0);
+			}, 300);
 		} else {
 			this.hideDeletePair();
 		}
@@ -457,13 +457,9 @@ $intOnlyInput.keypress((event) => {
     }
 })
 
-$addGamesButton.click(() => {
-	addMasterGame();
-})
+$addGamesButton.click(addMasterGame);
 
-$addPairsButton.click(() => {
-	addPairs()
-});
+$addPairsButton.click(addPairs);
 
 $participantTableBody.on('click', '.button', (event) => {
 	var index = $participantTableBody.find('.button').index(event.currentTarget);
@@ -471,17 +467,11 @@ $participantTableBody.on('click', '.button', (event) => {
 	viewPair(index);
 })
 
-$leftButton.click(() => {
-	pageManager.previousPage();
-});
+$leftButton.click(pageManager.previousPage);
 
-$rightButton.click(() => {
-	pageManager.nextPage();
-});
+$rightButton.click(pageManager.nextPage);
 
-$deleteContainer.click(() => {
-	buttonManager.toggleDeletePair();
-});
+$deleteContainer.click(buttonManager.toggleDeletePair);
 
 $deletePair.click(() => {
 	var first = getFirst();
@@ -495,14 +485,93 @@ $resetPair.click(() => {
 	resetPair(first, second);
 });
 
-$download.click(() => {
-	// window.location = "/admin/download";
-	// location.href = "/admin/download"
-});
+const animateDownload = () => {
+	
+	var $p = $download.find("p");
+	var $label = $download.find("label");
+	var $loader = $download.find("#loader");
+	var $backCircle = $download.find("#back-circle");
 
+	const startAnimation = () => {
+		$download.off("click");
+		$download.addClass("nohover");
+		animation1();
+	}
+
+	const animation1 = (duration) => {
+		$p.fadeOut(100);
+		$download.animate({
+			width: 46,
+			borderColor: "#ddd"
+		}, 300)
+		setTimeout(() => {
+			animation2();
+		}, 500);
+	}
+
+	const animation2 = (duration) => {
+		$loader.show();
+		$loader.circleProgress({
+		    value: 1,
+		    size: 48,
+		    startAngle: -Math.PI / 2,
+		    thickness: 1,
+		    fill: {
+		      	gradient: ["red", "orange"],
+		      	// color: "#159287",
+		      	// emptyFill: "transparent"
+		    }
+		});
+		setTimeout(() => {
+			animation3();
+		}, 1300);
+	}
+
+	const animation3 = (duration) => {
+		$label.fadeIn(300);
+		$loader.hide();
+		$backCircle.show();
+		$backCircle.animate({
+			backgroundColor: "#159287"
+		}, 300).delay(500).animate({
+			backgroundColor: "transparent"
+		}, 300);
+		setTimeout(() => {
+			animation4();
+		}, 1100);
+	}
+
+	const animation4 = (duration) => {
+		$download.css("borderColor", "#159287");
+		$backCircle.hide();
+		$label.hide();
+		$download.animate({
+			width: 130,
+		}, 300);
+		setTimeout(() => {
+			endAnimation();
+		}, 300);
+
+		$download.append("<a href='/admin/download' download></a>");
+		$download.find("a")[0].click();
+		$download.find("a").remove();
+	}
+
+	const endAnimation = () => {
+		$p.fadeIn(100);
+		$download.removeClass("nohover");
+		$download.click(animateDownload);
+	}
+
+	startAnimation();
+}
+
+$download.click(animateDownload);
 
 // show the Games tab
 $("#Games").show();
+
+
 
 });
 

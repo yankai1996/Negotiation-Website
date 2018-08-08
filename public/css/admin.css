@@ -486,62 +486,7 @@ button.turn {
     display: inline-block;
 }
 
-/* Switch Button */
-
-.switch {
-    position: relative;
-    display: inline-block;
-    width: 140px;
-    height: 30px;
-    border: 3px solid #eee;
-}
-
-.switch input {
-    display: none;
-    width: 100%;
-    height: 100%;
-    z-index: 5;
-}
-
-.slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    /* text-align: center; */
-    vertical-align: middle;
-    background-color: #eee;
-}
-
-.slider p {
-    padding-left: 17px;
-    padding-right: 15px;
-    display: inline;
-    line-height: 30px;
-}
-
-.slider:before {
-    position: absolute;
-    content: "buyer";
-    text-align: center;
-    vertical-align: middle;
-    line-height: 30px;
-    height: 30px;
-    width: 70px;
-    top: 0px;
-    left: 0px;
-    background-color: #fff;
-    -webkit-transition: .3s;
-    transition: .3s;
-}
-
-input:checked+.slider:before {
-    -webkit-transform: translateX(70px);
-    -ms-transform: translateX(70px);
-    transform: translateX(70px);
-}
+/* Settings */
 
 .setting-box {
     width: 100%;
@@ -549,6 +494,25 @@ input:checked+.slider:before {
     padding: 20px 0;
     border-bottom: 1px solid #ddd;
     text-align: center
+}
+
+table.settings {
+    width: 100%;
+    min-width: 600px;
+    border-collapse: collapse;
+    font-family: "Roboto", sans-serif;
+    font-weight: 300;
+}
+
+table.settings td {
+    /* border-bottom: 1px solid #ddd; */
+    border: 1px solid #ddd;
+    padding: 20px 0;
+    text-align: center;
+}
+
+table.settings td:first-child {
+    width: 200px;
 }
 
 a.download {
@@ -611,4 +575,108 @@ a.download .circle {
     height: 48px;
     width: 48px;
     border-radius: 50%;
+}
+
+.pause {
+    position: relative;
+    font-family: "Roboto", sans-serif;
+    font-weight: 300;
+    border: 1px solid #eee;
+    width: 130px;
+    height: 46px;
+    line-height: 46px;
+    border-radius: 23px;
+    display: inline-block;
+    background: #eee;
+    font-size: 16px;
+    text-align: center;
+    vertical-align: middle;
+    -webkit-transition: all 0.3s ease;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.pause:hover {
+    color: #fff;
+    background: red;
+}
+
+.pause.paused {
+    background: red;
+    color: #fff;
+    width: 46px;
+    cursor: default;
+}
+
+.pause.paused:hover {
+    background: red;
+    color: #fff;
+}
+
+.pause label {
+    display: inline-block;
+    margin: 15px auto;
+    width: 5px;
+    height: 16px;
+    background: #fff;
+}
+
+.resume {
+    position: relative;
+    font-family: "Roboto", sans-serif;
+    font-weight: 300;
+    border: 1px solid #eee;
+    width: 130px;
+    height: 46px;
+    line-height: 46px;
+    border-radius: 23px;
+    display: inline-block;
+    background: #eee;
+    font-size: 16px;
+    text-align: center;
+    vertical-align: middle;
+    -webkit-transition: all 0.3s ease;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.resume:hover {
+    background: #8c8;
+    color: #fff;
+}
+
+.resume.on {
+    position: relative;
+    font-family: "Roboto", sans-serif;
+    font-weight: 300;
+    border: 1px solid #8c8;
+    width: 46px;
+    height: 46px;
+    line-height: 46px;
+    border-radius: 23px;
+    display: inline-block;
+    color: #fff;
+    background: #8c8;
+    font-size: 16px;
+    text-align: center;
+    vertical-align: middle;
+    -webkit-transition: all 0.3s ease;
+    transition: all 0.3s ease;
+    cursor: default;
+}
+
+.resume.on:hover {
+    background: #8c8;
+    color: #fff;
+}
+
+.resume label {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%) translateX(-35%);
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 8px 0 8px 16px;
+    border-color: transparent transparent transparent #fff;
 }

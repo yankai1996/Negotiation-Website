@@ -145,7 +145,6 @@ const complete = () => {
 		return "<td>" + param + "</td>";
 	}
 
-
 	$.ajax({
 		url:  "/play/complete",
 		type: "POST",
@@ -492,6 +491,7 @@ $refuse.click(() => {
 $quit.click(() => {
 	location.href = "/logout";
 });
+
 
 const main = () => {
 	$description.load("/html/description.html");

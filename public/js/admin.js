@@ -16,7 +16,9 @@ var $addGamesButton = $("button.add-games")
   , $pairCount = $("#count")
   , $parameters = $(".param")
   , $participantTableBody = $("#participant-table-body")
+  , $pause = $(".pause")
   , $resetPair = $("#reset-pair")
+  , $resume = $(".resume")
   , $rightButton = $(".turn-buttons button").eq(1)
   , $rightPanel = $(".panel.right")
   , $tabButtons = $(".tab-button")
@@ -492,24 +494,34 @@ const animateDownload = () => {
 	var $loader = $download.find("#loader");
 	var $backCircle = $download.find("#back-circle");
 
-	const startAnimation = () => {
-		$download.off("click");
-		$download.addClass("nohover");
-		animation1();
+	var animations = [];
+
+	const runAnimations = (animations) => {
+		if (!animations.length) {
+			return;
+		}
+		var duration = animations[0]();
+		setTimeout(() => {
+			runAnimations(animations.slice(1));
+		}, duration);
 	}
 
-	const animation1 = (duration) => {
+	animations[0] = () => {
+		$download.off("click");
+		$download.addClass("nohover");
+		return 0;
+	}
+
+	animations[1] = () => {
 		$p.fadeOut(100);
 		$download.animate({
 			width: 46,
 			borderColor: "#ddd"
-		}, 300)
-		setTimeout(() => {
-			animation2();
-		}, 500);
+		}, 300);
+		return 500;
 	}
 
-	const animation2 = (duration) => {
+	animations[2] = () => {
 		$loader.show();
 		$loader.circleProgress({
 		    value: 1,
@@ -522,51 +534,58 @@ const animateDownload = () => {
 		      	// emptyFill: "transparent"
 		    }
 		});
-		setTimeout(() => {
-			animation3();
-		}, 1300);
+		return 1300;
 	}
 
-	const animation3 = (duration) => {
+	animations[3] = () => {
 		$label.fadeIn(300);
 		$loader.hide();
 		$backCircle.show();
 		$backCircle.animate({
-			backgroundColor: "#159287"
+			backgroundColor: "#8c8"
 		}, 300).delay(500).animate({
 			backgroundColor: "transparent"
 		}, 300);
-		setTimeout(() => {
-			animation4();
-		}, 1100);
+		return 1100
 	}
 
-	const animation4 = (duration) => {
+	animations[4] = () => {
 		$download.css("borderColor", "#159287");
 		$backCircle.hide();
 		$label.hide();
 		$download.animate({
 			width: 130,
 		}, 300);
-		setTimeout(() => {
-			endAnimation();
-		}, 300);
 
 		$download.append("<a href='/admin/download' download></a>");
-		$download.find("a")[0].click();
+		// $download.find("a")[0].click();
 		$download.find("a").remove();
+		return 300
 	}
 
-	const endAnimation = () => {
+	animations[5] = () => {
 		$p.fadeIn(100);
 		$download.removeClass("nohover");
 		$download.click(animateDownload);
+		return 100;
 	}
 
-	startAnimation();
+	runAnimations(animations);
+
+
 }
 
 $download.click(animateDownload);
+
+$pause.click(() => {
+	$pause.addClass("paused");
+	$resume.removeClass("on");
+});
+
+$resume.click(() => {
+	$pause.removeClass("paused");
+	$resume.addClass("on");
+});
 
 // show the Games tab
 $("#Games").show();

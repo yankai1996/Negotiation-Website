@@ -157,3 +157,60 @@ table.striped tbody tr:nth-child(odd) {
     -ms-transform: rotate(45deg);
     transform: rotate(45deg);
 }
+
+/* Switch Button */
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 140px;
+    height: 30px;
+    border: 3px solid #eee;
+}
+
+.switch input {
+    display: none;
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /* text-align: center; */
+    vertical-align: middle;
+    background-color: #eee;
+}
+
+.slider p {
+    padding-left: 17px;
+    padding-right: 15px;
+    display: inline;
+    line-height: 30px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "buyer";
+    text-align: center;
+    vertical-align: middle;
+    line-height: 30px;
+    height: 30px;
+    width: 70px;
+    top: 0px;
+    left: 0px;
+    background-color: #fff;
+    -webkit-transition: .3s;
+    transition: .3s;
+}
+
+input:checked+.slider:before {
+    -webkit-transform: translateX(70px);
+    -ms-transform: translateX(70px);
+    transform: translateX(70px);
+}

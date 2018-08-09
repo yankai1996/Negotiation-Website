@@ -34,7 +34,7 @@ The following functions have been implemented:
 ### Participant
 * login/logout
 * read experiment description
-* play one warm up game
+* play one warm-up game
 * for each game, have 10s to prepare
 * in each period, have 60s to propose a price and another 60s to decide to accept/reject the proposal
 * view outcome after each game

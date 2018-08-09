@@ -38,9 +38,6 @@ const CLASS = {
 	WAIT: 'wait',
 }
 
-var gPeriod = {};
-var gWarmup = false;
-
 var $accept = $("button#accept")
   , $backdrops = $(".backdrop")
   , $boxes = $(".box")
@@ -63,6 +60,8 @@ var $accept = $("button#accept")
   , $refuse = $("button#refuse")
   , $result = $("#result")
   , $secondBuyer = $("#2nd-buyer")
+  , $timeBar = $("td .time-bar")
+  , $timeClock = $(".clock")
   , $timer = $(".timer#timer1")
   , $viewDescription = $("#view-description")
   , $waiting = $("#waiting")
@@ -71,69 +70,193 @@ var $accept = $("button#accept")
   ;
 
 
-function Timer($timer) {
-	this.time = 60;
-	this.count = this.time;
-	this.$timer = $timer;
-	this.$clock = $timer.find(".clock");
-	this.$timeBar = $timer.find("td .time-bar");	
+const timer = new function() {
+
+	const time = 60;
+	var count = time;
+
+	this.start = function () {
+		$timeBar.animate({width: '0%'}, count * 1000);
+		this.interval = setInterval(() => {
+			count--;
+			$timeClock.html(('0' + count).slice(-2)); 
+			if (count == 10) {
+				$timer.addClass(CLASS.RED);
+			}
+			if ($proposal.hasClass(CLASS.WAIT)) {
+				$proposal.animate({
+					backgroundColor: count % 2 ? '#fafafa' : '#eee'
+				}, 1000);
+			}
+			if (count == 0) {
+				this.stop();
+				dealer.endPeriod();
+			}
+		}, 1000);
+	}
+
+	this.stop = function () {
+		clearInterval(this.interval);
+		$timeBar.stop();
+	}
+
+	this.reset = function () {
+		this.stop();
+		count = time;
+		$timeClock.html(time);
+		$timer.removeClass(CLASS.RED);
+		$timeBar.css('width', '100%');
+	}
+
+	this.lap = function () {
+		return time - count;
+	}
 }
 
-Timer.prototype.start = function () {
-	this.$timeBar.animate({width: '0%'}, this.count * 1000);
-	this.interval = setInterval(() => {
-		this.count--;
-		this.$clock.html(('0' + this.count).slice(-2)); 
-		if (this.count == 10) {
-			this.$timer.addClass(CLASS.RED);
+const socket = io.connect();
+
+const dealer = new function() {
+
+	this.warmup = false;
+	this.period = {}
+
+	const isMyTurn = () => {
+		if (this.period.proposer_id == ID && this.period.price == null) {
+			return true;
 		}
-		if ($proposal.hasClass(CLASS.WAIT)) {
-			$proposal.animate({
-				backgroundColor: this.count % 2 ? '#fafafa' : '#eee'
-			}, 1000);
+		if (this.period.proposer_id != ID && this.period.price != null) {
+			return true;
 		}
-		if (this.count == 0) {
-			this.stop();
-			endPeriod();
+		return false;
+	}
+
+	const enableButton = ($button, listener) => {
+		$button.show();
+		$button.removeClass(CLASS.DISABLE);
+		$button.click(listener);
+	}
+
+	const disableButton = ($buttons) => {
+		$buttons.addClass(CLASS.DISABLE);
+		$buttons.off("click");
+	}
+
+	// show proposal information
+	const showProposal = (info) => {
+		$input.hide();
+		$proposal.attr('class', CLASS.PROPOSAL);
+		if (CLASS[info]) {	
+			$proposal.addClass(CLASS[info]);
+			$proposal.html(INFO[info]);
+		} else {
+			$proposal.html(info);
 		}
-	}, 1000);
+		$proposal.show();
+	}
+
+	this.setWarmup = (isWarmup) => {
+		this.warmup = isWarmup;
+	}
+
+	this.getWarmup = () => {
+		return this.warmup;
+	}
+
+	this.onProposal = (period) => {
+		this.period = period;
+		if (isMyTurn()) {
+			showProposal("$" + this.period.price);
+			enableButton($accept, btnListenr.accept);
+			enableButton($refuse, btnListenr.refuse);
+			$proposal.stop();
+			$proposal.css('backgroundColor', '#eee');
+		}
+		timer.reset();
+		timer.start();
+	}
+
+
+	this.decide = (accepted) => {
+		this.period.accepted = accepted;
+		this.period.decided_at = timer.lap();
+		this.endPeriod();
+	
+		timer.stop();
+		disableButton($operationButtons);
+	}
+
+	this.endPeriod = () => {
+		if (isMyTurn()) {
+			socket.emit(EVENT.END_PERIOD, this.period);
+		}
+	}
+
+	this.initPeriod = (period) => {
+		this.period = period;
+
+		var $grids = $progressRow.find('div');
+		$grids.eq(this.period.number - 1).addClass(CLASS.DONE);
+
+		var $gridsDone = $progressRow.find('div.done');
+		if ($grids.length - $gridsDone.length < 2) {
+			$gridsDone.css('backgroundColor', '#f55');
+		} else if ($gridsDone.length / $grids.length > 0.5) {
+			$gridsDone.css('backgroundColor', '#fa0');
+		}
+
+		var t = $progressLabel.html().split('/')[1];
+		$progressLabel.html(this.period.number + "/" + t);
+
+		$operation.show();
+		$input.hide();
+		$proposal.hide();
+		$operationButtons.hide();
+		$timer.show();
+		timer.reset();
+
+		if (this.period.show_up_2nd_buyer) {
+			this.endPeriod();
+			return;
+		} else if (this.period.proposer_id == ID) {
+			$input.show();
+			$input.val('');
+			enableButton($propose, btnListenr.propose);
+		} else {
+			showProposal('WAIT');
+			$accept.show();
+			$refuse.show();
+			disableButton($operationButtons);
+		}
+		timer.start();
+	}
+
+	this.onDecision = (period) => {
+		this.period = period;
+		timer.stop();
+		if (this.period.show_up_2nd_buyer) {
+			showProposal('SECOND');
+			$secondBuyer.show();
+		} else if (this.period.accepted) {
+			showProposal('ACCEPTED');
+		} else if (this.period.decided_at) {
+			showProposal('REFUSED');
+		} else {
+			showProposal('NONE');
+		}
+	}
+
+	this.propose = (price) => {
+		this.period.price = price;
+		this.period.proposed_at = timer.lap();
+		timer.stop();
+		disableButton($propose);
+		showProposal("Your proposal: $" + this.period.price);
+		socket.emit(EVENT.PROPOSE, this.period);
+	}
+
 }
 
-Timer.prototype.stop = function () {
-	clearInterval(this.interval);
-	this.$timeBar.stop();
-}
 
-Timer.prototype.reset = function () {
-	this.stop();
-	this.count = this.time;
-	this.$clock.html(this.time);
-	this.$timer.removeClass(CLASS.RED);
-	this.$timeBar.css('width', '100%');
-}
-
-Timer.prototype.lap = function () {
-	return this.time - this.count;
-}
-
-var timer = new Timer($timer);
-
-var socket = io.connect();
-
-
-const askDecision = () => {
-	showProposal("$" + gPeriod.price);
-	$operationButtons.removeClass(CLASS.DISABLE);
-	$proposal.stop();
-	$proposal.css('backgroundColor', '#eee');
-}
-
-const askProposal = () => {
-	$input.show();
-	$input.val('');
-	$propose.show();
-	$propose.removeClass(CLASS.DISABLE);
-}
 
 const complete = () => {
 	const checkCell = (param) => {
@@ -179,88 +302,6 @@ const complete = () => {
 	$completePage.show();
 }
 
-const decide = (accepted) => {
-	gPeriod.accepted = accepted;
-	gPeriod.decided_at = timer.lap();
-	endPeriod();
-
-	timer.stop();
-	$operationButtons.addClass(CLASS.DISABLE);
-}
-
-const disableProposal = () => {
-	$propose.addClass(CLASS.DISABLE);
-	$timer.stop();
-	showProposal("Your proposal: $" + gPeriod.price);
-}
-
-const endPeriod = () => {
-	if (isMyTurn()) {
-		socket.emit(EVENT.END_PERIOD, gPeriod);
-	}
-}
-
-const initPeriod = () => {
-	var $grids = $progressRow.find('div');
-	var $current = $grids.eq(gPeriod.number - 1);
-	$current.addClass(CLASS.DONE);
-	var $gridsDone = $progressRow.find('div.done');
-	if ($grids.length - $gridsDone.length < 2) {
-		$gridsDone.css('backgroundColor', '#f55');
-	} else if ($gridsDone.length / $grids.length > 0.5) {
-		$gridsDone.css('backgroundColor', '#fa0');
-	}
-
-	var t = $progressLabel.html().split('/')[1];
-	$progressLabel.html(gPeriod.number + "/" + t);
-
-	$operation.show();
-	$input.hide();
-	$proposal.hide();
-	$operationButtons.hide();
-	$timer.show();
-	timer.reset();
-}
-
-const isMyTurn = () => {
-	if (gPeriod.proposer_id == ID && gPeriod.price == null) {
-		return true;
-	}
-	if (gPeriod.proposer_id != ID && gPeriod.price != null) {
-		return true;
-	}
-	return false;
-}
-
-const prepare = (time) => {
-	var count = time;
-	$preparationTime.html(count);
-	$preparation.fadeIn(1000);
-	var interval = setInterval(() => {
-		count--;
-		if (count > 0) {
-			$preparationTime.html(count);
-		} else {
-			$preparationTime.html("Start!");
-			clearInterval(interval);
-			$preparation.fadeOut(1000);
-		}
-	}, 1000);
-}
-
-// show proposal information
-const showProposal = (info) => {
-	$input.hide();
-	$proposal.attr('class', CLASS.PROPOSAL);
-	if (CLASS[info]) {	
-		$proposal.addClass(CLASS[info]);
-		$proposal.html(INFO[info]);
-	} else {
-		$proposal.html(info);
-	}
-	$proposal.show();
-}
-
 const waiting = (info) => {
 	info = info || "Looking for your opponent...";
 	$waitingInfo.html(info);
@@ -268,47 +309,30 @@ const waiting = (info) => {
 	$waiting.show();
 }
 
-const waitProposal = () => {
-	showProposal('WAIT');
-	$accept.show();
-	$refuse.show();
-	$operationButtons.addClass(CLASS.DISABLE);
-}
+var sktListener = {};
 
-// all games have been completed
-socket.on(EVENT.COMPLETE, () => {
+sktListener.complete = () => {
 	$boxes.hide();
 	$backdrops.hide();
 	$completePage.show();
-
 	socket.disconnect();
-});
+}
 
-// receiving the result of the current period
-socket.on(EVENT.DECISION, (period) => {
-	timer.stop();
-	if (period.show_up_2nd_buyer) {
-		showProposal('SECOND');
-		$secondBuyer.show();
-	} else if (period.accepted) {
-		showProposal('ACCEPTED');
-	} else if (period.decided_at) {
-		showProposal('REFUSED');
-	} else {
-		showProposal('NONE');
-	}
-});
+sktListener.decision = (period) => {
+	dealer.onDecision(period);
+}
 
-socket.on(EVENT.LOGIN, (data, respond) => {
+sktListener.login = (data, respond) => {
+	console.log(data);
 	respond(ID);
-})
+}
 
-socket.on(EVENT.LOST_OP, (info) => {
+sktListener.opponentLost = (info) => {
 	waiting(info);
 	timer.stop();
-});
+}
 
-socket.on(EVENT.NEW_GAME, (data) => {
+sktListener.newGame = (data) => {
 	$boxes.hide();
 	$waiting.hide();
 	$game.show();
@@ -316,7 +340,7 @@ socket.on(EVENT.NEW_GAME, (data) => {
 	$operation.hide();
 	timer.reset();
 
-	gWarmup = data.isWarmup;
+	dealer.setWarmup(data.isWarmup);
 
 	const defaultParams = {
 		alpha: 0.3,
@@ -340,37 +364,34 @@ socket.on(EVENT.NEW_GAME, (data) => {
 	for (let i = 0; i < data.t; i++) {
 		$progressRow.append("<td><div></div></td>");
 	}
-	prepare(data.preparationSeconds);
-});
 
-socket.on(EVENT.NEW_PERIOD, (period) => {
-	gPeriod = period;
-
-	$preparation.fadeOut(1000);
-	setTimeout(() => {
-		initPeriod();
-		if (period.show_up_2nd_buyer) {
-			endPeriod();
-		} else if (period.proposer_id == ID) {
-			askProposal();
-			timer.start();
+	var count = data.preparationSeconds;
+	$preparationTime.html(count);
+	$preparation.fadeIn(1000);
+	var interval = setInterval(() => {
+		count--;
+		if (count > 0) {
+			$preparationTime.html(count);
 		} else {
-			waitProposal();
-			timer.start();
+			$preparationTime.html("Start!");
+			clearInterval(interval);
+			$preparation.fadeOut(1000);
 		}
 	}, 1000);
-});
+}
 
-socket.on(EVENT.PROPOSE, (period) => {
-	gPeriod = period;
-	if (isMyTurn()) {
-		askDecision();
-	}
-	timer.reset();
-	timer.start();
-});
+sktListener.newPeriod = (period) => {
+	$preparation.fadeOut(1000);
+	setTimeout(() => {
+		dealer.initPeriod(period);
+	}, 1000);
+}
 
-socket.on(EVENT.RESULT, (result) => {
+sktListener.propose = (period) => {
+	dealer.onProposal(period);
+}
+
+sktListener.result = (result) => {
 	socket.emit(EVENT.LEAVE_ROOM);
 	var $exists2ndBuyer = $("#exists2ndBuyer");
 	for (let i in result) {
@@ -395,26 +416,64 @@ socket.on(EVENT.RESULT, (result) => {
 	setTimeout(() => {
 		$result.show();
 	}, 1000);
-});
+}
 
-socket.on(EVENT.SYNC_GAME, (game) => {
+sktListener.syncGame = (game) => {
 	console.log(game);
 	socket.emit(EVENT.SYNC_GAME, game);
-});
+}
 
-socket.on(EVENT.TEST, (data) => {
+sktListener.test = (data) => {
 	console.log(data);
-});
+}
 
-socket.on(EVENT.WAIT, (info) => {
+sktListener.wait = (info) => {
 	waiting(info);
-});
+}
+
+const bindSktListener = () => {
+	socket.on(EVENT.COMPLETE, sktListener.complete);
+	socket.on(EVENT.DECISION, sktListener.decision);
+	socket.on(EVENT.LOGIN, sktListener.login)
+	socket.on(EVENT.LOST_OP, sktListener.opponentLost);
+	socket.on(EVENT.NEW_GAME, sktListener.newGame);
+	socket.on(EVENT.NEW_PERIOD, sktListener.newPeriod);
+	socket.on(EVENT.PROPOSE, sktListener.propose);
+	socket.on(EVENT.RESULT, sktListener.result);
+	socket.on(EVENT.SYNC_GAME, sktListener.syncGame);
+	socket.on(EVENT.TEST, sktListener.test);
+	socket.on(EVENT.WAIT, sktListener.wait);
+}
+
+const unbindSktListener = () => {
+	for (let i in EVENT) {
+		socket.off(EVENT[i]);
+	}
+}
+
+var btnListenr = {}
+
+btnListenr.propose = () => {
+	var price = +parseFloat($input.val()).toFixed(2);
+	if (isNaN(price) || price < 0) {
+		return;
+	}
+	dealer.propose(price);	
+}
+
+btnListenr.accept = () => {
+	dealer.decide(true);
+}
+
+btnListenr.refuse = () => {
+	dealer.decide(false);
+}
+
 
 $ready.click(() => {
 	if ($gamesLeft.html() == '0') {
 		complete();
-		// socket.disconnect();
-	} else if (!gWarmup) {
+	} else if (!dealer.getWarmup()) {
 		waiting();
 		setTimeout(() => {
 			socket.emit(EVENT.READY);
@@ -433,10 +492,8 @@ $ready.click(() => {
 		$viewDescription.show();
 		$continue.show();
 
-		gWarmup = false;
+		dealer.setWarmup(false);
 	}
-	gPeriod = {};
-
 });
 
 $viewDescription.click(() => {
@@ -460,34 +517,6 @@ $input.keypress((event) => {
     }  
 });
 
-$propose.click(() => {
-	if ($propose.hasClass(CLASS.DISABLE)) {
-		return;
-	}
-	var price = +parseFloat($input.val()).toFixed(2);
-	if (isNaN(price) || price < 0) {
-		return;
-	}
-	gPeriod.price = price;
-	gPeriod.proposed_at = timer.lap();
-	disableProposal();
-	socket.emit(EVENT.PROPOSE, gPeriod);	
-});
-
-$accept.click(() => {
-	if ($accept.hasClass(CLASS.DISABLE)) {
-		return;
-	}
-	decide(true);
-});
-
-$refuse.click(() => {
-	if ($refuse.hasClass(CLASS.DISABLE)) {
-		return;
-	}
-	decide(false);
-});
-
 $quit.click(() => {
 	location.href = "/logout";
 });
@@ -497,6 +526,8 @@ const main = () => {
 	$description.load("/html/description.html");
 	if ($completePage.is(':visible')) {
 		complete();
+	} else {
+		bindSktListener();
 	}
 }
 main();

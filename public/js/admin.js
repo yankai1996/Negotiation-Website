@@ -39,7 +39,7 @@ const openTab = (index) => {
 	buttonManager.hideDelete();
 }
 
-const buttonManager = new function(){
+const buttonManager = new function() {
 
 	const hiddenWidth = 170;
 
@@ -84,183 +84,261 @@ const buttonManager = new function(){
 
 }
 
-// click delete button to delete games
-const deleteMasterGame = (index) => {
-	var id = $gameTableBody.find("tr").eq(index).attr('id');
+const gameManager = new function() {
 
-	// post request for deleting games
-	$.ajax({
-		url:  "/admin/delete_master_game",
-		type: "POST",
-		data: {id:id},
-		success: (res) => {
-			if (res.success){
-				$gameTableBody.find("tr").eq(index).remove();
-				cacheManager.clearAll();
-			} else {
-				alert(res);
-			}
-		}
-	});
+	// click delete button to delete games
+	this.deleteMasterGame = (index) => {
+		var $row = $gameTableBody.find("tr").eq(index);
+		var id = $row.attr('id');
 
-}
-
-
-// click ADD button to add games
-const addMasterGame = () => {
-	// check if empty input
-	$parameters.each(function(){
-		var $this = $(this);
-		if (!$this.val()) {
-			$this.val($this.attr('placeholder'));
-		}
-	});
-
-	// format the input to numbers
-	var params = {
-		alpha: parseFloat($('.param#alpha').val()),
-		beta : parseFloat($('.param#beta') .val()),
-		gamma: parseFloat($('.param#gamma').val()),
-		t 	 : parseInt  ($('.param#t')	.val()),
-		w	 : parseFloat($('.param#w')	.val())
-	};
-
-	// check if invalid number
-	for (var i in params) {
-		if (i == 'alpha' || i == 'beta' || i == 'gamma') {
-			if (params[i] < 0 || params[i] > 1) {
-				alert(i + " must be between 0-1!");
-				$('#'+i).val('');
-				return;
-			}
-		}
-	}
-
-	// post request for adding games
-	$.ajax({
-		url:  "/admin/add_games",
-		type: "POST",
-		data: params,
-		success: (res) => {
-			if (res.success) {
-				$parameters.val('');
-				updateGames(res.games);
-				cacheManager.clearAll();
-			} else {
-				alert(res);
-			}	
-		}
-	});
-}
-
-// update game table
-const updateGames = (games) => {
-	$gameTableBody.html("");
-	games.forEach((g) => {
-		var element = 
-			"<tr id='" + g.id + "'>" +
-				"<td class='alpha'>" + g.alpha + "</td>" +
-				"<td class='beta'>"  + g.beta  + "</td>" +
-				"<td class='gamma'>" + g.gamma + "</td>" +
-				"<td class='t'>" 	 + g.t 	   + "</td>" +
-				"<td class='w'>" 	 + g.w 	   + "</td>" +
-				"<td class='no-wrap'>" + 
-					(g.is_warmup ? "Warm-Up" : "") +
-					"<div class='delete'>Delete</div>" + 
-				"</td>" +
-			"</tr>";
-		if (g.is_warmup) {
-			$gameTableBody.prepend(element);
-		} else {
-			$gameTableBody.append(element);
-		}
-	});
-}
-
-// click add button to add pairs
-const addPairs = () => {
-	var n = parseInt($addPairsInput.val());
-	$addPairsInput.val('');
-
-	// check if invalid input 
-	if (!n || n > 100){
-		alert("Please enter an number in 1~100!");
-		return;
-	}
-
-	// post request for adding pairs
-	$.ajax({
-		url:  "/admin/add_pairs",
-		type: "POST",
-		data: {n: n},
-		success: (res) => {
-			if (res.success){
-				updatePairs(res.pairs, res.count);
-				$rightPanel.animate({width: 'hide'}, 500);
-			} else {
-				alert(res);
-			}
-		}
-	});
-}
-
-// update participant table
-const updatePairs = (pairs, count) => {
-	$pairCount.html(count);
-	$participantTableBody.html("");
-	pairs.forEach((p) => {
-		$participantTableBody.append(
-			"<tr" + (p.second ? " class='button'>" : ">") +
-				"<td>" +
-					 "<p>" + p.first + "</p>" + 
-					 "<p>" + p.second + "</p>" +
-				"</td>" +
-				"<td>" +
-					"<p> 》 </p>" + 
-				"</td>" + 
-			"</tr>");
-	});
-	pageManager.updateCurrentPage();
-}
-
-const getFirst = () => {
-	return $("tr.focused p").eq(0).text();
-}
-
-const getSecond = () => {
-	return $("tr.focused p").eq(1).text();
-}
-
-
-// show the detail of the selected pair
-const viewPair = (index) => {
-	var $rows = $participantTableBody.find(".button");
-	$rows.removeClass("focused");
-
-	$rows.eq(index).addClass("focused");
-	$rightPanel.animate({width:'show'}, 500);
-
-	var first = getFirst();
-	var second = getSecond();
-	showPair(first, second);
-	
-}
-
-const showPair = (first, second) => {
-	$("#first").text(first);
-	$("#second").text(second);
-
-	var games = cacheManager.getCachedPair(first, second);
-	if (games != null) {
-		refreshInsightTable(games);
-	} else {
-		// post request for viewing a pair
+		// post request for deleting games
 		$.ajax({
-			url:  "/admin/view_pair",
+			url:  "/admin/delete_master_game",
 			type: "POST",
-			data: {id: first},
+			data: {id:id},
 			success: (res) => {
 				if (res.success){
+					$row.remove();
+					cacheManager.clearAll();
+				} else {
+					alert(res);
+				}
+			}
+		});
+	}
+
+	this.addMasterGame = () => {
+		// check if empty input
+		$parameters.each(function(){
+			var $this = $(this);
+			if (!$this.val()) {
+				$this.val($this.attr('placeholder'));
+			}
+		});
+
+		// format the input to numbers
+		var params = {
+			alpha: parseFloat($('.param#alpha').val()),
+			beta : parseFloat($('.param#beta') .val()),
+			gamma: parseFloat($('.param#gamma').val()),
+			t 	 : parseInt  ($('.param#t')	.val()),
+			w	 : parseFloat($('.param#w')	.val())
+		};
+
+		// check if invalid number
+		for (var i in params) {
+			if (i == 'alpha' || i == 'beta' || i == 'gamma') {
+				if (params[i] < 0 || params[i] > 1) {
+					alert(i + " must be between 0-1!");
+					$('#'+i).val('');
+					return;
+				}
+			}
+		}
+
+		// post request for adding games
+		$.ajax({
+			url:  "/admin/add_games",
+			type: "POST",
+			data: params,
+			success: (res) => {
+				if (res.success) {
+					$parameters.val('');
+					this.updateGames(res.games);
+					cacheManager.clearAll();
+				} else {
+					alert(res);
+				}	
+			}
+		});
+	}
+
+	// update game table
+	this.updateGames = (games) => {
+		$gameTableBody.html("");
+		games.forEach((g) => {
+			var element = 
+				"<tr id='" + g.id + "'>" +
+					"<td class='alpha'>" + g.alpha + "</td>" +
+					"<td class='beta'>"  + g.beta  + "</td>" +
+					"<td class='gamma'>" + g.gamma + "</td>" +
+					"<td class='t'>" 	 + g.t 	   + "</td>" +
+					"<td class='w'>" 	 + g.w 	   + "</td>" +
+					"<td class='no-wrap'>" + 
+						(g.is_warmup ? "Warm-Up" : "") +
+						"<div class='delete'>Delete</div>" + 
+					"</td>" +
+				"</tr>";
+			if (g.is_warmup) {
+				$gameTableBody.prepend(element);
+			} else {
+				$gameTableBody.append(element);
+			}
+		});
+	}
+
+}
+
+const pairManager = new function() {
+
+	const getFirst = () => {
+		return $("tr.focused p").eq(0).text();
+	}
+
+	const getSecond = () => {
+		return $("tr.focused p").eq(1).text();
+	}
+
+	// refresh games in the pair panel
+	const refreshInsightTable = (games) => {
+		$("#buyer").html(games[0].buyer_id);
+		$("#seller").html(games[0].seller_id);
+		$insightTableBody.html("");
+		games.forEach((g) => {
+			var element = 
+				"<tr id='" + g.id + "'>" +
+					"<td>" + g.alpha + "</td>" +
+					"<td>" + g.beta + "</td>" +
+					"<td>" + g.gamma + "</td>" +
+					"<td>" + g.t + "</td>" +
+					"<td>" + g.w + "</td>" +
+					"<td>" + 
+						(g.exists_2nd_buyer ? "Yes" : "No") + 
+					"</td>" +
+					"<td>" +
+						(g.is_warmup ? "Warm-Up" : "") +
+					"</td>" +
+					"<td>" +
+						(g.is_done ? "Done" : "") +
+					"</td>" +
+				"</tr>";
+			if (g.is_warmup) {
+				$insightTableBody.prepend(element);
+			} else {
+				$insightTableBody.append(element);
+			}
+		});
+		$("table.insight tfoot td").html("Total: " + games.length);
+
+		var first = getFirst();
+		var second = getSecond();
+		cacheManager.cachePair(first, second, games);
+	}
+
+	// click add button to add pairs
+	this.addPairs = () => {
+		var n = parseInt($addPairsInput.val());
+		$addPairsInput.val('');
+
+		// check if invalid input 
+		if (!n || n > 100){
+			alert("Please enter an number in 1~100!");
+			return;
+		}
+
+		// post request for adding pairs
+		$.ajax({
+			url:  "/admin/add_pairs",
+			type: "POST",
+			data: {n: n},
+			success: (res) => {
+				if (res.success){
+					this.updatePairs(res.pairs, res.count);
+					$rightPanel.animate({width: 'hide'}, 500);
+				} else {
+					alert(res);
+				}
+			}
+		});
+	}
+
+	// show the detail of the selected pair
+	this.viewPair = (index) => {
+		var $rows = $participantTableBody.find(".button");
+		$rows.removeClass("focused");
+
+		$rows.eq(index).addClass("focused");
+		$rightPanel.animate({width:'show'}, 500);
+
+		var first = getFirst();
+		var second = getSecond();
+		$("#first").text(first);
+		$("#second").text(second);
+
+		var games = cacheManager.getCachedPair(first, second);
+		if (games != null) {
+			refreshInsightTable(games);
+		} else {
+			// post request for viewing a pair
+			$.ajax({
+				url:  "/admin/view_pair",
+				type: "POST",
+				data: {id: first},
+				success: (res) => {
+					if (res.success){
+						refreshInsightTable(res.games);
+					} else {
+						alert(res);
+					}
+				}
+			});
+		}
+	}
+
+	this.deletePair = () => {
+		var first = getFirst();
+		var second = getSecond();
+		$.ajax({
+			url:  "/admin/delete_pair",
+			type: "POST",
+			data: {
+				first: first,
+				second: second
+			},
+			success: (res) => {
+				if (res.success){
+					this.updatePairs(res.pairs, res.count);
+					cacheManager.removeCachedPair(first, second);
+					$rightPanel.animate({width: 'hide'}, 500);
+				} else {
+					alert(res);
+				}
+			}
+		});
+	}
+
+	// update participant table
+	this.updatePairs = (pairs, count) => {
+		$pairCount.html(count);
+		$participantTableBody.html("");
+		pairs.forEach((p) => {
+			$participantTableBody.append(
+				"<tr" + (p.second ? " class='button'>" : ">") +
+					"<td>" +
+						 "<p>" + p.first + "</p>" + 
+						 "<p>" + p.second + "</p>" +
+					"</td>" +
+					"<td>" +
+						"<p> 》 </p>" + 
+					"</td>" + 
+				"</tr>");
+		});
+		pageManager.updateCurrentPage();
+	}
+
+	this.resetPair = () => {
+		var first = getFirst();
+		var second = getSecond();
+		$.ajax({
+			url:  "/admin/reset_pair",
+			type: "POST",
+			data: {
+				first: first,
+				second: second
+			},
+			success: (res) => {
+				if (res.success){
+					cacheManager.removeCachedPair(first, second);
 					refreshInsightTable(res.games);
 				} else {
 					alert(res);
@@ -268,7 +346,12 @@ const showPair = (first, second) => {
 			}
 		});
 	}
+
+
+
+
 }
+
 
 const pageManager = new function(){
 
@@ -325,7 +408,7 @@ const pageManager = new function(){
 	return this._displayPairs(0, pageSize);
 }
 
-const cacheManager = new function(){
+const cacheManager = new function() {
 
 	// local storage of pair information
 	this.cachePair = (first, second, games) => {
@@ -345,102 +428,61 @@ const cacheManager = new function(){
 	}
 
 	return this.clearAll();
-
 }
 
-// refresh games in the pair panel
-const refreshInsightTable = (games) => {
-	$("#buyer").html(games[0].buyer_id);
-	$("#seller").html(games[0].seller_id);
-	$insightTableBody.html("");
-	games.forEach((g) => {
-		var element = 
-			"<tr id='" + g.id + "'>" +
-				"<td>" + g.alpha + "</td>" +
-				"<td>" + g.beta + "</td>" +
-				"<td>" + g.gamma + "</td>" +
-				"<td>" + g.t + "</td>" +
-				"<td>" + g.w + "</td>" +
-				"<td>" + 
-					(g.exists_2nd_buyer ? "Yes" : "No") + 
-				"</td>" +
-				"<td>" +
-					(g.is_warmup ? "Warm-Up" : "") +
-				"</td>" +
-				"<td>" +
-					(g.is_done ? "Done" : "") +
-				"</td>" +
-			"</tr>";
-		if (g.is_warmup) {
-			$insightTableBody.prepend(element);
-		} else {
-			$insightTableBody.append(element);
-		}
-	});
-	$("table.insight tfoot td").html("Total: " + games.length);
 
-	var first = getFirst();
-	var second = getSecond();
-	cacheManager.cachePair(first, second, games);
-}
+const setting = new function() {
 
-const deletePair = (first, second) => {
-	$.ajax({
-		url:  "/admin/delete_pair",
-		type: "POST",
-		data: {
-			first: first,
-			second: second
-		},
-		success: (res) => {
-			if (res.success){
-				updatePairs(res.pairs, res.count);
-				cacheManager.removeCachedPair(first, second);
-				$rightPanel.animate({width: 'hide'}, 500);
-			} else {
-				alert(res);
-			}
-		}
-	});
-}
-
-const resetPair = (first, second) => {
-	$.ajax({
-		url:  "/admin/reset_pair",
-		type: "POST",
-		data: {
-			first: first,
-			second: second
-		},
-		success: (res) => {
-			if (res.success){
-				cacheManager.removeCachedPair(first, second);
-				refreshInsightTable(res.games);
-			} else {
-				alert(res);
-			}
-		}
-	});
-}
-
-const clearData = (scope) => {
-	$.ajax({
-		url:  "/admin/clear",
-		type: "POST",
-		data: {scope: scope},
-		success: (res) => {
-			if (res.success){
-				updatePairs(res.pairs, res.count);
-				cacheManager.clearAll();
-				if (scope == "all") {
-					$gameTableBody.html("");
+	const clearData = (scope) => {
+		$.ajax({
+			url:  "/admin/clear",
+			type: "POST",
+			data: {scope: scope},
+			success: (res) => {
+				if (res.success){
+					pairManager.updatePairs(res.pairs, res.count);
+					cacheManager.clearAll();
+					if (scope == "all") {
+						$gameTableBody.html("");
+					}
+				} else {
+					alert(res);
 				}
-			} else {
-				alert(res);
 			}
+		});
+	}
+
+	this.clearParticipants = () => {
+		var info = "Do you want to clear all participants? " + 
+			"The experiment data will also be deleted.";
+		if (confirm(info)){
+			clearData("participants");
 		}
-	});
+	}
+
+	this.clearAll = () => {
+		var info = "Do you want to clear all the data?"
+		if (confirm(info)){
+			clearData("all");
+		}
+	}
+
+	this.resume = () => {
+		$resume.addClass("on");
+		$resume.off("click");
+		$pause.removeClass("paused");
+		$pause.click(this.pause);
+	}
+
+	this.pause = () => {
+		$pause.addClass("paused");
+		$pause.off("click");
+		$resume.removeClass("on");
+		$resume.click(this.resume);
+	}
+
 }
+
 
 
 $tabButtons.click((event) => {
@@ -455,7 +497,7 @@ $gameTableBody.on("click", "tr", (event) => {
 
 $gameTableBody.on("click", ".delete", (event) => {
 	var index = $gameTableBody.find(".delete").index(event.currentTarget);
-	deleteMasterGame(index);
+	gameManager.deleteMasterGame(index);
 });
 
 $floatOnlyInput.keypress((event) => {
@@ -480,14 +522,14 @@ $intOnlyInput.keypress((event) => {
     }
 })
 
-$addGamesButton.click(addMasterGame);
+$addGamesButton.click(gameManager.addMasterGame);
 
-$addPairsButton.click(addPairs);
+$addPairsButton.click(pairManager.addPairs);
 
 $participantTableBody.on('click', '.button', (event) => {
 	var index = $participantTableBody.find('.button').index(event.currentTarget);
 	buttonManager.hideDelete();
-	viewPair(index);
+	pairManager.viewPair(index);
 })
 
 $leftButton.click(pageManager.previousPage);
@@ -496,19 +538,14 @@ $rightButton.click(pageManager.nextPage);
 
 $deleteContainer.click(buttonManager.toggleDeletePair);
 
-$deletePair.click(() => {
-	var first = getFirst();
-	var second = getSecond();
-	deletePair(first, second);
-});
+$deletePair.click(pairManager.deletePair);
 
-$resetPair.click(() => {
-	var first = getFirst();
-	var second = getSecond();
-	resetPair(first, second);
-});
+$resetPair.click(pairManager.resetPair);
 
 const animateDownload = () => {
+
+	$download.off("click");
+	$download.addClass("nohover");
 	
 	var $p = $download.find("p");
 	var $label = $download.find("label");
@@ -527,38 +564,28 @@ const animateDownload = () => {
 		}, duration);
 	}
 
-	animations[0] = () => {
-		$download.off("click");
-		$download.addClass("nohover");
-		return 0;
-	}
-
-	animations[1] = () => {
+	animations.push(() => {
 		$p.fadeOut(100);
 		$download.animate({
 			width: 46,
 			borderColor: "#ddd"
 		}, 300);
 		return 500;
-	}
+	});
 
-	animations[2] = () => {
+	animations.push(() => {
 		$loader.show();
 		$loader.circleProgress({
 		    value: 1,
 		    size: 48,
 		    startAngle: -Math.PI / 2,
 		    thickness: 1,
-		    fill: {
-		      	gradient: ["red", "orange"],
-		      	// color: "#159287",
-		      	// emptyFill: "transparent"
-		    }
+		    fill: {gradient: ["red", "orange"]}
 		});
 		return 1300;
-	}
+	});
 
-	animations[3] = () => {
+	animations.push(() => {
 		$label.fadeIn(300);
 		$loader.hide();
 		$backCircle.show();
@@ -568,59 +595,39 @@ const animateDownload = () => {
 			backgroundColor: "transparent"
 		}, 300);
 		return 1100
-	}
+	});
 
-	animations[4] = () => {
+	animations.push(() => {
 		$download.css("borderColor", "#159287");
 		$backCircle.hide();
 		$label.hide();
 		$download.animate({
 			width: 182,
 		}, 300);
-
 		$download.append("<a href='/admin/download' download></a>");
 		// $download.find("a")[0].click();
 		$download.find("a").remove();
 		return 300
-	}
+	});
 
-	animations[5] = () => {
+	animations.push(() => {
 		$p.fadeIn(100);
 		$download.removeClass("nohover");
 		$download.click(animateDownload);
 		return 100;
-	}
+	});
 
 	runAnimations(animations);
-
 }
 
 $download.click(animateDownload);
 
-$clearParticipants.click(() => {
-	var info = "Do you want to clear all participants? " + 
-		"The experiment data will also be deleted.";
-	if (confirm(info)){
-		clearData("participants");
-	}
-});
+$clearParticipants.click(setting.clearParticipants);
 
-$clearAll.click(() => {
-	var info = "Do you want to clear all the data?"
-	if (confirm(info)){
-		clearData("all");
-	}
-});
+$clearAll.click(setting.clearAll);
 
-$pause.click(() => {
-	$pause.addClass("paused");
-	$resume.removeClass("on");
-});
+$pause.click(setting.pause);
 
-$resume.click(() => {
-	$pause.removeClass("paused");
-	$resume.addClass("on");
-});
 
 // show the Games tab
 $("#Games").show();

@@ -22,12 +22,23 @@ The website is based on
 
 The following functions have been implemented:
 
-* Login/logout for the instructor and participants
-* The instructor can view/add/delete games
-* The instructor can add/delete/reset pairs of participants
-* The instructor can download experiment result
-* Automatically assign games to new added pairs, and vice versa
-* Game play between participants
+### Instructor
+
+* login/logout
+* view/add/delete games
+* add/delete/reset pairs of participants
+* automatically assign games to new added pairs, and vice versa
+* download experiment result
+* clear data
+
+### Participant
+* login/logout
+* read experiment description
+* play one warm up game
+* for each game, have 10s to prepare
+* in each period, have 60s to propose a price and another 60s to decide to accept/reject the proposal
+* view outcome after each game
+* view summary at the end of the experiment
 
 ## Remaining Problems
 

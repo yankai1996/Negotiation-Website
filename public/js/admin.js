@@ -144,7 +144,7 @@ const gameManager = new function() {
 			success: (res) => {
 				if (res.success) {
 					$parameters.val('');
-					this.updateGames(res.games);
+					updateGames(res.games);
 					cacheManager.clearAll();
 				} else {
 					alert(res);
@@ -154,7 +154,7 @@ const gameManager = new function() {
 	}
 
 	// update game table
-	this.updateGames = (games) => {
+	const updateGames = (games) => {
 		$gameTableBody.html("");
 		games.forEach((g) => {
 			var element = 
@@ -347,9 +347,6 @@ const pairManager = new function() {
 		});
 	}
 
-
-
-
 }
 
 
@@ -503,22 +500,22 @@ $gameTableBody.on("click", ".delete", (event) => {
 $floatOnlyInput.keypress((event) => {
 	var theEvent = event || window.event;
     var key = theEvent.keyCode || theEvent.which;
-    key = String.fromCharCode( key );
+    key = String.fromCharCode(key);
     var regex = /[0-9]|\./;
-    if( !regex.test(key) ) {
+    if (!regex.test(key)) {
         theEvent.returnValue = false;
-        if(theEvent.preventDefault) theEvent.preventDefault();
+        if (theEvent.preventDefault) theEvent.preventDefault();
     }
 });
 
 $intOnlyInput.keypress((event) => {
 	var theEvent = event || window.event;
     var key = theEvent.keyCode || theEvent.which;
-    key = String.fromCharCode( key );
+    key = String.fromCharCode(key);
     var regex = /[0-9]/;
-    if( !regex.test(key) ) {
+    if (!regex.test(key)) {
         theEvent.returnValue = false;
-        if(theEvent.preventDefault) theEvent.preventDefault();
+        if (theEvent.preventDefault) theEvent.preventDefault();
     }
 })
 

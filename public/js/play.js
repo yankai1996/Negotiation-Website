@@ -59,6 +59,7 @@ var $accept = $("button#accept")
   , $ready = $(".ready")
   , $refuse = $("button#refuse")
   , $result = $("#result")
+  , $role = $(".role")
   , $secondBuyer = $("#2nd-buyer")
   , $timeBar = $("td .time-bar")
   , $timeClock = $(".clock")
@@ -180,7 +181,6 @@ const dealer = new function() {
 		this.period.accepted = accepted;
 		this.period.decided_at = timer.lap();
 		this.endPeriod();
-	
 		timer.stop();
 		disableButton($operationButtons);
 	}
@@ -333,6 +333,7 @@ sktListener.opponentLost = (info) => {
 }
 
 sktListener.newGame = (data) => {
+
 	$boxes.hide();
 	$waiting.hide();
 	$game.show();
@@ -342,6 +343,9 @@ sktListener.newGame = (data) => {
 
 	dealer.setWarmup(data.isWarmup);
 
+	$gamesLeft.html(data.gamesLeft);
+	$role.html(data.role);
+
 	const defaultParams = {
 		alpha: 0.3,
 		beta: 0.6,
@@ -349,16 +353,16 @@ sktListener.newGame = (data) => {
 		t: 10,
 		w: 17
 	};
-	for (let i in data) {
+	for (let i in defaultParams) {
 		let $param = $("." + i);
 		$param.html(data[i]);
-		if (defaultParams[i] && data[i] != defaultParams[i]) {
+		if (data[i] != defaultParams[i]) {
 			$param.parent().addClass(CLASS.HIGHLIGHT);
 		} else {
 			$param.parent().removeClass(CLASS.HIGHLIGHT);
 		}
 	}
-	$gamesLeft.html(data.gamesLeft);
+
 	$progressLabel.html("0/" + data.t);
 	$progressRow.children().slice(2).detach();
 	for (let i = 0; i < data.t; i++) {
@@ -393,24 +397,22 @@ sktListener.propose = (period) => {
 
 sktListener.result = (result) => {
 	socket.emit(EVENT.LEAVE_ROOM);
-	var $exists2ndBuyer = $("#exists2ndBuyer");
 	for (let i in result) {
-		$("#" + i).removeClass();
-		if (i == "exists2ndBuyer") {
-			if (result[i]) {
-				$exists2ndBuyer.html("&#10004");
-				$exists2ndBuyer.addClass(CLASS.GREEN);
-			} else {
-				$exists2ndBuyer.html("&#10007");
-				$exists2ndBuyer.addClass(CLASS.RED);
-			}
+		let $cell = $("#" + i);
+		$cell.removeClass();
+		if (i == "exists2ndBuyer" && result[i]) {
+			$cell.html("&#10004");
+			$cell.addClass(CLASS.GREEN);
+		} else if (i == "exists2ndBuyer" && !result[i]) {
+			$cell.html("&#10007");
+			$cell.addClass(CLASS.RED);
 		} else if (result[i] == null) {
-			$("#" + i).html("&#10007");
-			$("#" + i).addClass(CLASS.RED);
+			$cell.html("&#10007");
+			$cell.addClass(CLASS.RED);
 		} else if (result[i] < 0) {
-			$("#" + i).html("-$" + (-result[i].toFixed(2)));
+			$cell.html("-$" + (-result[i].toFixed(2)));
 		} else {
-			$("#" + i).html("$" + (+result[i].toFixed(2)));
+			$cell.html("$" + (+result[i].toFixed(2)));
 		}
 	}
 	setTimeout(() => {

@@ -54,6 +54,7 @@ var $accept = $("button#accept")
   , $input = $(".input-box input")
   , $game = $("#game")
   , $gamesLeft = $("#games-left")
+  , $loader = $(".loader")
   , $operation = $(".operation")
   , $operationButtons = $(".button-box button")
   , $preparation = $("#preparation")
@@ -449,12 +450,17 @@ const bindSktListener = () => {
 
 socket.on(COMMAND.PAUSE, () => {
 	waiting("Paused");
+	$loader.addClass("stop");
 	timer.stop();
 	unbindSktListener();
+	if ($ready.is(':visible')) {
+		socket.emit(EVENT.LEAVE_ROOM);
+	}
 })
 
 socket.on(COMMAND.RESUME, () => {
 	$waiting.hide();
+	$loader.removeClass("stop");
 	if (gInGame) {
 		timer.start();
 	}

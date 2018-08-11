@@ -32,7 +32,7 @@ button.big.view:hover {
 }
 
 .backdrop {
-    z-index: 100;
+    z-index: 99;
     display: none;
     position: fixed;
     top: -5;
@@ -42,6 +42,10 @@ button.big.view:hover {
     text-align: center;
     vertical-align: middle;
     background-color: rgba(0, 0, 0, 0.3);
+}
+
+.backdrop#waiting {
+    z-index: 100;
 }
 
 .round {

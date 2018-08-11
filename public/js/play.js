@@ -1,6 +1,11 @@
 $(function(){
 
 const ID = $("#participant-id").text();
+const COMMAND = {
+	AUTH: "auth",
+	PAUSE: "pause",
+	RESUME: "resume"
+}
 const EVENT = {
     COMPLETE: 'complete',
     DECISION: 'decision',
@@ -446,6 +451,14 @@ const bindSktListener = () => {
 	socket.on(EVENT.TEST, sktListener.test);
 	socket.on(EVENT.WAIT, sktListener.wait);
 }
+
+socket.on(COMMAND.PAUSE, () => {
+	waiting("Paused");
+})
+
+socket.on(COMMAND.RESUME, () => {
+	$backdrops.hide();
+})
 
 const unbindSktListener = () => {
 	for (let i in EVENT) {

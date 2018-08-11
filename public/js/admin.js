@@ -1,5 +1,10 @@
 $(function(){
 
+const COMMAND = {
+	AUTH: "auth",
+	PAUSE: "pause",
+	RESUME: "resume"
+}
 
 var $addGamesButton = $("button.add-games")
   , $addPairsInput = $("input.add-pairs")
@@ -26,6 +31,9 @@ var $addGamesButton = $("button.add-games")
   , $tabButtons = $(".tab-button")
   , $tabContents = $(".tab-content")
   ;
+
+const socket = io.connect();
+socket.emit(COMMAND.AUTH);
 
 // open tab
 const openTab = (index) => {
@@ -469,6 +477,7 @@ const setting = new function() {
 		$resume.off("click");
 		$pause.removeClass("paused");
 		$pause.click(this.pause);
+		socket.emit(COMMAND.RESUME);
 	}
 
 	this.pause = () => {
@@ -476,6 +485,7 @@ const setting = new function() {
 		$pause.off("click");
 		$resume.removeClass("on");
 		$resume.click(this.resume);
+		socket.emit(COMMAND.PAUSE);
 	}
 
 }

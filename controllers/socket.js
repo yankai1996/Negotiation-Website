@@ -1,6 +1,11 @@
 var socketio = require('socket.io');
 var Assistant = require('../models/assistant');
 
+const COMMAND = {
+    AUTH: "auth",
+	PAUSE: "pause",
+	RESUME: "resume"
+}
 const EVENT = {
     COMPLETE: 'complete',
     DECISION: 'decision',
@@ -16,6 +21,22 @@ const EVENT = {
     SYNC_GAME: 'sync game',
     TEST: 'test',
     WAIT: 'wait opponent',
+}
+
+
+function Instructor(io) {
+    this.io = io;
+    this.paused = false;
+}
+
+Instructor.prototype.pauseAll = function () {
+    this.io.emit(COMMAND.PAUSE);
+    this.paused = true;
+}
+
+Instructor.prototype.resumeAll = function () {
+    this.io.emit(COMMAND.RESUME);
+    this.paused = false;
 }
 
 
@@ -162,7 +183,7 @@ exports.listen = (server) => {
 
     io.sockets.on('connection', (socket) => {
 
-        var self, opponent, dealer;
+        var self, opponent, dealer, instructor;
 
         // initialization triggered once login
         socket.emit(EVENT.LOGIN, 'What is your ID?', async (id) => {
@@ -177,16 +198,29 @@ exports.listen = (server) => {
             }
         });
 
-        // check if the opponent is online
-        const opponentIsOnline = () => {
-            return opponent && io.sockets.adapter.rooms[opponent];
-        }
+        socket.on(COMMAND.AUTH, () => {
+            instructor = new Instructor(io);
+        });
+
+        socket.on(COMMAND.PAUSE, () => {
+            instructor.pauseAll();
+        });
+
+        socket.on(COMMAND.RESUME, () => {
+            instructor.resumeAll();
+        });
+
 
         // received the proposal from the proposer
         socket.on(EVENT.PROPOSE, (period) => {
             dealer.syncPeriod(period);
             dealer.propose();
         });
+
+        // check if the opponent is online
+        const opponentIsOnline = () => {
+            return opponent && io.sockets.adapter.rooms[opponent];
+        }
 
         // notified that the participant is ready to start the game
         socket.on(EVENT.READY, () => {

@@ -11,7 +11,6 @@ const EVENT = {
     DECISION: 'decision',
     END_PERIOD: 'end period',
     LEAVE_ROOM: 'leave room',
-    LOGIN: 'login',
     LOST_OP: 'lost opponent',
     NEW_GAME: 'new game',
     NEW_PERIOD: 'new period',
@@ -186,16 +185,14 @@ exports.listen = (server) => {
         var self, opponent, dealer, instructor;
 
         // initialization triggered once login
-        socket.emit(EVENT.LOGIN, 'What is your ID?', async (id) => {
+        socket.emit(COMMAND.AUTH, 'What is your ID?', async (id) => {
             self = id;
             var result = await Assistant.getOpponent(self);
             if (result.opponent) {
                 opponent = result.opponent;
                 dealer = new Dealer(self, opponent, io);
-                socket.emit(EVENT.TEST, "Welcome! " + self + ". Your opponent is " + opponent);
-            } else {
-                socket.emit(EVENT.TEST, "Welcome! " + self + ". You have no opponent!");
             }
+            socket.emit(EVENT.TEST, "Welcome! " + self + ". Your opponent is " + opponent);
         });
 
         socket.on(COMMAND.AUTH, () => {
@@ -224,12 +221,13 @@ exports.listen = (server) => {
 
         // notified that the participant is ready to start the game
         socket.on(EVENT.READY, () => {
-            socket.join(self);
-            if (!opponentIsOnline()) {
-                socket.emit(EVENT.WAIT, "Looking for your opponent...");
-            } else {
-                dealer.newGame();
-            }
+            socket.emit(EVENT.WAIT, "Looking for your opponent...");
+            setTimeout(() => {
+                socket.join(self);
+                if (opponentIsOnline()) {
+                    dealer.newGame();
+                }
+            }, 5000);
         });
 
         // sync the game from the opponent dealer

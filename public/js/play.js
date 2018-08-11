@@ -11,7 +11,6 @@ const EVENT = {
     DECISION: 'decision',
     END_PERIOD: 'end period',
     LEAVE_ROOM: 'leave room',
-    LOGIN: 'login',
     LOST_OP: 'lost opponent',
     NEW_GAME: 'new game',
     NEW_PERIOD: 'new period',
@@ -43,6 +42,9 @@ const CLASS = {
 	WAIT: 'wait',
 }
 
+var gWarmup = false;
+var gInGame = false;
+
 var $accept = $("button#accept")
   , $backdrops = $(".backdrop")
   , $boxes = $(".box")
@@ -68,7 +70,7 @@ var $accept = $("button#accept")
   , $secondBuyer = $("#2nd-buyer")
   , $timeBar = $("td .time-bar")
   , $timeClock = $(".clock")
-  , $timer = $(".timer#timer1")
+  , $timer = $(".timer")
   , $viewDescription = $("#view-description")
   , $waiting = $("#waiting")
   , $waitingInfo = $("#waiting-info")
@@ -123,8 +125,8 @@ const socket = io.connect();
 
 const dealer = new function() {
 
-	this.warmup = false;
 	this.period = {}
+	this.inGame = false;
 
 	const isMyTurn = () => {
 		if (this.period.proposer_id == ID && this.period.price == null) {
@@ -160,48 +162,13 @@ const dealer = new function() {
 		$proposal.show();
 	}
 
-	this.setWarmup = (isWarmup) => {
-		this.warmup = isWarmup;
-	}
-
-	this.getWarmup = () => {
-		return this.warmup;
-	}
-
-	this.onProposal = (period) => {
-		this.period = period;
-		if (isMyTurn()) {
-			showProposal("$" + this.period.price);
-			enableButton($accept, btnListenr.accept);
-			enableButton($refuse, btnListenr.refuse);
-			$proposal.stop();
-			$proposal.css('backgroundColor', '#eee');
-		}
-		timer.reset();
-		timer.start();
-	}
-
-
-	this.decide = (accepted) => {
-		this.period.accepted = accepted;
-		this.period.decided_at = timer.lap();
-		this.endPeriod();
-		timer.stop();
-		disableButton($operationButtons);
-	}
-
-	this.endPeriod = () => {
-		if (isMyTurn()) {
-			socket.emit(EVENT.END_PERIOD, this.period);
-		}
-	}
 
 	this.initPeriod = (period) => {
+
 		this.period = period;
 
 		var $grids = $progressRow.find('div');
 		$grids.eq(this.period.number - 1).addClass(CLASS.DONE);
-
 		var $gridsDone = $progressRow.find('div.done');
 		if ($grids.length - $gridsDone.length < 2) {
 			$gridsDone.css('backgroundColor', '#f55');
@@ -217,14 +184,14 @@ const dealer = new function() {
 		$proposal.hide();
 		$operationButtons.hide();
 		$timer.show();
+
 		timer.reset();
 
 		if (this.period.show_up_2nd_buyer) {
 			this.endPeriod();
 			return;
 		} else if (this.period.proposer_id == ID) {
-			$input.show();
-			$input.val('');
+			$input.val('').show();
 			enableButton($propose, btnListenr.propose);
 		} else {
 			showProposal('WAIT');
@@ -233,6 +200,36 @@ const dealer = new function() {
 			disableButton($operationButtons);
 		}
 		timer.start();
+	}
+
+	this.propose = (price) => {
+		this.period.price = price;
+		this.period.proposed_at = timer.lap();
+		timer.stop();
+		disableButton($propose);
+		showProposal("Your proposal: $" + this.period.price);
+		socket.emit(EVENT.PROPOSE, this.period);
+	}
+
+	this.onProposal = (period) => {
+		this.period = period;
+		if (isMyTurn()) {
+			showProposal("$" + this.period.price);
+			enableButton($accept, btnListenr.accept);
+			enableButton($refuse, btnListenr.refuse);
+			$proposal.stop();
+			$proposal.css('backgroundColor', '#eee');
+		}
+		timer.reset();
+		timer.start();
+	}
+
+	this.decide = (accepted) => {
+		this.period.accepted = accepted;
+		this.period.decided_at = timer.lap();
+		this.endPeriod();
+		timer.stop();
+		disableButton($operationButtons);
 	}
 
 	this.onDecision = (period) => {
@@ -250,13 +247,10 @@ const dealer = new function() {
 		}
 	}
 
-	this.propose = (price) => {
-		this.period.price = price;
-		this.period.proposed_at = timer.lap();
-		timer.stop();
-		disableButton($propose);
-		showProposal("Your proposal: $" + this.period.price);
-		socket.emit(EVENT.PROPOSE, this.period);
+	this.endPeriod = () => {
+		if (isMyTurn()) {
+			socket.emit(EVENT.END_PERIOD, this.period);
+		}
 	}
 
 }
@@ -308,11 +302,16 @@ const complete = () => {
 }
 
 const waiting = (info) => {
+	// $backdrops.hide();
 	info = info || "Looking for your opponent...";
-	$waitingInfo.html(info);
-	$backdrops.hide();
+	$waitingInfo.html(info)
 	$waiting.show();
 }
+
+socket.on(COMMAND.AUTH, (data, respond) => {
+	console.log(data);
+	respond(ID);
+});
 
 var sktListener = {};
 
@@ -327,11 +326,6 @@ sktListener.decision = (period) => {
 	dealer.onDecision(period);
 }
 
-sktListener.login = (data, respond) => {
-	console.log(data);
-	respond(ID);
-}
-
 sktListener.opponentLost = (info) => {
 	waiting(info);
 	timer.stop();
@@ -340,13 +334,13 @@ sktListener.opponentLost = (info) => {
 sktListener.newGame = (data) => {
 
 	$boxes.hide();
-	$waiting.hide();
+	$backdrops.hide();
 	$game.show();
 	$secondBuyer.hide();
 	$operation.hide();
 	timer.reset();
 
-	dealer.setWarmup(data.isWarmup);
+	gWarmup = data.isWarmup;
 
 	$gamesLeft.html(data.gamesLeft);
 	$role.html(data.role);
@@ -390,6 +384,7 @@ sktListener.newGame = (data) => {
 }
 
 sktListener.newPeriod = (period) => {
+	gInGame = true;
 	$preparation.fadeOut(1000);
 	setTimeout(() => {
 		dealer.initPeriod(period);
@@ -401,6 +396,7 @@ sktListener.propose = (period) => {
 }
 
 sktListener.result = (result) => {
+	gInGame = false;
 	socket.emit(EVENT.LEAVE_ROOM);
 	for (let i in result) {
 		let $cell = $("#" + i);
@@ -441,7 +437,6 @@ sktListener.wait = (info) => {
 const bindSktListener = () => {
 	socket.on(EVENT.COMPLETE, sktListener.complete);
 	socket.on(EVENT.DECISION, sktListener.decision);
-	socket.on(EVENT.LOGIN, sktListener.login)
 	socket.on(EVENT.LOST_OP, sktListener.opponentLost);
 	socket.on(EVENT.NEW_GAME, sktListener.newGame);
 	socket.on(EVENT.NEW_PERIOD, sktListener.newPeriod);
@@ -454,10 +449,16 @@ const bindSktListener = () => {
 
 socket.on(COMMAND.PAUSE, () => {
 	waiting("Paused");
+	timer.stop();
+	unbindSktListener();
 })
 
 socket.on(COMMAND.RESUME, () => {
-	$backdrops.hide();
+	$waiting.hide();
+	if (gInGame) {
+		timer.start();
+	}
+	bindSktListener();
 })
 
 const unbindSktListener = () => {
@@ -488,11 +489,9 @@ btnListenr.refuse = () => {
 $ready.click(() => {
 	if ($gamesLeft.html() == '0') {
 		complete();
-	} else if (!dealer.getWarmup()) {
-		waiting();
-		setTimeout(() => {
-			socket.emit(EVENT.READY);
-		}, 5000);
+	} else if (!gWarmup) {
+		$backdrops.hide();
+		socket.emit(EVENT.READY);
 	} else {
 		$("#game").hide();
 		$("#welcome-page").show();
@@ -507,7 +506,7 @@ $ready.click(() => {
 		$viewDescription.show();
 		$continue.show();
 
-		dealer.setWarmup(false);
+		gWarmup = false;
 	}
 });
 

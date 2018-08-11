@@ -1,5 +1,6 @@
 var socketio = require('socket.io');
 var Assistant = require('../models/assistant');
+var auth = require('./auth');
 
 const COMMAND = {
     AUTH: "auth",
@@ -186,17 +187,16 @@ exports.listen = (server) => {
 
         // initialization triggered once login
         socket.emit(COMMAND.AUTH, 'What is your ID?', async (id) => {
+            if (auth.isInstructor(socket.request.headers.cookie)) {
+                instructor = new Instructor(io);
+            }
             self = id;
             var result = await Assistant.getOpponent(self);
-            if (result.opponent) {
+            if (result && result.opponent) {
                 opponent = result.opponent;
                 dealer = new Dealer(self, opponent, io);
             }
             socket.emit(EVENT.TEST, "Welcome! " + self + ". Your opponent is " + opponent);
-        });
-
-        socket.on(COMMAND.AUTH, () => {
-            instructor = new Instructor(io);
         });
 
         socket.on(COMMAND.PAUSE, () => {

@@ -5,6 +5,7 @@ var express = require('express')
   , logger = require('morgan')
   , cookieParser = require('cookie-parser')
   , bodyParser = require('body-parser')
+  , ioCookie = require('socket.io-cookie')
   , login  = require('./controllers/router_login')
   , admin  = require('./controllers/router_admin')
   , play   = require('./controllers/router_play')
@@ -37,6 +38,8 @@ app.use(function(req, res){
     res.write("Opps this doesn't exist - 404");
     res.end();
 });
+
+io.use(ioCookie);
 
 server.listen(config.port, () => {
     console.log("Server is running on port " + config.port + "!");

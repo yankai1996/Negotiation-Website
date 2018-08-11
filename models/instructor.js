@@ -320,35 +320,20 @@ exports.getExcel = async () => {
 }
 
 exports.clearParticipants = async () => {
-    var ids = await Participant.findAll({
-        attributes: ['id'],
-        where: {payoff: 40}
-    }).then((result) => {
-        return result.map(g => g.id)
-    });
-    await Period.destroy({
-        where: {proposer_id: ids}
-    });
-    await Game.destroy({
-        where: {
-            $or: [{buyer_id: ids},
-                {seller_id: ids}]
-        }
-    });
+    await Period.destroy();
+    await Game.destroy();
     await Participant.update({
         opponent: null
-    }, {
-        where: {payoff: 40}
     });
-    await Participant.destroy({
-        where: {payoff: 40}
-    })
+    await Participant.destroy();
 }
 
 exports.clearAll = async () => {
     await Period.destroy();
     await Game.destroy();
-    await Participant.update();
+    await Participant.update({
+        opponent: null
+    });
     await Participant.destroy();
     await MasterGame.destroy();
 }

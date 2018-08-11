@@ -209,7 +209,7 @@ const clear = async (req, res, next) => {
     if (scope == "participants") {
         await Instructor.clearParticipants();
     } else if (scope == "all") {
-        // await Instructor.clearAll();
+        await Instructor.clearAll();
     }
     next();
 }

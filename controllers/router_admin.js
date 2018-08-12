@@ -20,12 +20,19 @@ const getPairs = async (req, res, next) => {
     next();
 }
 
+const checkPaused = async (req, res, next) => {
+    var paused = await Instructor.isPaused();
+    req.paused = paused;
+    next();
+}
+
 // render the admin page
 const renderAdmin = (req, res, next) => {
     res.render('admin', {
         games: req.games,
         pairs: req.pairs,
-        count: req.count
+        count: req.count,
+        paused: req.paused
     });
     next();
 }
@@ -40,6 +47,7 @@ const sendError = (req, res) => {
 getRouter.get('/admin', auth.checkAuthInstructor);
 getRouter.get('/admin', getMasterGames);
 getRouter.get('/admin', getPairs);
+getRouter.get('/admin', checkPaused);
 getRouter.get('/admin', renderAdmin);
 getRouter.get('/admin', sendError);
 

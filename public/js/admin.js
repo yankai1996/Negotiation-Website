@@ -33,7 +33,6 @@ var $addGamesButton = $("button.add-games")
   ;
 
 const socket = io.connect();
-socket.emit(COMMAND.AUTH);
 
 // open tab
 const openTab = (index) => {
@@ -490,7 +489,10 @@ const setting = new function() {
 
 }
 
-
+socket.on(COMMAND.AUTH, (data, respond) => {
+	console.log(data);
+	respond();
+});
 
 $tabButtons.click((event) => {
 	var index = $tabButtons.index(event.currentTarget);
@@ -633,11 +635,12 @@ $clearParticipants.click(setting.clearParticipants);
 
 $clearAll.click(setting.clearAll);
 
-$pause.click(setting.pause);
 
-
-// show the Games tab
-$("#Games").show();
+if ($resume.is(".on")) {
+	$pause.click(setting.pause);
+} else {
+	$resume.click(setting.resume);
+}
 
 
 

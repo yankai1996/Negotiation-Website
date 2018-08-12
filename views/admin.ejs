@@ -6,8 +6,9 @@
 	<link href="/css/common.css" type="text/css" rel="stylesheet">
 	<link href="/css/admin.css" type="text/css" rel="stylesheet">
 	<script type="text/javascript" src="/js/jquery.min.js"></script>
-	 <script type="text/javascript" src="/js/jquery-ui.min.js"></script>
-	 <script src="/js/circle-progress.js"></script>
+	<script type="text/javascript" src="/js/jquery-ui.min.js"></script>
+	<script src="/js/circle-progress.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
 </head>
 
 <body>
@@ -215,8 +216,15 @@
 		</div>
 	</div>
 
+	<script type="text/javascript">
+    var paused = <%= paused %>;
+    if (paused) {
+        $(".resume.on").removeClass("on");
+        $(".pause").addClass("paused");
+    }
+    $("#Games").show();
+  </script>
 	<script type="text/javascript" src="/js/admin.js"></script>
-
 </body>
 
 </html>

@@ -18,16 +18,24 @@ const getStatus = async (req, res, next) => {
     next();
 }
 
+const checkPaused = async (req, res, next) => {
+    var paused = await Assistant.isPaused();
+    req.paused = paused;
+    next();
+}
+
 // render the welcom page
 const renderPlay = (req, res) => {
     res.render('play', {
         participantID: req.cookies.participant,
-        flag: req.status
+        flag: req.status,
+        paused: req.paused
     });
 }
 
 getRouter.get('/play', auth.checkAuthParticipant);
 getRouter.get('/play', getStatus);
+getRouter.get('/play', checkPaused);
 getRouter.get('/play', renderPlay);
 
 

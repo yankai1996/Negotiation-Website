@@ -79,6 +79,13 @@ var $accept = $("button#accept")
   ;
 
 
+const socket = io.connect();
+
+socket.on(COMMAND.AUTH, (data, respond) => {
+	console.log(data);
+	respond(ID);
+});
+
 const timer = new function() {
 
 	const time = 60;
@@ -121,8 +128,6 @@ const timer = new function() {
 		return time - count;
 	}
 }
-
-const socket = io.connect();
 
 const dealer = new function() {
 
@@ -303,16 +308,12 @@ const complete = () => {
 }
 
 const waiting = (info) => {
-	// $backdrops.hide();
 	info = info || "Looking for your opponent...";
 	$waitingInfo.html(info)
 	$waiting.show();
 }
 
-socket.on(COMMAND.AUTH, (data, respond) => {
-	console.log(data);
-	respond(ID);
-});
+
 
 var sktListener = {};
 

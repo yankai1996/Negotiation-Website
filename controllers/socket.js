@@ -1,6 +1,7 @@
-var socketio = require('socket.io');
-var Assistant = require('../models/assistant');
-var auth = require('./auth');
+const socketio = require('socket.io');
+const Assistant = require('../models/assistant');
+const Instructor = require('../models/instructor');
+const auth = require('./auth');
 
 const COMMAND = {
     AUTH: "auth",
@@ -24,19 +25,18 @@ const EVENT = {
 }
 
 
-function Instructor(io) {
+function Supervisor(io) {
     this.io = io;
-    this.paused = false;
 }
 
-Instructor.prototype.pauseAll = function () {
+Supervisor.prototype.pauseAll = function () {
     this.io.emit(COMMAND.PAUSE);
-    this.paused = true;
+    Instructor.pause();
 }
 
-Instructor.prototype.resumeAll = function () {
+Supervisor.prototype.resumeAll = function () {
     this.io.emit(COMMAND.RESUME);
-    this.paused = false;
+    Instructor.resume();
 }
 
 
@@ -187,16 +187,17 @@ exports.listen = (server) => {
 
         // initialization triggered once login
         socket.emit(COMMAND.AUTH, 'What is your ID?', async (id) => {
-            if (auth.isInstructor(socket.request.headers.cookie)) {
-                instructor = new Instructor(io);
+            if (!id && auth.isInstructor(socket.request.headers.cookie)) {
+                instructor = new Supervisor(io);
+            } else {
+                self = id;
+                var result = await Assistant.getOpponent(self);
+                if (result && result.opponent) {
+                    opponent = result.opponent;
+                    dealer = new Dealer(self, opponent, io);
+                }
+                socket.emit(EVENT.TEST, "Welcome! " + self + ". Your opponent is " + opponent);
             }
-            self = id;
-            var result = await Assistant.getOpponent(self);
-            if (result && result.opponent) {
-                opponent = result.opponent;
-                dealer = new Dealer(self, opponent, io);
-            }
-            socket.emit(EVENT.TEST, "Welcome! " + self + ". Your opponent is " + opponent);
         });
 
         socket.on(COMMAND.PAUSE, () => {

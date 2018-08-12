@@ -182,7 +182,7 @@
 
         <div class="panel right">
 
-          <table id="timer1" class="timer">
+          <table class="timer">
             <td class="clock">60</td>
             <td>
               <div class="time-bar-container">
@@ -250,6 +250,7 @@
   <script type="text/javascript" src="/js/play.js"></script>
   <script type="text/javascript">
     var status = <%= flag %>;
+    var paused = <%= paused %>
     // var status = 4;
     if (status == 1) {
         $("#welcome-page").show();
@@ -266,6 +267,12 @@
     } else {
       $("#game").show();
       // $("#result").show();
+    }
+    if (status != 3 && paused) {
+      console.log("paused")
+      $("#waiting-info").html("Paused");
+      $("#waiting").show();
+      $(".loader").addClass("stop");
     }
   </script>
 </body>

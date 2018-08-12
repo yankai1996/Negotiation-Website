@@ -17,6 +17,17 @@ var sequelize = new Sequelize(
     }
 );
 
+var Status = sequelize.define('status', {
+    paused: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+    }
+}, {
+    timestamps: false,
+    freezeTableName: true
+});
+
 // define table 'participant'
 var Participant = sequelize.define('participant', {
     id: {
@@ -170,11 +181,15 @@ var Period = sequelize.define('period', {
     freezeTableName: true
 });
 
-const init = () => {
+const init = async () => {
     MasterGame.sync();
     Participant.sync();
     Game.sync();
     Period.sync();
+    await Status.sync();
+    if (! await Status.findOne()) {
+        Status.create();
+    }
 }
 // init();
 
@@ -182,3 +197,4 @@ exports.MasterGame = MasterGame;
 exports.Game = Game;
 exports.Participant = Participant;
 exports.Period = Period;
+exports.Status = Status;

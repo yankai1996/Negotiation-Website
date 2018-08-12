@@ -3,6 +3,7 @@ const MasterGame = db.MasterGame;
 const Game = db.Game;
 const Participant = db.Participant;
 const Period = db.Period;
+const Status = db.Status;
 
 
 exports.getOpponent = (id) => {
@@ -200,4 +201,12 @@ exports.getSummary = async (id) => {
         });
     });
     return summary;
+}
+
+exports.isPaused = async () => {
+    return Status.findOne({
+        where: {paused: true}
+    }).then((result) => {
+        return result !== null;
+    });
 }

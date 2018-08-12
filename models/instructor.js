@@ -4,6 +4,7 @@ const MasterGame = db.MasterGame;
 const Game = db.Game;
 const Participant = db.Participant;
 const Period = db.Period;
+const Status = db.Status;
 
 // get all master games
 exports.getMasterGames = () => { 
@@ -336,4 +337,24 @@ exports.clearAll = async () => {
     });
     await Participant.destroy();
     await MasterGame.destroy();
+}
+
+exports.pause = () => {
+    Status.update({
+        paused: true
+    }, {where: {}});
+}
+
+exports.resume = () => {
+    Status.update({
+        paused: false
+    }, {where: {}});
+}
+
+exports.isPaused = async () => {
+    return Status.findOne({
+        where: {paused: true}
+    }).then((result) => {
+        return result !== null;
+    });
 }

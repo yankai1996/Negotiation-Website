@@ -705,7 +705,7 @@ a.download .circle {
     cursor: default;
 }
 
-.clear.participants {
+.clear {
     position: relative;
     font-family: "Roboto", sans-serif;
     font-weight: 300;
@@ -724,19 +724,6 @@ a.download .circle {
     -webkit-transition: all 0.3s ease;
     transition: all 0.3s ease;
     cursor: pointer;
-}
-
-.clear.all {
-    width: 170px;
-    height: 43px;
-    margin: auto;
-    line-height: 43px;
-    border: 1px solid red;
-    color: red;
-    text-align: center;
-    cursor: pointer;
-    -webkit-transition: all 0.3s ease;
-    transition: all 0.3s ease;
 }
 
 .clear:hover {

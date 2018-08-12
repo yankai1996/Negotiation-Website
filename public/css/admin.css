@@ -636,6 +636,10 @@ a.download .circle {
     cursor: pointer;
 }
 
+.pause.paused label:hover {
+    cursor: default;
+}
+
 .resume {
     position: relative;
     font-family: "Roboto", sans-serif;
@@ -695,6 +699,10 @@ a.download .circle {
     border-width: 8px 0 8px 16px;
     border-color: transparent transparent transparent #fff;
     cursor: pointer;
+}
+
+.resume.on label:hover {
+    cursor: default;
 }
 
 .clear.participants {

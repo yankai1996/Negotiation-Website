@@ -21,6 +21,10 @@
     margin-bottom: 40px;
 }
 
+button.big {
+    display: inline-block;
+}
+
 button.big.view {
     color: #555;
     background: #eee;
@@ -86,6 +90,13 @@ button.big.view:hover {
     height: 200px;
     -webkit-animation: spin 2s linear infinite;
     animation: spin 2s linear infinite;
+}
+
+.loader.stop {
+    /* -webkit-animation: normal;
+    animation: normal;
+    top: 50%; */
+    border-top: 16px solid #f3f3f3;
 }
 
 @-webkit-keyframes spin {

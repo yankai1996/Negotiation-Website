@@ -11,12 +11,13 @@ The website is based on
 
 ### Modules Dependency
 
-* Express - The website framework
-* Mysql2
-* Sequelize - A promise-based ORM for operating MySQL
-* Cookie-parser
-* Morgan 
-* Socket.IO - For real-time bi-directional communication between client and server
+* express - The website framework
+* mysql2
+* sequelize - A promise-based ORM for operating MySQL
+* cookie-parser
+* morgan 
+* socket.io - For real-time bi-directional communication between client and server
+* socket.io-cookie
 
 ## Functions 
 

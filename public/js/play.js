@@ -43,7 +43,7 @@ const CLASS = {
 }
 
 var gWarmup = false;
-var gInGame = false;
+var gPlaying = false;
 
 var $accept = $("button#accept")
   , $backdrops = $(".backdrop")
@@ -63,6 +63,7 @@ var $accept = $("button#accept")
   , $progressLabel = $("#progress-label")
   , $proposal = $(".proposal")
   , $propose = $("button#propose")
+  , $questionMark = $(".question-mark")
   , $quit = $("#quit")
   , $ready = $(".ready")
   , $refuse = $("button#refuse")
@@ -80,7 +81,6 @@ var $accept = $("button#accept")
 
 
 const socket = io.connect();
-
 socket.on(COMMAND.AUTH, (data, respond) => {
 	console.log(data);
 	respond(ID);
@@ -192,6 +192,12 @@ const dealer = new function() {
 		$timer.show();
 
 		timer.reset();
+
+		if (!this.period.show_up_2nd_buyer) {
+			$questionMark.append('?').show();
+		} else {
+			$questionMark.html('').hide();
+		}
 
 		if (this.period.show_up_2nd_buyer) {
 			this.endPeriod();
@@ -335,14 +341,15 @@ sktListener.opponentLost = (info) => {
 
 sktListener.newGame = (data) => {
 
+	timer.reset();
+
+	gWarmup = data.isWarmup;
+
 	$boxes.hide();
 	$backdrops.hide();
 	$game.show();
 	$secondBuyer.hide();
 	$operation.hide();
-	timer.reset();
-
-	gWarmup = data.isWarmup;
 
 	$gamesLeft.html(data.gamesLeft);
 	$role.html(data.role);
@@ -386,7 +393,7 @@ sktListener.newGame = (data) => {
 }
 
 sktListener.newPeriod = (period) => {
-	gInGame = true;
+	gPlaying = true;
 	$preparation.fadeOut(1000);
 	setTimeout(() => {
 		dealer.initPeriod(period);
@@ -398,7 +405,7 @@ sktListener.propose = (period) => {
 }
 
 sktListener.result = (result) => {
-	gInGame = false;
+	gPlaying = false;
 	socket.emit(EVENT.LEAVE_ROOM);
 	for (let i in result) {
 		let $cell = $("#" + i);
@@ -462,7 +469,7 @@ socket.on(COMMAND.PAUSE, () => {
 socket.on(COMMAND.RESUME, () => {
 	$waiting.hide();
 	$loader.removeClass("stop");
-	if (gInGame) {
+	if (gPlaying) {
 		timer.start();
 	}
 	bindSktListener();

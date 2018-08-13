@@ -9,8 +9,8 @@ const COMMAND = {
 var $addGamesButton = $("button.add-games")
   , $addPairsInput = $("input.add-pairs")
   , $addPairsButton = $("button.add-pairs")
-  , $clearAll = $(".clear.all")
-  , $clearParticipants = $(".clear.participants")
+  , $clearAll = $("#clear-all")
+  , $clearParticipants = $("#clear-participants")
   , $deleteContainer = $(".delete-container")
   , $deletePair = $("#delete-pair")
   , $download = $(".download")
@@ -415,20 +415,22 @@ const pageManager = new function(){
 const cacheManager = new function() {
 
 	// local storage of pair information
+	const cache = window.sessionStorage;
+	
 	this.cachePair = (first, second, games) => {
-		window.sessionStorage.setItem(first + second, JSON.stringify(games));
+		cache.setItem(first + second, JSON.stringify(games));
 	}
 
 	this.getCachedPair = (first, second) => {
-		return JSON.parse(window.sessionStorage.getItem(first + second));
+		return JSON.parse(cache.getItem(first + second));
 	}
 
 	this.removeCachedPair = (first, second) => {
-		window.sessionStorage.removeItem(first + second);
+		cache.removeItem(first + second);
 	}
 
 	this.clearAll = () => {
-		window.sessionStorage.clear();
+		cache.clear();
 	}
 
 	return this.clearAll();
@@ -614,7 +616,7 @@ const animateDownload = () => {
 			width: 182,
 		}, 300);
 		$download.append("<a href='/admin/download' download></a>");
-		// $download.find("a")[0].click();
+		$download.find("a")[0].click();
 		$download.find("a").remove();
 		return 300
 	});

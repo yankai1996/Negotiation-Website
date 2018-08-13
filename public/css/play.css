@@ -288,6 +288,16 @@ table.progress td>div.done {
     width: 100%;
 }
 
+.question-mark {
+    width: 100px;
+    margin: auto;
+    word-wrap: break-word;
+    color: #ccc;
+    font-size: 30px;
+    font-family: 'Times New Roman', Times, serif;
+    letter-spacing: 5px;
+}
+
 .img-box {
     width: 80%;
     margin: auto;

@@ -83,7 +83,6 @@ Dealer.prototype.syncPeriod = function (period) {
 
 // start the game
 Dealer.prototype.startGame = async function () {
-    var preparationSeconds = 10;
     var gamesLeft = await Assistant.countUnfinishedGames(this.self) - 1;
     this.toBuyer(EVENT.NEW_GAME, {
         alpha: this.game.alpha,
@@ -93,7 +92,6 @@ Dealer.prototype.startGame = async function () {
         w: this.game.w,
         isWarmup: this.game.is_warmup,
         role: 'buyer',
-        preparationSeconds: preparationSeconds,
         gamesLeft: gamesLeft
     });
     this.toSeller(EVENT.NEW_GAME, {
@@ -104,12 +102,9 @@ Dealer.prototype.startGame = async function () {
         w: this.game.w,
         isWarmup: this.game.is_warmup,
         role: 'seller',
-        preparationSeconds: preparationSeconds,
         gamesLeft: gamesLeft
     });
-    setTimeout(() => {
-        this.nextPeriod(true);
-    }, 1000 * preparationSeconds);
+    this.nextPeriod(true);
 }
 
 // enter the next period
@@ -120,7 +115,6 @@ Dealer.prototype.nextPeriod = function (initial = false) {
     }
 
     var random = Math.random();
-    this.toBuyer(EVENT.TEST, random + "<" + this.game.beta + "?");
     var proposerId = random < this.game.beta
         ? this.game.buyer_id 
         : this.game.seller_id;
@@ -223,12 +217,12 @@ exports.listen = (server) => {
         // notified that the participant is ready to start the game
         socket.on(EVENT.READY, () => {
             socket.emit(EVENT.WAIT, "Looking for your opponent...");
-            setTimeout(() => {
-                socket.join(self);
-                if (opponentIsOnline()) {
+            socket.join(self);
+            if (opponentIsOnline()) {
+                setTimeout(() => {
                     dealer.newGame();
-                }
-            }, 5000);
+                }, 5000);
+            }
         });
 
         // sync the game from the opponent dealer
@@ -245,6 +239,7 @@ exports.listen = (server) => {
 
         socket.on(EVENT.LEAVE_ROOM, () => {
             socket.leave(self);
+            console.log("LEAVE!!!!!!!")
         })
 
         socket.on('disconnect', () => {

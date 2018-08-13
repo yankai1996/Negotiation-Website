@@ -44,6 +44,7 @@ const CLASS = {
 
 var gWarmup = false;
 var gPlaying = false;
+var gPaused;
 
 var $accept = $("button#accept")
   , $backdrops = $(".backdrop")
@@ -129,9 +130,44 @@ const timer = new function() {
 	}
 }
 
+const preparation = new function() {
+
+	const time = 10;
+	var count = time;
+
+	this.preparing = false;
+
+	this.start = function () {
+		this.preparing = true;
+		$boxes.hide();
+		$game.show();
+		$preparationTime.html(count);
+		$preparation.fadeIn(1000);
+		this.interval = setInterval(() => {
+			count--;
+			if (count > 0) {
+				$preparationTime.html(count);
+			} else if (count == 0) {
+				$preparationTime.html("Start!");
+				$preparation.fadeOut(1000);
+			} else {
+				this.stop();				
+				this.preparing = false;
+				count = time;
+				dealer.initPeriod();
+			}
+		}, 1000);
+	}
+
+	this.stop = function () {
+		clearInterval(this.interval)
+	}
+
+}
+
 const dealer = new function() {
 
-	this.period = {}
+	this.period = {};
 	this.inGame = false;
 
 	const isMyTurn = () => {
@@ -168,10 +204,11 @@ const dealer = new function() {
 		$proposal.show();
 	}
 
-
-	this.initPeriod = (period) => {
-
+	this.syncPeriod = (period) => {
 		this.period = period;
+	}
+
+	this.initPeriod = () => {
 
 		var $grids = $progressRow.find('div');
 		$grids.eq(this.period.number - 1).addClass(CLASS.DONE);
@@ -269,6 +306,7 @@ const dealer = new function() {
 
 
 
+
 const complete = () => {
 	const checkCell = (param) => {
 		if (param === null || param === false) {
@@ -308,6 +346,7 @@ const complete = () => {
 		}
 	});
 
+	socket.disconnect();
 	$boxes.hide();
 	$backdrops.hide();
 	$completePage.show();
@@ -324,10 +363,7 @@ const waiting = (info) => {
 var sktListener = {};
 
 sktListener.complete = () => {
-	$boxes.hide();
-	$backdrops.hide();
-	$completePage.show();
-	socket.disconnect();
+	complete();
 }
 
 sktListener.decision = (period) => {
@@ -345,9 +381,7 @@ sktListener.newGame = (data) => {
 
 	gWarmup = data.isWarmup;
 
-	$boxes.hide();
-	$backdrops.hide();
-	$game.show();
+	$wait.hide();
 	$secondBuyer.hide();
 	$operation.hide();
 
@@ -377,27 +411,18 @@ sktListener.newGame = (data) => {
 		$progressRow.append("<td><div></div></td>");
 	}
 
-	var count = data.preparationSeconds;
-	$preparationTime.html(count);
-	$preparation.fadeIn(1000);
-	var interval = setInterval(() => {
-		count--;
-		if (count > 0) {
-			$preparationTime.html(count);
-		} else {
-			$preparationTime.html("Start!");
-			clearInterval(interval);
-			$preparation.fadeOut(1000);
-		}
-	}, 1000);
 }
 
 sktListener.newPeriod = (period) => {
-	gPlaying = true;
-	$preparation.fadeOut(1000);
-	setTimeout(() => {
-		dealer.initPeriod(period);
-	}, 1000);
+	dealer.syncPeriod(period);
+	if (period.number == 1) {
+		preparation.start();
+	} else {
+		gPlaying = true;
+		setTimeout(() => {
+			dealer.initPeriod();
+		}, 1000);
+	}
 }
 
 sktListener.propose = (period) => {
@@ -457,20 +482,25 @@ const bindSktListener = () => {
 }
 
 socket.on(COMMAND.PAUSE, () => {
+	gPaused = true;
 	waiting("Paused");
 	$loader.addClass("stop");
 	timer.stop();
-	unbindSktListener();
-	if ($ready.is(':visible')) {
-		socket.emit(EVENT.LEAVE_ROOM);
+	preparation.stop();
+	if ($ready.is(":visible")) {
+		socket.emit(EVENT.LEAVE_ROOM);	
 	}
+	unbindSktListener();
 })
 
 socket.on(COMMAND.RESUME, () => {
+	gPaused = false;
 	$waiting.hide();
 	$loader.removeClass("stop");
 	if (gPlaying) {
 		timer.start();
+	} else if (preparation.preparing) {
+		preparation.start();
 	}
 	bindSktListener();
 })

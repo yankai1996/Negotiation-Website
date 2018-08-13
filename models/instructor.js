@@ -280,7 +280,7 @@ exports.getExcel = async () => {
             let row = i + 2;
             for (let j = 0; j < keys.length; j++) {
                 let item = list[i][keys[j]];
-                var type = typeof item;
+                let type = typeof item;
                 switch (type) {
                     case "number": 
                         sheet.cell(row, j + 1).number(item);
@@ -299,7 +299,10 @@ exports.getExcel = async () => {
     }
 
     var participantSheet = workbook.addWorksheet("Participants");
-    var participantList = await Participant.findAll({raw: true});
+    var participantList = await Participant.findAll({
+        attributes: ["id", "payoff", "opponent"],
+        raw: true
+    });
     list2sheet(participantList, participantSheet);
 
     var masterGameSheet = workbook.addWorksheet("Master Games")

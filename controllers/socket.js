@@ -91,7 +91,6 @@ Dealer.prototype.startGame = async function () {
         gamma: this.game.gamma,
         t: this.game.t,
         w: this.game.w,
-        isWarmup: this.game.is_warmup,
         role: 'buyer',
         gamesLeft: gamesLeft
     });
@@ -101,7 +100,6 @@ Dealer.prototype.startGame = async function () {
         gamma: this.game.gamma,
         t: this.game.t,
         w: this.game.w,
-        isWarmup: this.game.is_warmup,
         role: 'seller',
         gamesLeft: gamesLeft
     });

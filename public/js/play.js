@@ -42,7 +42,6 @@ const CLASS = {
 	WAIT: 'wait',
 }
 
-var gWarmup = false;
 var gPlaying = false;
 var gWaitingOpponent;
 var gPaused;
@@ -388,8 +387,6 @@ socket.on(EVENT.NEW_GAME, (data) => {
 
 	timer.reset();
 
-	gWarmup = data.isWarmup;
-
 	$waiting.hide();
 	$secondBuyer.hide();
 	$operation.hide();
@@ -520,10 +517,10 @@ btnListenr.refuse = () => {
 }
 
 
-$ready.click(() => {
+$ready.click((event) => {
 	if ($gamesLeft.html() == '0') {
 		complete();
-	} else if (!gWarmup) {
+	} else if (!$(event.currentTarget).hasClass("warmed-up")) {
 		$backdrops.hide();
 		socket.emit(EVENT.READY);
 		gWaitingOpponent = true;
@@ -541,7 +538,7 @@ $ready.click(() => {
 		$viewDescription.show();
 		$continue.show();
 
-		gWarmup = false;
+		$(event.currentTarget).removeClass("warmed-up");
 	}
 });
 

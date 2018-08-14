@@ -100,7 +100,7 @@
           <td id="opponentProfit"></td>
         </tr>
       </table>
-      <button class="big ready">CONTINUE</button>
+      <button id="confirm-result" class="big ready">CONTINUE</button>
     </div>
   </div>
 
@@ -258,6 +258,7 @@
         $("#continue-info").hide();
         $("#view-description").hide();
         $("#continue").hide();
+        $("#confirm-result").addClass("warmed-up");
     } else if (status == 2) {
         $("#welcome-page").show();
         $("#welcome-info").hide();

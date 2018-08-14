@@ -44,6 +44,7 @@ const CLASS = {
 
 var gWarmup = false;
 var gPlaying = false;
+var gWaitingOpponent;
 var gPaused;
 
 var $accept = $("button#accept")
@@ -134,11 +135,17 @@ const preparation = new function() {
 
 	const time = 10;
 	var count = time;
+	var started = false;
 
 	this.preparing = false;
 
 	this.start = function () {
+		if (started) {
+			return;
+		}
+		started = true;
 		this.preparing = true;
+		gWaitingOpponent = false;
 		$boxes.hide();
 		$game.show();
 		$preparationTime.html(count);
@@ -160,7 +167,8 @@ const preparation = new function() {
 	}
 
 	this.stop = function () {
-		clearInterval(this.interval)
+		clearInterval(this.interval);
+		started = false;
 	}
 
 }
@@ -201,6 +209,7 @@ const dealer = new function() {
 		} else {
 			$proposal.html(info);
 		}
+		$operation.show();
 		$proposal.show();
 	}
 
@@ -359,7 +368,6 @@ const waiting = (info) => {
 }
 
 
-
 var sktListener = {};
 
 sktListener.complete = () => {
@@ -381,9 +389,10 @@ sktListener.newGame = (data) => {
 
 	gWarmup = data.isWarmup;
 
-	$wait.hide();
+	$waiting.hide();
 	$secondBuyer.hide();
 	$operation.hide();
+	$questionMark.html("");
 
 	$gamesLeft.html(data.gamesLeft);
 	$role.html(data.role);
@@ -487,7 +496,7 @@ socket.on(COMMAND.PAUSE, () => {
 	$loader.addClass("stop");
 	timer.stop();
 	preparation.stop();
-	if ($ready.is(":visible")) {
+	if (gWaitingOpponent) {
 		socket.emit(EVENT.LEAVE_ROOM);	
 	}
 	unbindSktListener();
@@ -501,6 +510,8 @@ socket.on(COMMAND.RESUME, () => {
 		timer.start();
 	} else if (preparation.preparing) {
 		preparation.start();
+	} else if (gWaitingOpponent) {
+		socket.emit(EVENT.READY);
 	}
 	bindSktListener();
 })
@@ -536,6 +547,7 @@ $ready.click(() => {
 	} else if (!gWarmup) {
 		$backdrops.hide();
 		socket.emit(EVENT.READY);
+		gWaitingOpponent = true;
 	} else {
 		$("#game").hide();
 		$("#welcome-page").show();

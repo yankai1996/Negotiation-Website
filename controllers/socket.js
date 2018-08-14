@@ -44,8 +44,8 @@ function Dealer(self, opponent, io) {
     this.self = self;
     this.opponent = opponent;
     this.io = io;
-    this.game = {};
-    this.period = {};
+    this.game = null;
+    this.period = null;
 }
 
 Dealer.prototype.toBuyer = function (event, data) {
@@ -67,8 +67,9 @@ Dealer.prototype.newGame = async function () {
     if (!game) {
         this.toBoth(EVENT.COMPLETE, "You have finished all the games.");
     } else {
+        console.log(this.self + " New Game");
         this.game = game;
-        Assistant.deletePeriods(this.game.id);
+        await Assistant.deletePeriods(this.game.id);
         this.io.to(this.opponent).emit(EVENT.SYNC_GAME, this.game);
     }
 }
@@ -169,6 +170,7 @@ Dealer.prototype.endGame = async function () {
         selfProfit: result.sellerProfit,
         opponentProfit: result.buyerProfit
     });
+    this.game = null;
 }
 
 

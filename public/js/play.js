@@ -2,9 +2,9 @@ $(function(){
 
 const ID = $("#participant-id").text();
 const COMMAND = {
-	AUTH: "auth",
-	PAUSE: "pause",
-	RESUME: "resume"
+	AUTH: "cmd auth",
+	PAUSE: "cmd pause",
+	RESUME: "cmd resume"
 }
 const EVENT = {
     COMPLETE: 'complete',
@@ -219,6 +219,8 @@ const dealer = new function() {
 
 	this.initPeriod = () => {
 
+		gPlaying = true;
+
 		var $grids = $progressRow.find('div');
 		$grids.eq(this.period.number - 1).addClass(CLASS.DONE);
 		var $gridsDone = $progressRow.find('div.done');
@@ -368,22 +370,21 @@ const waiting = (info) => {
 }
 
 
-var sktListener = {};
+socket.on(EVENT.COMPLETE, complete);
 
-sktListener.complete = () => {
-	complete();
-}
+socket.on(EVENT.DECISION, dealer.onDecision);
 
-sktListener.decision = (period) => {
-	dealer.onDecision(period);
-}
-
-sktListener.opponentLost = (info) => {
+const opponentLost = (info) => {
 	waiting(info);
 	timer.stop();
+	preparation.stop();
+	setTimeout(() => {
+		$waitingInfo.html("Looking for another opponent...")
+	}, 2000);
 }
+socket.on(EVENT.LOST_OP, opponentLost);
 
-sktListener.newGame = (data) => {
+socket.on(EVENT.NEW_GAME, (data) => {
 
 	timer.reset();
 
@@ -420,25 +421,22 @@ sktListener.newGame = (data) => {
 		$progressRow.append("<td><div></div></td>");
 	}
 
-}
+});
 
-sktListener.newPeriod = (period) => {
+socket.on(EVENT.NEW_PERIOD, (period) => {
 	dealer.syncPeriod(period);
 	if (period.number == 1) {
 		preparation.start();
 	} else {
-		gPlaying = true;
 		setTimeout(() => {
 			dealer.initPeriod();
 		}, 1000);
 	}
-}
+});
 
-sktListener.propose = (period) => {
-	dealer.onProposal(period);
-}
+socket.on(EVENT.PROPOSE, dealer.onProposal);
 
-sktListener.result = (result) => {
+socket.on(EVENT.RESULT, (result) => {
 	gPlaying = false;
 	socket.emit(EVENT.LEAVE_ROOM);
 	for (let i in result) {
@@ -462,33 +460,19 @@ sktListener.result = (result) => {
 	setTimeout(() => {
 		$result.show();
 	}, 1000);
-}
+});
 
-sktListener.syncGame = (game) => {
+socket.on(EVENT.SYNC_GAME, (game) => {
 	console.log(game);
 	socket.emit(EVENT.SYNC_GAME, game);
-}
+});
 
-sktListener.test = (data) => {
+socket.on(EVENT.TEST, (data) => {
 	console.log(data);
-}
+});
 
-sktListener.wait = (info) => {
-	waiting(info);
-}
+socket.on(EVENT.WAIT, waiting);
 
-const bindSktListener = () => {
-	socket.on(EVENT.COMPLETE, sktListener.complete);
-	socket.on(EVENT.DECISION, sktListener.decision);
-	socket.on(EVENT.LOST_OP, sktListener.opponentLost);
-	socket.on(EVENT.NEW_GAME, sktListener.newGame);
-	socket.on(EVENT.NEW_PERIOD, sktListener.newPeriod);
-	socket.on(EVENT.PROPOSE, sktListener.propose);
-	socket.on(EVENT.RESULT, sktListener.result);
-	socket.on(EVENT.SYNC_GAME, sktListener.syncGame);
-	socket.on(EVENT.TEST, sktListener.test);
-	socket.on(EVENT.WAIT, sktListener.wait);
-}
 
 socket.on(COMMAND.PAUSE, () => {
 	gPaused = true;
@@ -499,7 +483,7 @@ socket.on(COMMAND.PAUSE, () => {
 	if (gWaitingOpponent) {
 		socket.emit(EVENT.LEAVE_ROOM);	
 	}
-	unbindSktListener();
+	socket.off(EVENT.LOST_OP);
 })
 
 socket.on(COMMAND.RESUME, () => {
@@ -513,14 +497,9 @@ socket.on(COMMAND.RESUME, () => {
 	} else if (gWaitingOpponent) {
 		socket.emit(EVENT.READY);
 	}
-	bindSktListener();
+	socket.on(EVENT.LOST_OP, opponentLost);
 })
 
-const unbindSktListener = () => {
-	for (let i in EVENT) {
-		socket.off(EVENT[i]);
-	}
-}
 
 var btnListenr = {}
 
@@ -573,7 +552,7 @@ $viewDescription.click(() => {
 $input.keypress((event) => {
 	var theEvent = event || window.event;
     var key = theEvent.keyCode || theEvent.which;
-    if (key === 13) {
+    if (key === 13 && !gPaused) {
     	$propose.click();
     } else {
     	key = String.fromCharCode(key);
@@ -596,8 +575,6 @@ const main = () => {
 	$description.load("/html/description.html");
 	if ($completePage.is(':visible')) {
 		complete();
-	} else {
-		bindSktListener();
 	}
 }
 main();

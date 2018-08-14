@@ -1,9 +1,9 @@
 $(function(){
 
 const COMMAND = {
-	AUTH: "auth",
-	PAUSE: "pause",
-	RESUME: "resume"
+	AUTH: "cmd auth",
+	PAUSE: "cmd pause",
+	RESUME: "cmd resume"
 }
 
 var $addGamesButton = $("button.add-games")

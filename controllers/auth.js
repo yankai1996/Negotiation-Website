@@ -16,6 +16,9 @@ const verifyInstructor = (username, password) => {
 }
 
 const verifyParticipant = (username) => {
+    if (username != username.toLowerCase()) {
+        return false;
+    }
     return Participant.findOne({
         where: {
             id: username

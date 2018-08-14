@@ -31,6 +31,7 @@ The following functions have been implemented:
 * automatically assign games to new added pairs, and vice versa
 * download experiment result
 * clear data
+* pause/resume games
 
 ### Participant
 * login/logout

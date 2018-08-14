@@ -174,7 +174,8 @@
 
       <div class="flexbox">
         <div class="panel left">
-          <p>2nd Buyer???</p>
+          <p>2nd Buyer</p>
+          <div class="question-mark"></div>
           <div id="2nd-buyer" class="img-box hide">
             <img src="/image/buyer.png"  alt="2nd buyer" />
           </div>
@@ -191,7 +192,7 @@
             </td>
           </table>
 
-          <div class="operation hide">
+          <div class="operation">
             <div class="input-box">
               <input type="text" placeholder="Propose a price" autofocus="autofocus">
               <div class="proposal"></div>
@@ -251,7 +252,7 @@
   <script type="text/javascript">
     var status = <%= flag %>;
     var paused = <%= paused %>
-    // var status = 4;
+    // status = 4;
     if (status == 1) {
         $("#welcome-page").show();
         $("#continue-info").hide();
@@ -269,7 +270,6 @@
       // $("#result").show();
     }
     if (status != 3 && paused) {
-      console.log("paused")
       $("#waiting-info").html("Paused");
       $("#waiting").show();
       $(".loader").addClass("stop");

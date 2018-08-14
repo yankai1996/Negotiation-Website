@@ -4,9 +4,9 @@ const Instructor = require('../models/instructor');
 const auth = require('./auth');
 
 const COMMAND = {
-    AUTH: "auth",
-	PAUSE: "pause",
-	RESUME: "resume"
+	AUTH: "cmd auth",
+	PAUSE: "cmd pause",
+	RESUME: "cmd resume"
 }
 const EVENT = {
     COMPLETE: 'complete',
@@ -170,7 +170,7 @@ Dealer.prototype.endGame = async function () {
         selfProfit: result.sellerProfit,
         opponentProfit: result.buyerProfit
     });
-    this.game = null;
+    this.game.is_done = true;
 }
 
 
@@ -219,6 +219,7 @@ exports.listen = (server) => {
         // notified that the participant is ready to start the game
         socket.on(EVENT.READY, () => {
             socket.emit(EVENT.WAIT, "Looking for your opponent...");
+            dealer.syncGame(null);
             socket.join(self);
             if (opponentIsOnline()) {
                 setTimeout(() => {

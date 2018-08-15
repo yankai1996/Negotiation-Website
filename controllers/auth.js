@@ -46,16 +46,15 @@ exports.authenticate = async (req, res, next) => {
         if (verifyInstructor(username, password)) {
             res.cookie(AS_INSTRUCTOR, username);
             res.redirect('/admin');
-        }
-    } else if (loginAs == AS_PARTICIPANT) {
-        var verified = await verifyParticipant(username, password);
-        if (verified) {
-            res.cookie(AS_PARTICIPANT, username);
-            res.redirect('/play');
         } else {
+            req.flag = 2;
             next();
         }
+    } else if (loginAs == AS_PARTICIPANT && await verifyParticipant(username, password)) {
+        res.cookie(AS_PARTICIPANT, username);
+        res.redirect('/play');
     } else {
+        req.flag = 1;
         next();
     }
 }
@@ -97,5 +96,5 @@ exports.clearCookie = (req, res, next) => {
 
 // set log-in failure flag
 exports.authFail = (req, res) => {
-    res.render('login', {flag: 1});
+    res.render('login', {flag: req.flag});
 }

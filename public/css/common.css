@@ -1,8 +1,14 @@
 @import url(https://fonts.googleapis.com/css?family=Roboto:300,400);
-b {
-    /* font-family: "Roboto", sans-serif; */
+.problem-description b {
+    font-family: 'Times New Roman', Times, serif;
     color: #159287;
-    /* font-weight: 300; */
+}
+
+.problem-description p {
+    /* font-family: "Roboto", sans-serif;
+    font-weight: 300; */
+    font-size: 18px;
+    line-height: 30px;
 }
 
 button {

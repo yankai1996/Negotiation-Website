@@ -241,6 +241,30 @@ table.params tr:last-child td label {
     margin-right: 30px;
 }
 
+table.params-description {
+    font-family: "Roboto", sans-serif;
+    font-weight: 300;
+    margin: 20px auto;
+    border-collapse: collapse;
+    border-spacing: 0;
+    background-color: #fff;
+    display: table;
+}
+
+table.params-description td {
+    padding-top: 6px;
+    padding-bottom: 6px;
+    display: table-cell;
+    text-align: left;
+    vertical-align: middle;
+}
+
+table.params-description td:first-child {
+    white-space: nowrap;
+    padding-right: 16px;
+    color: #159287;
+}
+
 table.progress {
     font-family: "Roboto", sans-serif;
     font-weight: 300;

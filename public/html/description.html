@@ -2,6 +2,38 @@
 <div class="line"></div>
 
 <div id="buyer-problem">
+    <h3>Parameters</h3>
+    <table class="params-description">
+        <tr>
+          <td>&alpha; = 0.3</td>
+          <td>the probability of being notified of the second buyer's existence in each period</td>
+        </tr>
+        <tr>
+          <td>&beta; = 0.6</td>
+          <td>the probability that the buyer proposes the price in each period</td>
+        </tr>
+        <tr>
+          <td>&gamma; = 0.2</td>
+          <td>the probability the second buyer exists</td>
+        </tr>
+        <tr>
+          <td>T = 10</td>
+          <td>the maximum number of negotiation periods</td>
+        </tr>
+        <tr>
+          <td>w = 17</td>
+          <td>the price that the second buyer will pay</td>
+        </tr>
+        <tr>
+          <td colspan="2">Reselling price = $12</td>
+        </tr>
+        <tr>
+          <td colspan="2">Negotiation cost = $0.1/period</td>
+        </tr>
+      </table>
+</div>
+
+<div id="buyer-problem" class="problem-description">
     <h3>The Buyer’s Problem</h3>
     <p>
         You are buying a unique product from the seller. If you obtain the product, you can resell it for <b>$12</b> in the market. Only you can access the market, but it will close in <b>T = 10</b> periods from now. In each period, either you or the seller will propose a price for this product and the other party will decide whether to accept or to reject the price. If the price accepted, the negotiation ends; otherwise, the negotiation enters the next period. In each period, you will incur a fixed negotiation cost of <b>$0.1</b> unless the negotiation has ended. If the agreement is not reached after T periods, there will be no transaction.
@@ -14,7 +46,7 @@
     </p>
 </div>
 
-<div id="seller-problem">
+<div id="seller-problem" class="problem-description">
     <h3>The Seller’s Problem</h3>
     <p>
         You are selling a unique product to the buyer. If the buyer obtains the product, he can resell it for <b>$12</b> in the market. Only he can access the market, and it will close in <b>T = 10</b> periods from now. In each period, you or the buyer will propose a price for this product and the other party will decide whether to accept or reject the price. If the price is accepted, the negotiation ends; otherwise, the negotiation enters the next period. In each period, you will incur a fixed negotiation cost of <b>$0.1</b> unless the negotiation has ended. If the agreement is not reached after T periods, you lose the opportunity of selling to this buyer.

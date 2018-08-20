@@ -188,11 +188,11 @@ const gameManager = new function() {
 
 const pairManager = new function() {
 
-	const getFirst = () => {
+	const getBuyer = () => {
 		return $("tr.focused p").eq(0).text();
 	}
 
-	const getSecond = () => {
+	const getSeller = () => {
 		return $("tr.focused p").eq(1).text();
 	}
 
@@ -227,9 +227,9 @@ const pairManager = new function() {
 		});
 		$("table.insight tfoot td").html("Total: " + games.length);
 
-		var first = getFirst();
-		var second = getSecond();
-		cacheManager.cachePair(first, second, games);
+		var buyer = getBuyer();
+		var seller = getSeller();
+		cacheManager.cachePair(buyer, seller, games);
 	}
 
 	// click add button to add pairs
@@ -267,12 +267,12 @@ const pairManager = new function() {
 		$rows.eq(index).addClass("focused");
 		$rightPanel.animate({width:'show'}, 500);
 
-		var first = getFirst();
-		var second = getSecond();
-		$("#first").text(first);
-		$("#second").text(second);
+		var buyer = getBuyer();
+		var seller = getSeller();
+		$("#buyer").text(buyer);
+		$("#seller").text(seller);
 
-		var games = cacheManager.getCachedPair(first, second);
+		var games = cacheManager.getCachedPair(buyer, seller);
 		if (games != null) {
 			refreshInsightTable(games);
 		} else {
@@ -280,7 +280,7 @@ const pairManager = new function() {
 			$.ajax({
 				url:  "/admin/view_pair",
 				type: "POST",
-				data: {id: first},
+				data: {id: buyer},
 				success: (res) => {
 					if (res.success){
 						refreshInsightTable(res.games);
@@ -293,19 +293,19 @@ const pairManager = new function() {
 	}
 
 	this.deletePair = () => {
-		var first = getFirst();
-		var second = getSecond();
+		var buyer = getBuyer();
+		var seller = getSeller();
 		$.ajax({
 			url:  "/admin/delete_pair",
 			type: "POST",
 			data: {
-				first: first,
-				second: second
+				buyer: buyer,
+				seller: seller
 			},
 			success: (res) => {
 				if (res.success){
 					this.updatePairs(res.pairs, res.count);
-					cacheManager.removeCachedPair(first, second);
+					cacheManager.removeCachedPair(buyer, seller);
 					$rightPanel.animate({width: 'hide'}, 500);
 				} else {
 					alert(res);
@@ -320,10 +320,10 @@ const pairManager = new function() {
 		$participantTableBody.html("");
 		pairs.forEach((p) => {
 			$participantTableBody.append(
-				"<tr" + (p.second ? " class='button'>" : ">") +
+				"<tr class='button'>" +
 					"<td>" +
-						 "<p>" + p.first + "</p>" + 
-						 "<p>" + p.second + "</p>" +
+						 "<p>" + p.buyer + "</p>" + 
+						 "<p>" + p.seller + "</p>" +
 					"</td>" +
 					"<td>" +
 						"<p> 》 </p>" + 
@@ -334,18 +334,18 @@ const pairManager = new function() {
 	}
 
 	this.resetPair = () => {
-		var first = getFirst();
-		var second = getSecond();
+		var buyer = getBuyer();
+		var seller = getSeller();
 		$.ajax({
 			url:  "/admin/reset_pair",
 			type: "POST",
 			data: {
-				first: first,
-				second: second
+				buyer: buyer,
+				seller: seller
 			},
 			success: (res) => {
 				if (res.success){
-					cacheManager.removeCachedPair(first, second);
+					cacheManager.removeCachedPair(buyer, seller);
 					refreshInsightTable(res.games);
 				} else {
 					alert(res);
@@ -417,16 +417,16 @@ const cacheManager = new function() {
 	// local storage of pair information
 	const cache = window.sessionStorage;
 	
-	this.cachePair = (first, second, games) => {
-		cache.setItem(first + second, JSON.stringify(games));
+	this.cachePair = (buyer, seller, games) => {
+		cache.setItem(buyer + seller, JSON.stringify(games));
 	}
 
-	this.getCachedPair = (first, second) => {
-		return JSON.parse(cache.getItem(first + second));
+	this.getCachedPair = (buyer, seller) => {
+		return JSON.parse(cache.getItem(buyer + seller));
 	}
 
-	this.removeCachedPair = (first, second) => {
-		cache.removeItem(first + second);
+	this.removeCachedPair = (buyer, seller) => {
+		cache.removeItem(buyer + seller);
 	}
 
 	this.clearAll = () => {
@@ -436,6 +436,9 @@ const cacheManager = new function() {
 	return this.clearAll();
 }
 
+const insight = new function() {
+
+}
 
 const setting = new function() {
 

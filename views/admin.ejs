@@ -9,6 +9,7 @@
 	<script type="text/javascript" src="/js/jquery-ui.min.js"></script>
 	<script src="/js/circle-progress.js"></script>
 	<script src="/socket.io/socket.io.js"></script>
+	<script src="https://d3js.org/d3.v5.min.js"></script>
 </head>
 
 <body>
@@ -118,8 +119,8 @@
 								<% pairs.forEach(function(p) { %>
 									<tr class="button">
 										<td>
-											<p><%= p.first %></p>
-											<p><%= p.second %></p>
+											<p><%= p.buyer %></p>
+											<p><%= p.seller %></p>
 										</td>
 										<td>
 											<p> 》 </p>

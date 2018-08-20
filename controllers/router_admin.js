@@ -180,7 +180,7 @@ postRouter.post('/admin/view_pair', viewPair);
 
 // delete the pair
 const deletePair = async (req, res, next) => {
-    await Instructor.deletePair(req.body.first, req.body.second);
+    await Instructor.deletePair(req.body.buyer, req.body.seller);
     next();
 }
 
@@ -191,8 +191,8 @@ postRouter.post('/admin/delete_pair', sendUpdatedPairs);
 
 // reset the pair
 const resetPair = async (req, res, next) => {
-    await Instructor.resetPair(req.body.first, req.body.second);
-    req.body.id = req.body.first;
+    await Instructor.resetPair(req.body.buyer, req.body.seller);
+    req.body.id = req.body.buyer;
     next();
 }
 

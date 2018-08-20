@@ -47,7 +47,7 @@ exports.addMasterGame = async (params) => {
     });
     
     var masterGameId = generateGameId();
-    await MasterGame.create({
+    var master = await MasterGame.create({
         id:     masterGameId,
         alpha:  params.alpha,
         beta:   params.beta,
@@ -55,28 +55,21 @@ exports.addMasterGame = async (params) => {
         t:      params.t,
         w:      params.w,
         is_warmup: noWarmup
+    }).then((result) => {
+        return result.get({plain: true});
     });
-    assignMasterGameToAll(masterGameId, params.gamma);
+    assignMasterGameToAll(master);
 }
 
-const assignMasterGameToAll = async (masterGameId, gamma) => {
+const assignMasterGameToAll = async (master) => {
     var pairs = await getPairs();
     for (var i in pairs) {
-        var first = pairs[i].first;
-        var second = pairs[i].second;
-        var fisrtIsBuyer = await Game.findOne({
-            where: {buyer_id: first}
-        }).then((result) => {
-            result !== null;
-        })
-        var buyer = fisrtIsBuyer ? first : second;
-        var seller = fisrtIsBuyer ? second : first;
         Game.create({
             id: generateGameId(i),
-            master_game: masterGameId,
-            buyer_id: buyer,
-            seller_id: seller,
-            exists_2nd_buyer: Math.random() < gamma
+            master_game: master.id,
+            buyer_id: pairs[i].buyer,
+            seller_id: pairs[i].seller,
+            exists_2nd_buyer: !master.is_warmup && Math.random() < master.gamma
         });
     }
 }
@@ -113,7 +106,7 @@ const assignMasterGamesToPair = async (masterGames, buyer, seller) => {
             master_game: master.id,
             buyer_id: buyer,
             seller_id: seller,
-            exists_2nd_buyer: Math.random() < master.gamma
+            exists_2nd_buyer: !master.is_warmup && Math.random() < master.gamma
         });
     }
 }
@@ -132,6 +125,7 @@ exports.addPairs = async (n) => {
 
         await Participant.create({
             id: randomID,
+            role: opponentID ? 'buyer' : 'seller',
             payoff: 40,
             opponent: opponentID
         }).then((result) => {
@@ -162,15 +156,11 @@ exports.getParticipants = () => {
 // get all participants by pair
 const getPairs = async () => {
     var participants = await Participant.findAll();
-    var temp = {};
     var pairs = [];
-    for (var i in participants) {
-        var p = participants[i];
-        if (!(p.opponent in temp)){
-            var first = p.id;
-            var second = p.opponent;
-            temp[first] = second;
-            pairs.push({first:first, second:second});
+    for (let i in participants) {
+        let p = participants[i];
+        if (p.role == 'buyer') {
+            pairs.push({buyer: p.id, seller: p.opponent});
         }
     }
     return pairs;
@@ -206,41 +196,41 @@ exports.getGamesByParticipant = async (id) => {
 }
 
 // delete the pair and all the related games and periods
-exports.deletePair = async (first, second) => {
+exports.deletePair = async (buyer, seller) => {
     await Period.destroy({
         where: {
-            $or: [{proposer_id: first},
-                {proposer_id: second}]
+            $or: [{proposer_id: buyer},
+                {proposer_id: seller}]
         }
     });
     await Game.destroy({
         where: {
-            $or: [{buyer_id: first},
-                {seller_id: first}]
+            buyer_id: buyer,
+            seller_id: seller
         }
     });
     await Participant.update({
         opponent: null
     }, {
         where: {
-            $or: [{id: first},
-                {id: second}]
+            $or: [{id: buyer},
+                {id: seller}]
         }
     });
     await Participant.destroy({
         where: {
-            $or: [{id: first},
-                {id: second}]
+            $or: [{id: buyer},
+                {id: seller}]
         }
     });
     return true;
 }
 
-exports.resetPair = async (first, second) => {
+exports.resetPair = async (buyer, seller) => {
     await Period.destroy({
         where: {
-            $or: [{proposer_id: first},
-                {proposer_id: second}]
+            $or: [{proposer_id: buyer},
+                {proposer_id: seller}]
         }
     });
     await Game.update({
@@ -252,16 +242,16 @@ exports.resetPair = async (first, second) => {
         is_done: false
     }, {
         where: {
-            $or: [{buyer_id: first},
-                {seller_id: first}]
+            buyer_id: buyer,
+            seller_id: seller
         }
     });
     await Participant.update({
         payoff: 40
     }, {
         where: {
-            $or: [{id: first},
-                {id: second}]
+            $or: [{id: buyer},
+                {id: seller}]
         }
     });
     return true;

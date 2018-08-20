@@ -35,6 +35,7 @@ var Participant = sequelize.define('participant', {
         allowNull: false,
         primaryKey: true
     },
+    role: Sequelize.STRING(6),
     payoff: {
         type: Sequelize.FLOAT(5,2),
         defaultValue: 40

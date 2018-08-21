@@ -13,9 +13,9 @@ const EVENT = {
     DECISION: 'decision',
     END_PERIOD: 'end period',
     LEAVE_ROOM: 'leave room',
-    LOST_OP: 'lost opponent',
     NEW_GAME: 'new game',
     NEW_PERIOD: 'new period',
+    OP_LOST: 'opponent lost',
     PROPOSE: 'propose',
     READY: 'ready',
     RESULT: 'result',
@@ -182,73 +182,84 @@ exports.listen = (server) => {
         // initialization triggered once login
         socket.emit(COMMAND.AUTH, 'What is your ID?', async (id) => {
             if (!id && auth.isInstructor(socket.request.headers.cookie)) {
-                instructor = new Supervisor(io);
+                initInstructor();
             } else {
-                self = id;
-                var result = await Assistant.getOpponent(self);
-                if (result && result.opponent) {
-                    opponent = result.opponent;
-                    dealer = new Dealer(self, opponent, io);
-                }
-                socket.emit(EVENT.TEST, "Welcome! " + self + ". Your opponent is " + opponent);
+                initDealer(id);
             }
         });
 
-        socket.on(COMMAND.PAUSE, () => {
-            instructor.pauseAll();
-        });
 
-        socket.on(COMMAND.RESUME, () => {
-            instructor.resumeAll();
-        });
+        const initInstructor = async () => {
 
+            instructor = new Supervisor(io);
 
-        // received the proposal from the proposer
-        socket.on(EVENT.PROPOSE, (period) => {
-            dealer.syncPeriod(period);
-            dealer.propose();
-        });
-
-        // check if the opponent is online
-        const opponentIsOnline = () => {
-            return opponent && io.sockets.adapter.rooms[opponent];
+            socket.on(COMMAND.PAUSE, () => {
+                instructor.pauseAll();
+            });
+    
+            socket.on(COMMAND.RESUME, () => {
+                instructor.resumeAll();
+            });
         }
 
-        // notified that the participant is ready to start the game
-        socket.on(EVENT.READY, () => {
-            socket.emit(EVENT.WAIT, "Looking for your opponent...");
-            dealer.syncGame(null);
-            socket.join(self);
-            if (opponentIsOnline()) {
-                setTimeout(() => {
-                    dealer.newGame();
-                }, 5000);
+        
+        const initDealer = async (id) => {
+
+            self = id;
+            var result = await Assistant.getOpponent(self);
+            if (result && result.opponent) {
+                opponent = result.opponent;
+                dealer = new Dealer(self, opponent, io);
             }
-        });
+            socket.emit(EVENT.TEST, "Welcome! " + self + ". Your opponent is " + opponent);
 
-        // sync the game from the opponent dealer
-        socket.on(EVENT.SYNC_GAME, (game) => {
-            dealer.syncGame(game);
-            dealer.startGame();
-        });
 
-        // received when decision is made or time is out
-        socket.on(EVENT.END_PERIOD, (period) => {
-            dealer.syncPeriod(period);
-            dealer.endPeriod();
-        });
+            // received the proposal from the proposer
+            socket.on(EVENT.PROPOSE, (period) => {
+                dealer.syncPeriod(period);
+                dealer.propose();
+            });
 
-        socket.on(EVENT.LEAVE_ROOM, () => {
-            socket.leave(self);
-            console.log("LEAVE!!!!!!!")
-        })
-
-        socket.on('disconnect', () => {
-            if (opponentIsOnline()) {
-                io.to(opponent).emit(EVENT.LOST_OP, "Your opponent is lost!");
+            // check if the opponent is online
+            const opponentIsOnline = () => {
+                return opponent && io.sockets.adapter.rooms[opponent];
             }
-        });
 
+            // notified that the participant is ready to start the game
+            socket.on(EVENT.READY, () => {
+                socket.emit(EVENT.WAIT, "Looking for your opponent...");
+                dealer.syncGame(null);
+                socket.join(self);
+                if (opponentIsOnline()) {
+                    setTimeout(() => {
+                        dealer.newGame();
+                    }, 5000);
+                }
+            });
+
+            // sync the game from the opponent dealer
+            socket.on(EVENT.SYNC_GAME, (game) => {
+                dealer.syncGame(game);
+                dealer.startGame();
+            });
+
+            // received when decision is made or time is out
+            socket.on(EVENT.END_PERIOD, (period) => {
+                dealer.syncPeriod(period);
+                dealer.endPeriod();
+            });
+
+            socket.on(EVENT.LEAVE_ROOM, () => {
+                socket.leave(self);
+                console.log("LEAVE!!!!!!!")
+            });
+
+            socket.on('disconnect', () => {
+                if (opponentIsOnline()) {
+                    io.to(opponent).emit(EVENT.OP_LOST, "Your opponent is lost!");
+                }
+            });
+        }
     });
 
     return io;

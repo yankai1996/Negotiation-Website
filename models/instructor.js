@@ -258,6 +258,17 @@ exports.resetPair = async (buyer, seller) => {
 }
 
 
+exports.getPrtofitByRole = async (role) => {
+    role = role || 'buyer';
+    var profits = await Participant.findAll({
+        where: {role: role}
+    }).then((result) => {
+        return result.map(p => p.payoff - 40);
+    });
+    return profits;
+}
+
+
 exports.getExcel = async () => {
     var workbook = new excel.Workbook();
 

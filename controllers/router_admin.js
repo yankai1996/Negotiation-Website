@@ -200,6 +200,20 @@ postRouter.post('/admin/reset_pair', resetPair);
 postRouter.post('/admin/reset_pair', viewPair);
 
 
+const insights = async (req, res, next) => {
+    var buyerProfit = await Instructor.getPrtofitByRole('buyer');
+    var sellerProfit = await Instructor.getPrtofitByRole('seller');
+    res.send({
+        success: 1,
+        buyerProfit: buyerProfit,
+        sellerProfit: sellerProfit
+    });
+    next();
+}
+
+postRouter.post('/admin/insights', insights);
+
+
 const downloadExcel = async (req, res, next) => {
     if (!auth.isInstructor(req.cookies)) {
         next();

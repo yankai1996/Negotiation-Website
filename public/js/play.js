@@ -11,9 +11,9 @@ const EVENT = {
     DECISION: 'decision',
     END_PERIOD: 'end period',
     LEAVE_ROOM: 'leave room',
-    LOST_OP: 'lost opponent',
     NEW_GAME: 'new game',
     NEW_PERIOD: 'new period',
+    OP_LOST: 'opponent lost',
     PROPOSE: 'propose',
     READY: 'ready',
     RESULT: 'result',
@@ -45,6 +45,7 @@ const CLASS = {
 var gPlaying = false;
 var gWaitingOpponent;
 var gPaused;
+var gOpponentLost = false;
 
 var $accept = $("button#accept")
   , $backdrops = $(".backdrop")
@@ -87,12 +88,18 @@ socket.on(COMMAND.AUTH, (data, respond) => {
 	respond(ID);
 });
 
+
 const timer = new function() {
 
 	const time = 60;
 	var count = time;
+	var started = false;
 
 	this.start = function () {
+		if (started || gPaused) {
+			return;
+		}
+		started = true;
 		$timeBar.animate({width: '0%'}, count * 1000);
 		this.interval = setInterval(() => {
 			count--;
@@ -113,8 +120,9 @@ const timer = new function() {
 	}
 
 	this.stop = function () {
-		clearInterval(this.interval);
+		started = false;
 		$timeBar.stop();
+		clearInterval(this.interval);
 	}
 
 	this.reset = function () {
@@ -139,7 +147,7 @@ const preparation = new function() {
 	this.preparing = false;
 
 	this.start = function () {
-		if (started) {
+		if (started || gPaused) {
 			return;
 		}
 		started = true;
@@ -157,9 +165,7 @@ const preparation = new function() {
 				$preparationTime.html("Start!");
 				$preparation.fadeOut(1000);
 			} else {
-				this.stop();				
-				this.preparing = false;
-				count = time;
+				this.reset();
 				dealer.initPeriod();
 			}
 		}, 1000);
@@ -168,6 +174,12 @@ const preparation = new function() {
 	this.stop = function () {
 		clearInterval(this.interval);
 		started = false;
+	}
+
+	this.reset = function () {
+		this.stop();
+		count = time;
+		this.preparing = false;
 	}
 
 }
@@ -314,9 +326,6 @@ const dealer = new function() {
 
 }
 
-
-
-
 const complete = () => {
 	const checkCell = (param) => {
 		if (param === null || param === false) {
@@ -373,19 +382,24 @@ socket.on(EVENT.COMPLETE, complete);
 
 socket.on(EVENT.DECISION, dealer.onDecision);
 
-const opponentLost = (info) => {
-	waiting(info);
-	timer.stop();
-	preparation.stop();
-	setTimeout(() => {
-		$waitingInfo.html("Looking for another opponent...")
-	}, 2000);
-}
-socket.on(EVENT.LOST_OP, opponentLost);
+socket.on(EVENT.OP_LOST, (info) => {
+	if (!gPaused) {
+		waiting(info);
+		timer.stop();
+		preparation.stop();
+		setTimeout(() => {
+			waiting("Looking for another opponent...")
+		}, 2000);
+	} else {
+		socket.emit(EVENT.LEAVE_ROOM);
+		gOpponentLost = true;
+	}
+});
 
 socket.on(EVENT.NEW_GAME, (data) => {
 
 	timer.reset();
+	preparation.reset();
 
 	$waiting.hide();
 	$secondBuyer.hide();
@@ -480,21 +494,28 @@ socket.on(COMMAND.PAUSE, () => {
 	if (gWaitingOpponent) {
 		socket.emit(EVENT.LEAVE_ROOM);	
 	}
-	socket.off(EVENT.LOST_OP);
 })
 
 socket.on(COMMAND.RESUME, () => {
 	gPaused = false;
 	$waiting.hide();
 	$loader.removeClass("stop");
-	if (gPlaying) {
+	if (gOpponentLost) {
+		waiting("Your opponent is lost!")
+		setTimeout(() => {
+			waiting("Looking for another opponent...");
+			socket.emit(EVENT.READY);
+			gWaitingOpponent = true;
+			gOpponentLost = false;
+		}, 2000);
+	} else if (gWaitingOpponent) {
+		socket.emit(EVENT.READY);
+		gOpponentLost = false;
+	} else if (gPlaying) {
 		timer.start();
 	} else if (preparation.preparing) {
 		preparation.start();
-	} else if (gWaitingOpponent) {
-		socket.emit(EVENT.READY);
 	}
-	socket.on(EVENT.LOST_OP, opponentLost);
 })
 
 
@@ -524,6 +545,7 @@ $ready.click((event) => {
 		$backdrops.hide();
 		socket.emit(EVENT.READY);
 		gWaitingOpponent = true;
+		gOpponentLost = false;
 	} else {
 		$("#game").hide();
 		$("#welcome-page").show();

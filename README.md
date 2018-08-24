@@ -18,6 +18,7 @@ The website is based on
 * morgan 
 * socket.io - For real-time bi-directional communication between client and server
 * socket.io-cookie
+* highcharts.js
 
 ## Functions 
 
@@ -26,7 +27,7 @@ The following functions have been implemented:
 ### Instructor
 
 * login/logout
-* view/add/delete games
+* view/add/delete master games
 * add/delete/reset pairs of participants
 * automatically assign games to new added pairs, and vice versa
 * download experiment result
@@ -46,4 +47,3 @@ The following functions have been implemented:
 
 * Safari dropping web socket connection when page not in focus for a while
 * Security for fake socket connection
-* Re-establishing the game when the browser is refreshed

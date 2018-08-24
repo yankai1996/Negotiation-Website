@@ -730,3 +730,33 @@ a.download .circle {
     background: red;
     color: #fff;
 }
+
+.chart {
+    width: 600px;
+    margin: 20px auto;
+}
+
+.refresh {
+    margin: 10px auto 40px auto;
+    font-family: "Roboto", sans-serif;
+    font-weight: 300;
+    border: 1px solid #159287;
+    width: 182px;
+    height: 46px;
+    line-height: 46px;
+    border-radius: 23px;
+    display: inline-block;
+    color: #159287;
+    background: #fff;
+    font-size: 16px;
+    text-decoration: none;
+    text-align: center;
+    vertical-align: middle;
+    -webkit-transition: all 0.3s ease;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.refresh:hover {
+    background: #eee;
+}

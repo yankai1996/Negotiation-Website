@@ -24,6 +24,7 @@ var $addGamesButton = $("button.add-games")
   , $parameters = $(".param")
   , $participantTableBody = $("#participant-table-body")
   , $pause = $(".pause")
+  , $refresh = $(".refresh")
   , $resetPair = $("#reset-pair")
   , $resume = $(".resume")
   , $rightButton = $(".turn-buttons button").eq(1)
@@ -438,6 +439,89 @@ const cacheManager = new function() {
 
 const insight = new function() {
 
+	const histogram = (profits, step) => {
+	    var histo = {};
+	    var arr = [];
+
+	    // Group down
+	    for (let i = 0; i < profits.length; i++) {
+	        let x = Math.floor(profits[i] / step) * step;
+	        if (!histo[x]) {
+	            histo[x] = 0;
+	        }
+	        histo[x]++;
+	    }
+	    // Make the histo group into an array
+	    for (x in histo) {
+	        if (histo.hasOwnProperty((x))) {
+	            arr.push([parseFloat(x), histo[x]]);
+	        }
+	    }
+	    // Finally, sort the array
+	    return arr.sort();
+	}
+
+	const drawChart = (buyerData, sellerData) => {
+		Highcharts.chart('all-chart', {
+		    chart: {
+		        type: 'column',
+		        style: {
+		        	fontFamily: 'Roboto',
+		        	fontSize: '16px'
+		        }
+		    },
+		    title: {
+		        text: "Distribution of Profit" 
+		    },
+		    xAxis: {
+		        gridLineWidth: 1
+		    },
+		    yAxis: {
+		        title: {
+		            text: 'Number'
+		        }
+		    },
+		    plotOptions: {
+		        column: {
+		            stacking: 'normal'
+		        }
+		    },
+		    series: [{
+		        name: 'Buyer',
+		        type: 'column',
+		        data: histogram(buyerData, 10),
+		        color: 'rgb(138, 199, 255)',
+		        pointPadding: 0,
+		        groupPadding: 0,
+		        pointPlacement: 'between'
+		    }, {
+		    	name: 'Seller',
+		        type: 'column',
+		        data: histogram(sellerData, 10),
+		        color: 'rgb(245, 163, 99)',
+		        pointPadding: 0,
+		        groupPadding: 0,
+		        pointPlacement: 'between'
+		    }]
+		});
+	}
+
+	this.refreshChart = () => {
+		$.ajax({
+			url:  "/admin/insights",
+			type: "POST",
+			data: {},
+			success: (res) => {
+				if (res.success){
+					drawChart(res.buyerProfit, res.sellerProfit);
+				} else {
+					alert(res);
+				}
+			}
+		});
+	}
+
+	return this.refreshChart();
 }
 
 const setting = new function() {
@@ -555,6 +639,8 @@ $deleteContainer.click(buttonManager.toggleDeletePair);
 $deletePair.click(pairManager.deletePair);
 
 $resetPair.click(pairManager.resetPair);
+
+$refresh.click(insight.refreshChart);
 
 const animateDownload = () => {
 

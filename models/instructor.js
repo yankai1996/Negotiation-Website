@@ -300,10 +300,7 @@ exports.getExcel = async () => {
     }
 
     var participantSheet = workbook.addWorksheet("Participants");
-    var participantList = await Participant.findAll({
-        attributes: ["id", "payoff", "opponent"],
-        raw: true
-    });
+    var participantList = await Participant.findAll({raw: true});
     list2sheet(participantList, participantSheet);
 
     var masterGameSheet = workbook.addWorksheet("Master Games")

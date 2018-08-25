@@ -57,7 +57,6 @@ var gOpponentLost = false;
 var $accept = $("button#accept")
   , $backdrops = $(".backdrop")
   , $boxes = $(".box")
-  , $completePage = $("#complete-page")
   , $continue = $("#continue")
   , $description = $("#description")
   , $input = $(".input-box input")
@@ -340,51 +339,6 @@ const dealer = new function() {
 
 }
 
-const complete = () => {
-	const checkCell = (param) => {
-		if (param === null || param === false) {
-			return "<td class='red'>&#10007;</td>";
-		} else if (param === true) {
-			return "<td class='green'>&#10004;</td>";
-		}
-		return "<td>" + param + "</td>";
-	}
-
-	$.ajax({
-		url:  "/play/complete",
-		type: "POST",
-		data: {id: ID},
-		success: (res) => {
-			if (res.success){
-				var summary = res.summary;
-				var totalProfit = 0; 
-				summary.forEach((s) => {
-					totalProfit += s.selfProfit
-					$("#summary-table-body").append(
-						"<tr>" + 
-							"<td>" + (summary.indexOf(s) + 1) + "</td>" +
-							checkCell(s.price) +
-							"<td>" + s.cost + "</td>" +
-							checkCell(s.exists2ndBuyer) +
-							"<td>" + s.opponentProfit + "</td>" +
-							"<td>" + s.selfProfit + "</td>" +
-						"</tr>");
-				});
-				totalProfit = +totalProfit.toFixed(2);
-				$("#total-profit").html("$" + totalProfit);
-				$("#final-payoff").html("$" + (totalProfit + 40));
-			} else {
-				alert(res);
-			}
-		}
-	});
-
-	socket.disconnect();
-	$boxes.hide();
-	$backdrops.hide();
-	$completePage.show();
-}
-
 const waiting = (info) => {
 	info = info || "Looking for your opponent...";
 	$waitingInfo.html(info)
@@ -392,7 +346,9 @@ const waiting = (info) => {
 }
 
 
-socket.on(EVENT.COMPLETE, complete);
+socket.on(EVENT.COMPLETE, () => {
+	location.href = "/play/complete";
+});
 
 socket.on(EVENT.DECISION, dealer.onDecision);
 
@@ -554,7 +510,7 @@ btnListenr.refuse = () => {
 
 $ready.click((event) => {
 	if ($gamesLeft.html() == '0') {
-		complete();
+		location.href = "/play/complete";
 	} else if (!$(event.currentTarget).hasClass("warmed-up")) {
 		$backdrops.hide();
 		socket.emit(EVENT.READY);
@@ -608,14 +564,8 @@ $(window).bind('beforeunload', function() {
 		return 'Are you sure you want to leave?';
 });
 
+$description.load("/html/description.html");
 
-const main = () => {
-	$description.load("/html/description.html");
-	if ($completePage.is(':visible')) {
-		complete();
-	}
-}
-main();
 
 
 });

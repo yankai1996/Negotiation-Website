@@ -30,6 +30,7 @@ The following functions have been implemented:
 * view/add/delete master games
 * add/delete/reset pairs of participants
 * automatically assign games to new added pairs, and vice versa
+* view the distribution of profit
 * download experiment result
 * clear data
 * pause/resume games

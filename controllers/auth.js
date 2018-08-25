@@ -77,17 +77,6 @@ exports.checkAuthParticipant = (req, res, next) => {
     }
 }
 
-exports.checkAuth = (req, res, next) => {
-    if (isInstructor(req.cookies)) {
-        res.redirect('/admin');
-    } else if (isParticipant(req.cookies)) {
-        res.redirect('/play');
-    } else {
-        next()
-    }
-}
-
-
 exports.clearCookie = (req, res, next) => {
     res.clearCookie(AS_INSTRUCTOR);
     res.clearCookie(AS_PARTICIPANT);

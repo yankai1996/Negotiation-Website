@@ -4,7 +4,6 @@ const postRouter = express.Router();
 const auth = require('./auth');
 
 // root url
-getRouter.get('/', auth.checkAuth);
 getRouter.get('/', (req, res) => {
     res.redirect('/login');
 });

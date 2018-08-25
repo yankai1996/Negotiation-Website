@@ -115,8 +115,10 @@ exports.addPairs = async (n) => {
     var masterGames = await MasterGame.findAll({
         raw: true
     });
+    // testID = ['xxxx', '0000'];
     for (var i = 0; i < 2 * n; ) {
         var randomID = generateParticipantId();
+        // randomID = testID[i];
         var opponentID = await Participant.findOne({
             where: {opponent: null}
         }).then((result) => {

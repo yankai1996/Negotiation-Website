@@ -1,0 +1,77 @@
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Complete</title>
+  <link href="/css/common.css" type="text/css" rel="stylesheet">
+  <link href="/css/play.css" type="text/css" rel="stylesheet">
+  <script type="text/javascript" src="/js/jquery.min.js"></script>
+  <% function checkCell(param) {
+    if (param === null || param === false) {
+      return "<td class='red'>&#10007;</td>"
+    } else if (param === true) {
+      return "<td class='green'>&#10004;</td>"
+    }
+    return "<td>" + param + "</td>";
+  }%>
+</head>
+
+<body>
+  <div class="box bottom">
+    <div class="title" align="center">
+      <h1>Thank you very much! <%= participantID %></h1>
+    </div>
+    <div class="content short">
+      <p align="center">You have finished all the games.</p>
+      <table class="summary striped">
+        <thead>
+          <th></th>
+          <th>Price</th>
+          <th>Cost</th>
+          <th>2nd Buyer</th>
+          <th>Op's Profit</th>
+          <th>Your Profit</th>
+        </thead>
+        <tbody>
+          <% var totalProfit = 0 %>
+          <% summary.forEach((s) => { %>
+            <% totalProfit += s.selfProfit %>
+            <tr>
+              <td><%= summary.indexOf(s) + 1 %></td>
+              <%- checkCell(s.price) %>
+              <td><%= s.cost %></td>
+              <%- checkCell(s.exists2ndBuyer) %>
+              <td><%= s.opponentProfit %></td>
+              <td><%= s.selfProfit %></td>
+            </tr>
+          <% })%>
+          <% totalProfit = +totalProfit.toFixed(2) %>
+        </tbody>
+        <tfoot>
+          <tr><td colspan="6"></td></tr>
+          <tr>
+            <td colspan="5">Totol Profit: </td>
+            <td id="total-profit">$<%= totalProfit %></td>
+          </tr>
+          <tr>
+            <td colspan="5">Your Payoff: </td>
+            <td id="final-payoff">$<%= totalProfit + 40 %></td>
+          </tr>
+        </tfoot>
+      </table>
+      
+    </div>
+    <div class="padding-end" align="center">
+      <button id="quit" class="big" align="center">QUIT</button>
+    </div>
+  </div>
+
+
+  <script type="text/javascript">
+    $("#quit").click(() => {
+      location.href = "/logout";
+    });
+  </script>
+</body>
+
+</html>

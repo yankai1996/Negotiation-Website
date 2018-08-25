@@ -319,6 +319,7 @@ const dealer = new function() {
 	this.onDecision = (period) => {
 		this.period = period;
 		timer.stop();
+		disableButton($operationButtons);
 		if (this.period.show_up_2nd_buyer) {
 			showProposal('SECOND');
 			$secondBuyer.show();

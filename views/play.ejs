@@ -211,48 +211,12 @@
     
   </div>
 
-  <div id="complete-page" class="box bottom hide">
-    <div class="title" align="center">
-      <h1>Thank you very much! <%= participantID %></h1>
-    </div>
-    <div class="content short">
-      <p align="center">You have finished all the games.</p>
-      <table class="summary striped">
-        <thead>
-          <th></th>
-          <th>Price</th>
-          <th>Cost</th>
-          <th>2nd Buyer</th>
-          <th>Op's Profit</th>
-          <th>Your Profit</th>
-        </thead>
-        <tbody id="summary-table-body"></tbody>
-        <tfoot>
-          <tr><td colspan="6"></td></tr>
-          <tr>
-            <td colspan="5">Totol Profit: </td>
-            <td id="total-profit"></td>
-          </tr>
-          <tr>
-            <td colspan="5">Your Payoff: </td>
-            <td id="final-payoff"></td>
-          </tr>
-        </tfoot>
-      </table>
-      
-    </div>
-    <div class="padding-end" align="center">
-      <button id="quit" class="big" align="center">QUIT</button>
-    </div>
-  </div>
-
-
 
   <script type="text/javascript" src="/js/play.js"></script>
   <script type="text/javascript">
     var status = <%= flag %>;
     var paused = <%= paused %>
-    // status = 4;
+    // status = 3;
     if (status == 1) {
         $("#welcome-page").show();
         $("#continue-info").hide();
@@ -264,13 +228,11 @@
         $("#welcome-info").hide();
         $("#warm-up").hide();
         $("#description").hide();
-    } else if (status == 3) {
-        $("#complete-page").show();
     } else {
       $("#game").show();
       // $("#result").show();
     }
-    if (status != 3 && paused) {
+    if (paused) {
       $("#waiting-info").html("Paused");
       $("#waiting").show();
       $(".loader").addClass("stop");

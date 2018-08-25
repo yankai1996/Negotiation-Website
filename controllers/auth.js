@@ -37,6 +37,7 @@ const isParticipant = (cookies) => {
     return cookies[AS_PARTICIPANT];
 }
 exports.isParticipant = isParticipant;
+exports.getParticipantID = isParticipant;
 
 exports.authenticate = async (req, res, next) => {
     var loginAs = req.body.loginAs

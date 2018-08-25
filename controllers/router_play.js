@@ -1,21 +1,18 @@
 const express = require('express');
 const getRouter = express.Router();
-const postRouter = express.Router();
 const auth = require('./auth');
 const Assistant = require('../models/assistant');
 
 const getStatus = async (req, res, next) => {
-    var id = req.cookies.participant;
+    var id = auth.getParticipantID(req.cookies);
     var existFinished = await Assistant.existFinishedGames(id);
     var existUnfinished = await Assistant.existUnfinishedGames(id);
-    if (existFinished && existUnfinished) {
-        req.status = 2;
-    } else if (existUnfinished) {
-        req.status = 1;
+    if (existUnfinished) {
+        req.status = existFinished ? 2 : 1;
+        next();
     } else {
-        req.status = 3;
+        res.redirect('/play/complete')
     }
-    next();
 }
 
 const checkPaused = async (req, res, next) => {
@@ -27,7 +24,7 @@ const checkPaused = async (req, res, next) => {
 // render the welcom page
 const renderPlay = (req, res) => {
     res.render('play', {
-        participantID: req.cookies.participant,
+        participantID: auth.getParticipantID(req.cookies),
         flag: req.status,
         paused: req.paused
     });
@@ -39,16 +36,22 @@ getRouter.get('/play', checkPaused);
 getRouter.get('/play', renderPlay);
 
 
-const getSummary = async (req, res) => {
-    var summary = await Assistant.getSummary(req.body.id);
-    res.send({
-        success: 1,
-        summary: summary
-    });
+const complete = async (req, res) => {
+    var id = auth.getParticipantID(req.cookies);
+    var existUnfinished = await Assistant.existUnfinishedGames(id);
+    if (existUnfinished) {
+        res.redirect('/play');
+    } else {
+        var summary = await Assistant.getSummary(id);
+        res.render('play_complete', {
+            participantID: id,
+            summary: summary
+        })
+    }
 }
 
-postRouter.post('/play/complete', getSummary);
+getRouter.get('/play/complete', auth.checkAuthParticipant);
+getRouter.get('/play/complete', complete);
 
 
 exports.get = getRouter;
-exports.post = postRouter;

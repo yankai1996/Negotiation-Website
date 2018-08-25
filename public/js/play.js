@@ -42,9 +42,16 @@ const CLASS = {
 	WAIT: 'wait',
 }
 
+// whether the player is in a period
 var gPlaying = false;
+
+// whether the player is waiting for opponent
 var gWaitingOpponent;
+
+// whether paused
 var gPaused;
+
+// whether the opponent is lost when paused
 var gOpponentLost = false;
 
 var $accept = $("button#accept")
@@ -88,7 +95,7 @@ socket.on(COMMAND.AUTH, (data, respond) => {
 	respond(ID);
 });
 
-
+// timer for proposal and decision
 const timer = new function() {
 
 	const time = 60;
@@ -99,8 +106,10 @@ const timer = new function() {
 		if (started || gPaused) {
 			return;
 		}
+
 		started = true;
 		$timeBar.animate({width: '0%'}, count * 1000);
+
 		this.interval = setInterval(() => {
 			count--;
 			$timeClock.html(('0' + count).slice(-2)); 
@@ -138,6 +147,7 @@ const timer = new function() {
 	}
 }
 
+// timer for preparation
 const preparation = new function() {
 
 	const time = 10;
@@ -150,13 +160,16 @@ const preparation = new function() {
 		if (started || gPaused) {
 			return;
 		}
+
 		started = true;
 		this.preparing = true;
 		gWaitingOpponent = false;
+
 		$boxes.hide();
 		$game.show();
 		$preparationTime.html(count);
 		$preparation.fadeIn(1000);
+
 		this.interval = setInterval(() => {
 			count--;
 			if (count > 0) {
@@ -587,6 +600,11 @@ $input.keypress((event) => {
 
 $quit.click(() => {
 	location.href = "/logout";
+});
+
+$(window).bind('beforeunload', function() {
+	if (gPlaying || gWaitingOpponent || preparation.preparing)
+		return 'Are you sure you want to leave?';
 });
 
 

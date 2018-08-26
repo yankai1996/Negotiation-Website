@@ -416,7 +416,7 @@ table.timer.red .time-bar-container {
     background: #eee;
 }
 
-.proposal.refused {
+.proposal.rejected {
     color: #f88;
     box-shadow: 0 0 5px 1px #f88
     /* box-shadow: 5px 3px 5px #f88, -1px 3px 5px #f88; */

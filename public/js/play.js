@@ -24,7 +24,7 @@ const EVENT = {
 const INFO = {
 	ACCEPTED: "Proposal Accpeted!",
 	NONE: "No Agreement!",
-	REFUSED: "Proposal Refused!",
+	REJECTED: "Proposal Rejected!",
 	SECOND: "2nd Buyer Offered!",
 	WAIT: 'Waiting for proposal...'
 }
@@ -34,10 +34,10 @@ const CLASS = {
 	DONE: 'done',
 	GREEN: 'green',
 	HIGHLIGHT: 'highlight',
-	NONE: 'refused',
+	NONE: 'rejected',
 	PROPOSAL: 'proposal',
 	RED: 'red',
-	REFUSED: 'refused',
+	REJECTED: 'rejected',
 	SECOND: 'second',
 	WAIT: 'wait',
 }
@@ -74,7 +74,7 @@ var $accept = $("button#accept")
   , $questionMark = $(".question-mark")
   , $quit = $("#quit")
   , $ready = $(".ready")
-  , $refuse = $("button#refuse")
+  , $reject = $("button#reject")
   , $result = $("#result")
   , $role = $(".role")
   , $secondBuyer = $("#2nd-buyer")
@@ -279,7 +279,7 @@ const dealer = new function() {
 		} else {
 			showProposal('WAIT');
 			$accept.show();
-			$refuse.show();
+			$reject.show();
 			disableButton($operationButtons);
 		}
 		timer.start();
@@ -299,7 +299,7 @@ const dealer = new function() {
 		if (isMyTurn()) {
 			showProposal("$" + this.period.price);
 			enableButton($accept, btnListenr.accept);
-			enableButton($refuse, btnListenr.refuse);
+			enableButton($reject, btnListenr.reject);
 			$proposal.stop();
 			$proposal.css('backgroundColor', '#eee');
 		}
@@ -325,7 +325,7 @@ const dealer = new function() {
 		} else if (this.period.accepted) {
 			showProposal('ACCEPTED');
 		} else if (this.period.decided_at) {
-			showProposal('REFUSED');
+			showProposal('REJECTED');
 		} else {
 			showProposal('NONE');
 		}
@@ -503,7 +503,7 @@ btnListenr.accept = () => {
 	dealer.decide(true);
 }
 
-btnListenr.refuse = () => {
+btnListenr.reject = () => {
 	dealer.decide(false);
 }
 

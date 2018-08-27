@@ -275,6 +275,7 @@ exports.getExcel = async () => {
     var workbook = new excel.Workbook();
 
     const list2sheet = (list, sheet) => {
+        console.log(list);
         var keys = Object.keys(list[0]);
         for (let i = 0; i < keys.length; i++) {
             sheet.cell(1, i + 1).string(keys[i]);

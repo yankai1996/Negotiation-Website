@@ -275,7 +275,9 @@ exports.getExcel = async () => {
     var workbook = new excel.Workbook();
 
     const list2sheet = (list, sheet) => {
-        console.log(list);
+        if (!list[0]) {
+            return;
+        }
         var keys = Object.keys(list[0]);
         for (let i = 0; i < keys.length; i++) {
             sheet.cell(1, i + 1).string(keys[i]);
@@ -325,22 +327,40 @@ exports.getExcel = async () => {
 }
 
 exports.clearParticipants = async () => {
-    await Period.destroy();
-    await Game.destroy();
+    await Period.destroy({
+        where: {}
+    });
+    await Game.destroy({
+        where: {}
+    });
     await Participant.update({
         opponent: null
+    }, {
+        where: {}
     });
-    await Participant.destroy();
+    await Participant.destroy({
+        where: {}
+    });
 }
 
 exports.clearAll = async () => {
-    await Period.destroy();
-    await Game.destroy();
+    await Period.destroy({
+        where: {}
+    });
+    await Game.destroy({
+        where: {}
+    });
     await Participant.update({
         opponent: null
+    }, {
+        where: {}
     });
-    await Participant.destroy();
-    await MasterGame.destroy();
+    await Participant.destroy({
+        where: {}
+    });
+    await MasterGame.destroy({
+        where: {}
+    });
 }
 
 exports.pause = () => {

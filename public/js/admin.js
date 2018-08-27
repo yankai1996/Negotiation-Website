@@ -16,11 +16,11 @@ var $addGamesButton = $("button.add-games")
   , $download = $(".download")
   , $floatOnlyInput = $(".float-only")
   , $gameTableBody = $("#game-table-body")
-  , $insightTableBody = $("#insight-table-body")
   , $intOnlyInput = $(".int-only")
   , $leftButton = $(".turn-buttons button").eq(0)
   , $pages = $(".pages")
   , $pairCount = $("#count")
+  , $pairTableBody = $("#pair-table-body")
   , $parameters = $(".param")
   , $participantTableBody = $("#participant-table-body")
   , $pause = $(".pause")
@@ -45,6 +45,10 @@ const openTab = (index) => {
 	$participantTableBody.find("tr").removeClass("focused");
 	$rightPanel.hide();
 	buttonManager.hideDelete();
+
+	if ($tabContents.eq(index).attr("id") == "Insights") {
+		insight.firstDrawChart();
+	}
 }
 
 const buttonManager = new function() {
@@ -198,10 +202,10 @@ const pairManager = new function() {
 	}
 
 	// refresh games in the pair panel
-	const refreshInsightTable = (games) => {
+	const refreshpairTable = (games) => {
 		$("#buyer").html(games[0].buyer_id);
 		$("#seller").html(games[0].seller_id);
-		$insightTableBody.html("");
+		$pairTableBody.html("");
 		games.forEach((g) => {
 			var element = 
 				"<tr id='" + g.id + "'>" +
@@ -221,12 +225,12 @@ const pairManager = new function() {
 					"</td>" +
 				"</tr>";
 			if (g.is_warmup) {
-				$insightTableBody.prepend(element);
+				$pairTableBody.prepend(element);
 			} else {
-				$insightTableBody.append(element);
+				$pairTableBody.append(element);
 			}
 		});
-		$("table.insight tfoot td").html("Total: " + games.length);
+		$("table.pair tfoot td").html("Total: " + games.length);
 
 		var buyer = getBuyer();
 		var seller = getSeller();
@@ -275,7 +279,7 @@ const pairManager = new function() {
 
 		var games = cacheManager.getCachedPair(buyer, seller);
 		if (games != null) {
-			refreshInsightTable(games);
+			refreshpairTable(games);
 		} else {
 			// post request for viewing a pair
 			$.ajax({
@@ -284,7 +288,7 @@ const pairManager = new function() {
 				data: {id: buyer},
 				success: (res) => {
 					if (res.success){
-						refreshInsightTable(res.games);
+						refreshpairTable(res.games);
 					} else {
 						alert(res);
 					}
@@ -347,7 +351,7 @@ const pairManager = new function() {
 			success: (res) => {
 				if (res.success){
 					cacheManager.removeCachedPair(buyer, seller);
-					refreshInsightTable(res.games);
+					refreshpairTable(res.games);
 				} else {
 					alert(res);
 				}
@@ -408,6 +412,10 @@ const pageManager = new function(){
 		}
 		var end = Math.min(start + pageSize, this._getRowCount());
 		this._displayPairs(start, end);
+	}
+
+	this.clearPages = () => {
+		this._displayPairs(0, 0);
 	}
 
 	return this._displayPairs(0, pageSize);
@@ -521,7 +529,10 @@ const insight = new function() {
 		});
 	}
 
-	return this.refreshChart();
+	this.firstDrawChart = () => {
+		this.refreshChart();
+		this.firstDrawChart = () => {};
+	}
 }
 
 const setting = new function() {
@@ -534,6 +545,7 @@ const setting = new function() {
 			success: (res) => {
 				if (res.success){
 					pairManager.updatePairs(res.pairs, res.count);
+					pageManager.clearPages();
 					cacheManager.clearAll();
 					if (scope == "all") {
 						$gameTableBody.html("");

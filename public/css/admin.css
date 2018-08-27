@@ -213,9 +213,9 @@ table.participants tbody tr:hover>td:last-child p {
     background-color: #ddd!important;
 }
 
-/* Tabel Insight */
+/* Tabel Pair */
 
-table.insight {
+table.pair {
     width: 500px;
     margin-top: 0px;
     margin-bottom: 60px;
@@ -224,7 +224,7 @@ table.insight {
     display: inline-block
 }
 
-table.insight td, table.insight th {
+table.pair td, table.pair th {
     display: table-cell;
     padding: 8px 10px;
     font-weight: 300;
@@ -233,15 +233,15 @@ table.insight td, table.insight th {
     white-space: nowrap;
 }
 
-table.insight td:nth-child(6) {
+table.pair td:nth-child(6) {
     border-left: 1px solid #ccc;
 }
 
-table.insight td:last-child {
+table.pair td:last-child {
     width: 100%;
 }
 
-table.insight tfoot td {
+table.pair tfoot td {
     text-align: right;
     border-top: 1px solid #ccc;
 }
@@ -732,6 +732,7 @@ a.download .circle {
 }
 
 .chart {
+    min-height: 400px;
     width: 600px;
     margin: 20px auto;
 }

@@ -272,9 +272,12 @@ exports.getPrtofitByRole = async (role) => {
 
 
 exports.getExcel = async () => {
+
     var workbook = new excel.Workbook();
 
-    const list2sheet = (list, sheet) => {
+    const createWorksheet = async (name, model, option = {raw: true}) => {
+        var sheet = workbook.addWorksheet(name);
+        var list = await model.findAll(option);
         if (!list[0]) {
             return;
         }
@@ -301,27 +304,16 @@ exports.getExcel = async () => {
                         sheet.cell(row, j + 1).string("");
                 }
             }
-        } 
+        }
     }
 
-    var participantSheet = workbook.addWorksheet("Participants");
-    var participantList = await Participant.findAll({raw: true});
-    list2sheet(participantList, participantSheet);
-
-    var masterGameSheet = workbook.addWorksheet("Master Games")
-    var masterGameList = await MasterGame.findAll({raw: true});
-    list2sheet(masterGameList, masterGameSheet);
-
-    var gameSheet = workbook.addWorksheet("Games")
-    var gameList = await Game.findAll({raw: true});
-    list2sheet(gameList, gameSheet);
-
-    var periodSheet = workbook.addWorksheet("Periods")
-    var periodList = await Period.findAll({
+    await createWorksheet("Participants", Participant);
+    await createWorksheet("Master Games", MasterGame);
+    await createWorksheet("Games", Game);
+    await createWorksheet("Periods", Period, {
         attributes: {exclude: ['id']},
         raw: true
     });
-    list2sheet(periodList, periodSheet);
 
     return workbook;
 }

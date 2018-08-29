@@ -4,7 +4,8 @@ const Instructor = require('../models/instructor');
 const auth = require('./auth');
 
 const COMMAND = {
-	AUTH: "cmd auth",
+    AUTH: "cmd auth",
+    AUTH_FAILED: "cmd auth failed",
 	PAUSE: "cmd pause",
 	RESUME: "cmd resume"
 }
@@ -173,7 +174,10 @@ Dealer.prototype.endGame = async function () {
 
 
 exports.listen = (server) => {
+
     var io = socketio.listen(server);
+
+    var loggedIn = {};
 
     io.sockets.on('connection', (socket) => {
 
@@ -184,7 +188,12 @@ exports.listen = (server) => {
             if (!id && auth.isInstructor(socket.request.headers.cookie)) {
                 initInstructor();
             } else {
-                initDealer(id);
+                if (!loggedIn[id]) {
+                    loggedIn[id] = true;
+                    initDealer(id);
+                } else {
+                    socket.emit(COMMAND.AUTH_FAILED, "You have logged in somewhere else!");
+                }
             }
         });
 
@@ -255,6 +264,7 @@ exports.listen = (server) => {
             });
 
             socket.on('disconnect', () => {
+                loggedIn[id] = false;
                 if (opponentIsOnline()) {
                     io.to(opponent).emit(EVENT.OP_LOST, "Your opponent is lost!");
                 }

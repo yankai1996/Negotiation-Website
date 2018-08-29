@@ -2,7 +2,8 @@ $(function(){
 
 const ID = $("#participant-id").text();
 const COMMAND = {
-	AUTH: "cmd auth",
+    AUTH: "cmd auth",
+    AUTH_FAILED: "cmd auth failed",
 	PAUSE: "cmd pause",
 	RESUME: "cmd resume"
 }
@@ -455,6 +456,13 @@ socket.on(EVENT.TEST, (data) => {
 socket.on(EVENT.WAIT, waiting);
 
 
+socket.on(COMMAND.AUTH_FAILED, (info) => {
+	$backdrops.hide();
+	$("#auth-failed-info").html(info);
+	$("#auth-failed").show();
+	$(window).off("beforeunload");
+});
+
 socket.on(COMMAND.PAUSE, () => {
 	gPaused = true;
 	waiting("Paused");
@@ -560,8 +568,9 @@ $quit.click(() => {
 });
 
 $(window).bind('beforeunload', function() {
-	if (gPlaying || gWaitingOpponent || preparation.preparing)
+	if (gPlaying || gWaitingOpponent || preparation.preparing) {
 		return 'Are you sure you want to leave?';
+	}
 });
 
 $description.load("/html/description.html");

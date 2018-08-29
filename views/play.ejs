@@ -12,6 +12,20 @@
 
 <body>
 
+  <div id="auth-failed" class="backdrop">
+    <div class="auth-failed-content">
+      <div id="auth-failed-info"></div>
+      <button id="quit" class="big ready">GO BACK</button>
+    </div>
+  </div>
+
+  <div id="waiting" class="backdrop">
+    <div class="round">
+      <div class="loader"></div>
+      <p id="waiting-info"></p>
+    </div>
+  </div>
+
   <div id="welcome-page" class="box bottom hide">
   	<div class="title" align="center">
   		<h1 id="welcome">Welcome! 
@@ -35,13 +49,6 @@
       <button id="view-description" class="big view">Description</button>
       <button id="continue" class="big ready">CONTINUE</button>
   	</div>
-  </div>
-
-  <div id="waiting" class="backdrop">
-    <div class="round">
-      <div class="loader"></div>
-      <p id="waiting-info"></p>
-    </div>
   </div>
 
   <div id="preparation" class="backdrop">

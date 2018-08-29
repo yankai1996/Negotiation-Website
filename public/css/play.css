@@ -52,6 +52,10 @@ button.big.view:hover {
     z-index: 100;
 }
 
+.backdrop#auth-failed {
+    z-index: 101;
+}
+
 .round {
     position: relative;
     margin: auto;
@@ -115,6 +119,23 @@ button.big.view:hover {
     100% {
         transform: rotate(360deg);
     }
+}
+
+.auth-failed-content {
+    position: relative;
+    margin: auto;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 300px;
+    padding: 10px 40px 30px 40px;
+    background: #fff;
+    text-align: center;
+    box-shadow: 0 0 15px 4px #888;
+}
+
+.auth-failed-content div {
+    padding: 30px;
+    color: #d00;
 }
 
 .result-content {

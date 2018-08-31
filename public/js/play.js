@@ -354,16 +354,22 @@ socket.on(EVENT.COMPLETE, () => {
 socket.on(EVENT.DECISION, dealer.onDecision);
 
 socket.on(EVENT.OP_LOST, (info) => {
-	if (!gPaused) {
-		waiting(info);
-		timer.stop();
-		preparation.stop();
-		setTimeout(() => {
-			waiting("Looking for another opponent...")
-		}, 2000);
-	} else {
+	if (gPaused) {
 		socket.emit(EVENT.LEAVE_ROOM);
 		gOpponentLost = true;
+	} else {
+		socket.emit(EVENT.LEAVE_ROOM);
+		setTimeout(() => {
+			socket.emit(EVENT.READY);
+		}, 5000);
+		if (!gWaitingOpponent) {
+			waiting(info);
+			timer.stop();
+			preparation.stop();
+			setTimeout(() => {
+				waiting("Looking for another opponent...")
+			}, 2000);
+		}
 	}
 });
 
@@ -479,7 +485,8 @@ socket.on(COMMAND.RESUME, () => {
 	$waiting.hide();
 	$loader.removeClass("stop");
 	if (gOpponentLost) {
-		waiting("Your opponent is lost!")
+		$backdrops.hide();
+		waiting("Your opponent is lost!");
 		setTimeout(() => {
 			waiting("Looking for another opponent...");
 			socket.emit(EVENT.READY);

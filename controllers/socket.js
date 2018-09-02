@@ -187,12 +187,15 @@ exports.listen = (server) => {
         socket.emit(COMMAND.AUTH, 'What is your ID?', async (id) => {
             if (!id && auth.isInstructor(socket.request.headers.cookie)) {
                 initInstructor();
+            } else if (loggedIn[id]) {
+                socket.emit(COMMAND.AUTH_FAILED, "You have logged in somewhere else!");
             } else {
-                if (!loggedIn[id]) {
+                var incomplete = await Assistant.existUnfinishedGames(id);
+                if (!incomplete) {
+                    socket.emit(EVENT.COMPLETE);
+                } else {
                     loggedIn[id] = true;
                     initDealer(id);
-                } else {
-                    socket.emit(COMMAND.AUTH_FAILED, "You have logged in somewhere else!");
                 }
             }
         });

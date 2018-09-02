@@ -448,23 +448,37 @@ const cacheManager = new function() {
 const insight = new function() {
 
 	const histogram = (profits, step) => {
-	    var histo = {};
-	    var arr = [];
+	    var histo = {}
+	      , arr = []
+	      , minGroup = 0
+	      , maxGroup = 0
+	      ;
 
 	    // Group down
 	    for (let i = 0; i < profits.length; i++) {
 	        let x = Math.floor(profits[i] / step) * step;
+	        minGroup = Math.min(minGroup, x);
+	        maxGroup = Math.max(maxGroup, x);
 	        if (!histo[x]) {
 	            histo[x] = 0;
 	        }
 	        histo[x]++;
 	    }
+
 	    // Make the histo group into an array
 	    for (x in histo) {
 	        if (histo.hasOwnProperty((x))) {
 	            arr.push([parseFloat(x), histo[x]]);
 	        }
 	    }
+
+	    // Add empty group
+	    for (let x = minGroup; x < maxGroup; x += step) {
+	    	if (!histo[x]) {
+	    		arr.push([parseFloat(x), 0]);
+	    	}
+	    }
+
 	    // Finally, sort the array
 	    return arr.sort();
 	}

@@ -466,17 +466,9 @@ const insight = new function() {
 	    }
 
 	    // Make the histo group into an array
-	    for (x in histo) {
-	        if (histo.hasOwnProperty((x))) {
-	            arr.push([parseFloat(x), histo[x]]);
-	        }
-	    }
-
-	    // Add empty group
-	    for (let x = minGroup; x < maxGroup; x += step) {
-	    	if (!histo[x]) {
-	    		arr.push([parseFloat(x), 0]);
-	    	}
+	    for (let x = minGroup; x <= maxGroup; x += step) {
+	    	let n = histo[x] || 0;
+	    	arr.push([parseFloat(x), n]);
 	    }
 
 	    // Finally, sort the array

@@ -1,4 +1,8 @@
 @import url(https://fonts.googleapis.com/css?family=Roboto:300,400);
+body {
+    font-family: 'Times New Roman', Times, serif;
+}
+
 .problem-description b {
     font-family: 'Times New Roman', Times, serif;
     color: #159287;

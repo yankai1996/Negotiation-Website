@@ -223,21 +223,17 @@
   <script type="text/javascript">
     var status = <%= flag %>;
     var paused = <%= paused %>
-    // status = 3;
     if (status == 1) {
         $("#welcome-page").show();
         $("#continue-info").hide();
         $("#view-description").hide();
         $("#continue").hide();
         $("#confirm-result").addClass("warmed-up");
-    } else if (status == 2) {
+    } else {
         $("#welcome-page").show();
         $("#welcome-info").hide();
         $("#warm-up").hide();
         $("#description").hide();
-    } else {
-      $("#game").show();
-      // $("#result").show();
     }
     if (paused) {
       $("#waiting-info").html("Paused");

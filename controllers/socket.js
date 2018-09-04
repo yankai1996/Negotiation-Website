@@ -131,7 +131,8 @@ Dealer.prototype.nextPeriod = function (initial = false) {
         proposed_at: null,
         accepted: false,
         decided_at: null,
-        show_up_2nd_buyer: this.game.exists_2nd_buyer && Math.random() < this.game.alpha
+        signal: (Math.random() < this.game.alpha),
+        market_value: 10
     }
 
     this.toBoth(EVENT.NEW_PERIOD, this.period)
@@ -147,7 +148,7 @@ Dealer.prototype.propose = function () {
 Dealer.prototype.endPeriod = async function () {
     this.toBoth(EVENT.DECISION, this.period);
     await Assistant.savePeriod(this.game.id, this.period);
-    if (this.period.show_up_2nd_buyer || this.period.accepted || !this.nextPeriod()) {
+    if (this.period.accepted || !this.nextPeriod()) {
         this.endGame();
     }
 }
@@ -157,14 +158,14 @@ Dealer.prototype.endGame = async function () {
     var result = await Assistant.endGame(this.game, this.period);
     this.toBuyer(EVENT.RESULT, {
         price: result.price,
-        exists2ndBuyer: result.exists2ndBuyer,
+        maketValue: result.market_value,
         cost: result.cost,
         selfProfit: result.buyerProfit,
         opponentProfit: result.sellerProfit
     });
     this.toSeller(EVENT.RESULT, {
         price: result.price,
-        exists2ndBuyer: result.exists2ndBuyer,
+        maketValue: result.market_value,
         cost: result.cost,
         selfProfit: result.sellerProfit,
         opponentProfit: result.buyerProfit

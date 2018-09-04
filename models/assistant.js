@@ -127,12 +127,9 @@ exports.endGame = async (game, period) => {
     if (period.accepted) {
         buyerPayoff = 12 - period.price - cost;
         sellerPayoff = period.price - cost;
-    } else if (game.exists_2nd_buyer) {
-        buyerPayoff =  -cost;
-        sellerPayoff = 17 - cost;
     } else {
         buyerPayoff =  -cost;
-        sellerPayoff = -cost;
+        sellerPayoff = period.market_value - cost;
     }
 
     if (!game.is_warmup) {
@@ -145,6 +142,10 @@ exports.endGame = async (game, period) => {
             where: {id: game.seller_id}
         });
     }
+
+    var signal = await Period.count({
+        where: {game_id: game.id}
+    });
     
     await Game.update({
         price: period.price,
@@ -152,6 +153,8 @@ exports.endGame = async (game, period) => {
         seller_payoff: sellerPayoff,
         periods: period.number,
         cost: cost,
+        signal: signal,
+        market_value: period.market_value,
         is_done: true
     }, {
         where: {id: game.id}
@@ -160,7 +163,7 @@ exports.endGame = async (game, period) => {
     return {
         price: period.price,
         cost: cost,
-        marketValue: game.market_value,
+        marketValue: period.market_value,
         buyerProfit: buyerPayoff,
         sellerProfit: sellerPayoff
     }

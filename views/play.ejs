@@ -91,8 +91,8 @@
           <td id="price"></td>
         </tr>
         <tr>
-          <td>2nd Buyer Exists: </td>
-          <td id="exists2ndBuyer"></td>
+          <td>Market Value: </td>
+          <td id="marketValue"></td>
         </tr>
         <tr>
           <td>Cost: </td>
@@ -176,16 +176,17 @@
           <td><div></div></td>
           <td><div></div></td>
           <td><div></div></td>
-        </tr> 
+        </tr>
+        <tr id="signal-row">
+          <td>Signals:</td>
+          <td id="signal-label">0</td>
+        </tr>
       </table>
 
       <div class="flexbox">
         <div class="panel left">
-          <p>2nd Buyer</p>
-          <div class="question-mark"></div>
-          <div id="2nd-buyer" class="img-box hide">
-            <img src="/image/buyer.png"  alt="2nd buyer" />
-          </div>
+          <p>Market Value</p>
+          <div class="market-value"></div>
         </div>
 
         <div class="panel right">
@@ -208,6 +209,7 @@
               <button id="propose" class="alt"">Propose</button>
               <button id="accept" class="alt">Accept</button>
               <button id="reject" class="alt">Reject</button>
+              <button id="leave" class="alt">LEAVE</button>
             </div>
           </div>
 

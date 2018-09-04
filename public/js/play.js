@@ -26,7 +26,6 @@ const INFO = {
 	ACCEPTED: "Proposal Accpeted!",
 	NONE: "No Agreement!",
 	REJECTED: "Proposal Rejected!",
-	SECOND: "2nd Buyer Offered!",
 	WAIT: 'Waiting for proposal...'
 }
 const CLASS = {
@@ -39,7 +38,6 @@ const CLASS = {
 	PROPOSAL: 'proposal',
 	RED: 'red',
 	REJECTED: 'rejected',
-	SECOND: 'second',
 	WAIT: 'wait',
 }
 
@@ -63,7 +61,9 @@ var $accept = $("button#accept")
   , $input = $(".input-box input")
   , $game = $("#game")
   , $gamesLeft = $("#games-left")
+  , $leave = $("button#leave")
   , $loader = $(".loader")
+  , $marketValue = $(".market-value")
   , $operation = $(".operation")
   , $operationButtons = $(".button-box button")
   , $preparation = $("#preparation")
@@ -72,13 +72,13 @@ var $accept = $("button#accept")
   , $progressLabel = $("#progress-label")
   , $proposal = $(".proposal")
   , $propose = $("button#propose")
-  , $questionMark = $(".question-mark")
   , $quit = $("#quit")
   , $ready = $(".ready")
   , $reject = $("button#reject")
   , $result = $("#result")
   , $role = $(".role")
-  , $secondBuyer = $("#2nd-buyer")
+  , $signalRow = $("#signal-row")
+  , $signalLabel = $("#signal-label")
   , $timeBar = $("td .time-bar")
   , $timeClock = $(".clock")
   , $timer = $(".timer")
@@ -216,6 +216,8 @@ const dealer = new function() {
 		$button.show();
 		$button.removeClass(CLASS.DISABLE);
 		$button.click(listener);
+		$leave.removeClass(CLASS.DISABLE);
+		$leave.click(btnListenr.leave);
 	}
 
 	const disableButton = ($buttons) => {
@@ -237,10 +239,6 @@ const dealer = new function() {
 		$proposal.show();
 	}
 
-	this.syncPeriod = (period) => {
-		this.period = period;
-	}
-
 	this.initPeriod = () => {
 
 		gPlaying = true;
@@ -254,27 +252,31 @@ const dealer = new function() {
 			$gridsDone.css('backgroundColor', '#fa0');
 		}
 
+		var $signalGrid = $signalRow.find("td").eq(this.period.number + 1);
+		if (this.period.signal) {
+			$signalGrid.html("&#10004;").addClass(CLASS.GREEN);
+			var number = parseInt($signalLabel.html()) + 1;
+			$signalLabel.html(number);
+		} else {
+			$signalGrid.html("&#10007;").addClass(CLASS.RED);
+		}
+
 		var t = $progressLabel.html().split('/')[1];
 		$progressLabel.html(this.period.number + "/" + t);
 
+		$marketValue.html("$" + this.period.market_value);
 		$operation.show();
 		$input.hide();
 		$proposal.hide();
 		$operationButtons.hide();
+		if ($role.html() == 'seller') {
+			$leave.show();
+		}
 		$timer.show();
 
 		timer.reset();
 
-		if (!this.period.show_up_2nd_buyer) {
-			$questionMark.append('?').show();
-		} else {
-			$questionMark.html('').hide();
-		}
-
-		if (this.period.show_up_2nd_buyer) {
-			this.endPeriod();
-			return;
-		} else if (this.period.proposer_id == ID) {
+		if (this.period.proposer_id == ID) {
 			$input.val('').show();
 			enableButton($propose, btnListenr.propose);
 		} else {
@@ -320,10 +322,7 @@ const dealer = new function() {
 		this.period = period;
 		timer.stop();
 		disableButton($operationButtons);
-		if (this.period.show_up_2nd_buyer) {
-			showProposal('SECOND');
-			$secondBuyer.show();
-		} else if (this.period.accepted) {
+		if (this.period.accepted) {
 			showProposal('ACCEPTED');
 		} else if (this.period.decided_at) {
 			showProposal('REJECTED');
@@ -336,6 +335,7 @@ const dealer = new function() {
 		if (isMyTurn()) {
 			socket.emit(EVENT.END_PERIOD, this.period);
 		}
+		disableButton($operationButtons);
 	}
 
 }
@@ -379,9 +379,7 @@ socket.on(EVENT.NEW_GAME, (data) => {
 	preparation.reset();
 
 	$waiting.hide();
-	$secondBuyer.hide();
 	$operation.hide();
-	$questionMark.html("");
 
 	$gamesLeft.html(data.gamesLeft);
 	$role.html(data.role);
@@ -405,14 +403,17 @@ socket.on(EVENT.NEW_GAME, (data) => {
 
 	$progressLabel.html("0/" + data.t);
 	$progressRow.children().slice(2).detach();
+	$signalLabel.html("0");
+	$signalRow.children().slice(2).detach();
 	for (let i = 0; i < data.t; i++) {
 		$progressRow.append("<td><div></div></td>");
+		$signalRow.append("<td></td>");
 	}
 
 });
 
 socket.on(EVENT.NEW_PERIOD, (period) => {
-	dealer.syncPeriod(period);
+	dealer.period = period;
 	if (period.number == 1) {
 		preparation.start();
 	} else {
@@ -430,13 +431,7 @@ socket.on(EVENT.RESULT, (result) => {
 	for (let i in result) {
 		let $cell = $("#" + i);
 		$cell.removeClass();
-		if (i == "exists2ndBuyer" && result[i]) {
-			$cell.html("&#10004");
-			$cell.addClass(CLASS.GREEN);
-		} else if (i == "exists2ndBuyer" && !result[i]) {
-			$cell.html("&#10007");
-			$cell.addClass(CLASS.RED);
-		} else if (result[i] == null) {
+		if (result[i] == null) {
 			$cell.html("&#10007");
 			$cell.addClass(CLASS.RED);
 		} else if (result[i] < 0) {
@@ -520,6 +515,13 @@ btnListenr.accept = () => {
 
 btnListenr.reject = () => {
 	dealer.decide(false);
+}
+
+btnListenr.leave = () => {
+	dealer.period.accepted = false;
+	dealer.period.decided_at = timer.lap();
+	dealer.endPeriod();
+	timer.stop();
 }
 
 

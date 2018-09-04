@@ -215,7 +215,7 @@ const pairManager = new function() {
 					"<td>" + g.t + "</td>" +
 					"<td>" + g.w + "</td>" +
 					"<td>" + 
-						(g.exists_2nd_buyer ? "Yes" : "No") + 
+						(g.signal || "-") + 
 					"</td>" +
 					"<td>" +
 						(g.is_warmup ? "Warm-Up" : "") +

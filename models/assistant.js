@@ -113,7 +113,8 @@ exports.savePeriod = async (gameId, period) => {
         proposed_at: period.proposed_at,
         accepted:   period.accepted,
         decided_at: period.decided_at,
-        show_up_2nd_buyer: period.show_up_2nd_buyer
+        signal: period.signal,
+        market_value: period.market_value
     });
 }
 
@@ -145,7 +146,7 @@ exports.endGame = async (game, period) => {
         });
     }
     
-    return Game.update({
+    await Game.update({
         price: period.price,
         buyer_payoff: buyerPayoff,
         seller_payoff: sellerPayoff,
@@ -154,15 +155,16 @@ exports.endGame = async (game, period) => {
         is_done: true
     }, {
         where: {id: game.id}
-    }).then((result) => {
-        return {
-            price: period.price,
-            cost: cost,
-            exists2ndBuyer: game.exists_2nd_buyer,
-            buyerProfit: buyerPayoff,
-            sellerProfit: sellerPayoff
-        }
-    })
+    });
+
+    return {
+        price: period.price,
+        cost: cost,
+        marketValue: game.market_value,
+        buyerProfit: buyerPayoff,
+        sellerProfit: sellerPayoff
+    }
+
 }
 
 
@@ -190,7 +192,7 @@ exports.getSummary = async (id) => {
             return {
                 price: g.price,
                 cost: g.cost,
-                exists2ndBuyer: g.exists_2nd_buyer,
+                marketValue: g.market_value,
                 selfProfit: g.buyer_id == id
                     ? g.buyer_payoff
                     : g.seller_payoff,

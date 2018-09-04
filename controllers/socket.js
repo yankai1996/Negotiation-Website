@@ -145,10 +145,13 @@ Dealer.prototype.propose = function () {
 }
 
 // end one period
-Dealer.prototype.endPeriod = async function () {
-    this.toBoth(EVENT.DECISION, this.period);
+Dealer.prototype.endPeriod = async function (endGame) {
+    this.toBoth(EVENT.DECISION, {
+        period: this.period,
+        takeMarketValue: endGame
+    });
     await Assistant.savePeriod(this.game.id, this.period);
-    if (this.period.accepted || !this.nextPeriod()) {
+    if (endGame || this.period.accepted || !this.nextPeriod()) {
         this.endGame();
     }
 }
@@ -158,14 +161,14 @@ Dealer.prototype.endGame = async function () {
     var result = await Assistant.endGame(this.game, this.period);
     this.toBuyer(EVENT.RESULT, {
         price: result.price,
-        maketValue: result.market_value,
+        marketValue: result.marketValue,
         cost: result.cost,
         selfProfit: result.buyerProfit,
         opponentProfit: result.sellerProfit
     });
     this.toSeller(EVENT.RESULT, {
         price: result.price,
-        maketValue: result.market_value,
+        marketValue: result.marketValue,
         cost: result.cost,
         selfProfit: result.sellerProfit,
         opponentProfit: result.buyerProfit
@@ -257,9 +260,9 @@ exports.listen = (server) => {
             });
 
             // received when decision is made or time is out
-            socket.on(EVENT.END_PERIOD, (period) => {
-                dealer.syncPeriod(period);
-                dealer.endPeriod();
+            socket.on(EVENT.END_PERIOD, (data) => {
+                dealer.syncPeriod(data.period);
+                dealer.endPeriod(data.endGame);
             });
 
             socket.on(EVENT.LEAVE_ROOM, () => {

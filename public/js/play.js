@@ -24,6 +24,7 @@ const EVENT = {
 }
 const INFO = {
 	ACCEPTED: "Proposal Accpeted!",
+	LEAVE: "Market Value Excuted!",
 	NONE: "No Agreement!",
 	REJECTED: "Proposal Rejected!",
 	WAIT: 'Waiting for proposal...'
@@ -34,6 +35,7 @@ const CLASS = {
 	DONE: 'done',
 	GREEN: 'green',
 	HIGHLIGHT: 'highlight',
+	LEAVE: 'leave',
 	NONE: 'rejected',
 	PROPOSAL: 'proposal',
 	RED: 'red',
@@ -292,7 +294,7 @@ const dealer = new function() {
 		this.period.price = price;
 		this.period.proposed_at = timer.lap();
 		timer.stop();
-		disableButton($propose);
+		disableButton($operationButtons);
 		showProposal("Your proposal: $" + this.period.price);
 		socket.emit(EVENT.PROPOSE, this.period);
 	}
@@ -318,11 +320,13 @@ const dealer = new function() {
 		disableButton($operationButtons);
 	}
 
-	this.onDecision = (period) => {
-		this.period = period;
+	this.onDecision = (data) => {
+		this.period = data.period;
 		timer.stop();
 		disableButton($operationButtons);
-		if (this.period.accepted) {
+		if (data.takeMarketValue) {
+			showProposal('LEAVE');
+		} else if (this.period.accepted) {
 			showProposal('ACCEPTED');
 		} else if (this.period.decided_at) {
 			showProposal('REJECTED');
@@ -331,9 +335,12 @@ const dealer = new function() {
 		}
 	}
 
-	this.endPeriod = () => {
+	this.endPeriod = (endGame = false) => {
 		if (isMyTurn()) {
-			socket.emit(EVENT.END_PERIOD, this.period);
+			socket.emit(EVENT.END_PERIOD, {
+				period: this.period,
+				endGame: endGame
+			});
 		}
 		disableButton($operationButtons);
 	}
@@ -520,7 +527,7 @@ btnListenr.reject = () => {
 btnListenr.leave = () => {
 	dealer.period.accepted = false;
 	dealer.period.decided_at = timer.lap();
-	dealer.endPeriod();
+	dealer.endPeriod(true);
 	timer.stop();
 }
 

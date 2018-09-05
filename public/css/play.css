@@ -492,6 +492,10 @@ button.alt:active {
     border: 1px solid #ddd;
 }
 
+/* button#leave {
+    background: #eee;
+} */
+
 button.disable {
     color: #ccc;
     background: #f4f4f4;
@@ -519,12 +523,7 @@ button.disable:hover {
     border-radius: 0 0 100% 0;
     color: #fff;
     font-size: 20px;
-    cursor: pointer;
     transition: all 0.3s ease;
-}
-
-.help:hover {
-    background: #11746b
 }
 
 .top-right {

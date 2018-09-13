@@ -1,6 +1,7 @@
 # RA-Website
 
 A web app for experiment on negotiation in supply chains.
+The *version 2* is under development...
 
 ## Requirements
 

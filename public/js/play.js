@@ -17,7 +17,6 @@ const EVENT = {
     OP_LOST: 'opponent lost',
     PROPOSE: 'propose',
     READY: 'ready',
-    REJOIN: 'rejoin',
     RESULT: 'result',
     SYNC_GAME: 'sync game',
     TEST: 'test',
@@ -64,7 +63,6 @@ var $accept = $("button#accept")
   , $input = $(".input-box input")
   , $game = $("#game")
   , $gamesLeft = $("#games-left")
-  , $help = $(".help")
   , $loader = $(".loader")
   , $operation = $(".operation")
   , $operationButtons = $(".button-box button")
@@ -77,6 +75,7 @@ var $accept = $("button#accept")
   , $questionMark = $(".question-mark")
   , $quit = $("#quit")
   , $ready = $(".ready")
+  , $reconnect = $(".reconnect")
   , $reject = $("button#reject")
   , $result = $("#result")
   , $role = $(".role")
@@ -91,16 +90,13 @@ var $accept = $("button#accept")
   ;
 
 
-const inGame = () => {
-	return (gPlaying || gWaitingOpponent || preparation.preparing)
-}
-
 const socket = io.connect();
 socket.on(COMMAND.AUTH, (data, respond) => {
 	console.log(data);
 	var info = {
 		id: ID,
-		inGame: inGame(),
+		waiting: gWaitingOpponent,
+		inGame: (gPlaying || preparation.preparing),
 		game: dealer.game,
 		period: dealer.period
 	}
@@ -328,8 +324,7 @@ const dealer = new function() {
 		this.period.accepted = accepted;
 		this.period.decided_at = timer.lap();
 		this.endPeriod();
-		timer.stop();
-		disableButton($operationButtons);
+		// timer.stop();
 	}
 
 	this.onDecision = (period) => {
@@ -532,7 +527,12 @@ var btnListenr = {}
 
 btnListenr.propose = () => {
 	var price = +parseFloat($input.val()).toFixed(2);
-	if (isNaN(price) || price < 0) {
+	if (isNaN(price) || price <= 0 || price > 12) {
+		$input.animate({
+			color: '#f88',
+		}, 300).animate({
+			color: '#000'
+		}, 300);
 		return;
 	}
 	dealer.propose(price);	
@@ -606,10 +606,10 @@ $quit.click(() => {
 
 $description.load("/html/description.html");
 
-$help.click(() => {
+$reconnect.click(() => {
 	socket.disconnect();
-	socket.connect();
-	socket.emit(EVENT.REJOIN);
+	setTimeout(socket.connect(), 1000);
+	
 });
 
 

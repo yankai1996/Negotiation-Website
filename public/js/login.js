@@ -1,5 +1,7 @@
 $(function(){
 	
+	console.log("Welcome! Please log in.");
+
 	var $user = $("#user")
 	  , $admin = $("#admin")
 	  , $arrow = $(".arrow")

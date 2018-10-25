@@ -17,6 +17,7 @@ const EVENT = {
     OP_LOST: 'opponent lost',
     PROPOSE: 'propose',
     READY: 'ready',
+    REJOIN: 'rejoin',
     RESULT: 'result',
     SYNC_GAME: 'sync game',
     TEST: 'test',
@@ -24,9 +25,9 @@ const EVENT = {
 }
 const INFO = {
 	ACCEPTED: "Proposal Accpeted!",
-	LEAVE: "Market Value Excuted!",
 	NONE: "No Agreement!",
 	REJECTED: "Proposal Rejected!",
+	SECOND: "2nd Buyer Offered!",
 	WAIT: 'Waiting for proposal...'
 }
 const CLASS = {
@@ -35,11 +36,11 @@ const CLASS = {
 	DONE: 'done',
 	GREEN: 'green',
 	HIGHLIGHT: 'highlight',
-	LEAVE: 'leave',
 	NONE: 'rejected',
 	PROPOSAL: 'proposal',
 	RED: 'red',
 	REJECTED: 'rejected',
+	SECOND: 'second',
 	WAIT: 'wait',
 }
 
@@ -63,9 +64,8 @@ var $accept = $("button#accept")
   , $input = $(".input-box input")
   , $game = $("#game")
   , $gamesLeft = $("#games-left")
-  , $leave = $("button#leave")
+  , $help = $(".help")
   , $loader = $(".loader")
-  , $marketValue = $(".market-value")
   , $operation = $(".operation")
   , $operationButtons = $(".button-box button")
   , $preparation = $("#preparation")
@@ -74,13 +74,13 @@ var $accept = $("button#accept")
   , $progressLabel = $("#progress-label")
   , $proposal = $(".proposal")
   , $propose = $("button#propose")
+  , $questionMark = $(".question-mark")
   , $quit = $("#quit")
   , $ready = $(".ready")
   , $reject = $("button#reject")
   , $result = $("#result")
   , $role = $(".role")
-  , $signalRow = $("#signal-row")
-  , $signalLabel = $("#signal-label")
+  , $secondBuyer = $("#2nd-buyer")
   , $timeBar = $("td .time-bar")
   , $timeClock = $(".clock")
   , $timer = $(".timer")
@@ -91,10 +91,21 @@ var $accept = $("button#accept")
   ;
 
 
+const inGame = () => {
+	return (gPlaying || gWaitingOpponent || preparation.preparing)
+}
+
 const socket = io.connect();
 socket.on(COMMAND.AUTH, (data, respond) => {
 	console.log(data);
-	respond(ID);
+	var info = {
+		id: ID,
+		inGame: inGame(),
+		game: dealer.game,
+		period: dealer.period
+	}
+	console.log(info);
+	respond(info);
 });
 
 // timer for proposal and decision
@@ -201,8 +212,8 @@ const preparation = new function() {
 
 const dealer = new function() {
 
+	this.game = {}
 	this.period = {};
-	this.inGame = false;
 
 	const isMyTurn = () => {
 		if (this.period.proposer_id == ID && this.period.price == null) {
@@ -218,8 +229,6 @@ const dealer = new function() {
 		$button.show();
 		$button.removeClass(CLASS.DISABLE);
 		$button.click(listener);
-		$leave.removeClass(CLASS.DISABLE);
-		$leave.click(btnListenr.leave);
 	}
 
 	const disableButton = ($buttons) => {
@@ -241,6 +250,10 @@ const dealer = new function() {
 		$proposal.show();
 	}
 
+	this.syncPeriod = (period) => {
+		this.period = period;
+	}
+
 	this.initPeriod = () => {
 
 		gPlaying = true;
@@ -254,31 +267,27 @@ const dealer = new function() {
 			$gridsDone.css('backgroundColor', '#fa0');
 		}
 
-		var $signalGrid = $signalRow.find("td").eq(this.period.number + 1);
-		if (this.period.signal) {
-			$signalGrid.html("&#10004;").addClass(CLASS.GREEN);
-			var number = parseInt($signalLabel.html()) + 1;
-			$signalLabel.html(number);
-		} else {
-			$signalGrid.html("&#10007;").addClass(CLASS.RED);
-		}
-
 		var t = $progressLabel.html().split('/')[1];
 		$progressLabel.html(this.period.number + "/" + t);
 
-		$marketValue.html("$" + this.period.market_value);
 		$operation.show();
 		$input.hide();
 		$proposal.hide();
 		$operationButtons.hide();
-		if ($role.html() == 'seller') {
-			$leave.show();
-		}
 		$timer.show();
 
 		timer.reset();
 
-		if (this.period.proposer_id == ID) {
+		if (!this.period.show_up_2nd_buyer) {
+			$questionMark.append('?').show();
+		} else {
+			$questionMark.html('').hide();
+		}
+
+		if (this.period.show_up_2nd_buyer) {
+			this.endPeriod();
+			return;
+		} else if (this.period.proposer_id == ID) {
 			$input.val('').show();
 			enableButton($propose, btnListenr.propose);
 		} else {
@@ -293,9 +302,9 @@ const dealer = new function() {
 	this.propose = (price) => {
 		this.period.price = price;
 		this.period.proposed_at = timer.lap();
-		timer.stop();
-		disableButton($operationButtons);
-		showProposal("Your proposal: $" + this.period.price);
+		// timer.stop();
+		// disableButton($propose);
+		// showProposal("Your proposal: $" + this.period.price);
 		socket.emit(EVENT.PROPOSE, this.period);
 	}
 
@@ -307,6 +316,9 @@ const dealer = new function() {
 			enableButton($reject, btnListenr.reject);
 			$proposal.stop();
 			$proposal.css('backgroundColor', '#eee');
+		} else {
+			disableButton($propose);
+			showProposal("Your proposal: $" + this.period.price);
 		}
 		timer.reset();
 		timer.start();
@@ -320,12 +332,13 @@ const dealer = new function() {
 		disableButton($operationButtons);
 	}
 
-	this.onDecision = (data) => {
-		this.period = data.period;
+	this.onDecision = (period) => {
+		this.period = period;
 		timer.stop();
 		disableButton($operationButtons);
-		if (data.takeMarketValue) {
-			showProposal('LEAVE');
+		if (this.period.show_up_2nd_buyer) {
+			showProposal('SECOND');
+			$secondBuyer.show();
 		} else if (this.period.accepted) {
 			showProposal('ACCEPTED');
 		} else if (this.period.decided_at) {
@@ -333,16 +346,13 @@ const dealer = new function() {
 		} else {
 			showProposal('NONE');
 		}
+		this.period = {};
 	}
 
-	this.endPeriod = (endGame = false) => {
+	this.endPeriod = () => {
 		if (isMyTurn()) {
-			socket.emit(EVENT.END_PERIOD, {
-				period: this.period,
-				endGame: endGame
-			});
+			socket.emit(EVENT.END_PERIOD, this.period);
 		}
-		disableButton($operationButtons);
 	}
 
 }
@@ -382,11 +392,15 @@ socket.on(EVENT.OP_LOST, (info) => {
 
 socket.on(EVENT.NEW_GAME, (data) => {
 
+	dealer.game = data.game;
+
 	timer.reset();
 	preparation.reset();
 
 	$waiting.hide();
+	$secondBuyer.hide();
 	$operation.hide();
+	$questionMark.html("");
 
 	$gamesLeft.html(data.gamesLeft);
 	$role.html(data.role);
@@ -398,29 +412,29 @@ socket.on(EVENT.NEW_GAME, (data) => {
 		t: 10,
 		w: 17
 	};
+
+	var game = data.game;
 	for (let i in defaultParams) {
 		let $param = $("." + i);
-		$param.html(data[i]);
-		if (data[i] != defaultParams[i]) {
+		$param.html(game[i]);
+		if (game[i] != defaultParams[i]) {
 			$param.parent().addClass(CLASS.HIGHLIGHT);
 		} else {
 			$param.parent().removeClass(CLASS.HIGHLIGHT);
 		}
 	}
 
-	$progressLabel.html("0/" + data.t);
+	$progressLabel.html("0/" + game.t);
 	$progressRow.children().slice(2).detach();
-	$signalLabel.html("0");
-	$signalRow.children().slice(2).detach();
-	for (let i = 0; i < data.t; i++) {
+	for (let i = 0; i < game.t; i++) {
 		$progressRow.append("<td><div></div></td>");
-		$signalRow.append("<td></td>");
 	}
 
 });
 
 socket.on(EVENT.NEW_PERIOD, (period) => {
-	dealer.period = period;
+	dealer.syncPeriod(period);
+
 	if (period.number == 1) {
 		preparation.start();
 	} else {
@@ -433,12 +447,20 @@ socket.on(EVENT.NEW_PERIOD, (period) => {
 socket.on(EVENT.PROPOSE, dealer.onProposal);
 
 socket.on(EVENT.RESULT, (result) => {
+	dealer.game = {};
+
 	gPlaying = false;
 	socket.emit(EVENT.LEAVE_ROOM);
 	for (let i in result) {
 		let $cell = $("#" + i);
 		$cell.removeClass();
-		if (result[i] == null) {
+		if (i == "exists2ndBuyer" && result[i]) {
+			$cell.html("&#10004");
+			$cell.addClass(CLASS.GREEN);
+		} else if (i == "exists2ndBuyer" && !result[i]) {
+			$cell.html("&#10007");
+			$cell.addClass(CLASS.RED);
+		} else if (result[i] == null) {
 			$cell.html("&#10007");
 			$cell.addClass(CLASS.RED);
 		} else if (result[i] < 0) {
@@ -453,7 +475,7 @@ socket.on(EVENT.RESULT, (result) => {
 });
 
 socket.on(EVENT.SYNC_GAME, (game) => {
-	console.log(game);
+	// console.log(game);
 	socket.emit(EVENT.SYNC_GAME, game);
 });
 
@@ -524,13 +546,6 @@ btnListenr.reject = () => {
 	dealer.decide(false);
 }
 
-btnListenr.leave = () => {
-	dealer.period.accepted = false;
-	dealer.period.decided_at = timer.lap();
-	dealer.endPeriod(true);
-	timer.stop();
-}
-
 
 $ready.click((event) => {
 	if ($gamesLeft.html() == '0') {
@@ -583,14 +598,19 @@ $quit.click(() => {
 	location.href = "/logout";
 });
 
-$(window).bind('beforeunload', function() {
-	if (gPlaying || gWaitingOpponent || preparation.preparing) {
-		return 'Are you sure you want to leave?';
-	}
-});
+// $(window).bind('beforeunload', function() {
+// 	if (gPlaying || gWaitingOpponent || preparation.preparing) {
+// 		return 'Are you sure you want to leave?';
+// 	}
+// });
 
 $description.load("/html/description.html");
 
+$help.click(() => {
+	socket.disconnect();
+	socket.connect();
+	socket.emit(EVENT.REJOIN);
+});
 
 
 });

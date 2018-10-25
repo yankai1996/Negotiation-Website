@@ -91,8 +91,8 @@
           <td id="price"></td>
         </tr>
         <tr>
-          <td>Market Value: </td>
-          <td id="marketValue"></td>
+          <td>2nd Buyer Exists: </td>
+          <td id="exists2ndBuyer"></td>
         </tr>
         <tr>
           <td>Cost: </td>
@@ -130,7 +130,7 @@
         <tr>
           <td>&alpha; =</td>
           <td class="alpha"></td>
-          <td>the probability of being notified of the second buyer's existence in each period</td>
+          <td>the probability that the second buyer, if exists, will show up in each period</td>
         </tr>
         <tr>
           <td>&beta; =</td>
@@ -176,17 +176,16 @@
           <td><div></div></td>
           <td><div></div></td>
           <td><div></div></td>
-        </tr>
-        <tr id="signal-row">
-          <td>Signals:</td>
-          <td id="signal-label">0</td>
-        </tr>
+        </tr> 
       </table>
 
       <div class="flexbox">
         <div class="panel left">
-          <p>Market Value</p>
-          <div class="market-value"></div>
+          <p>2nd Buyer</p>
+          <div class="question-mark"></div>
+          <div id="2nd-buyer" class="img-box hide">
+            <img src="/image/buyer.png"  alt="2nd buyer" />
+          </div>
         </div>
 
         <div class="panel right">
@@ -206,10 +205,9 @@
               <div class="proposal"></div>
             </div>
             <div class="button-box">
-              <button id="propose" class="alt"">Propose</button>
+              <button id="propose" class="alt">Propose</button>
               <button id="accept" class="alt">Accept</button>
               <button id="reject" class="alt">Reject</button>
-              <button id="leave" class="alt">LEAVE</button>
             </div>
           </div>
 

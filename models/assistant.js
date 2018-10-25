@@ -100,6 +100,7 @@ exports.getNewGame = async (participantId) => {
             game[i] = masterGame[i];
         }
     }
+    // console.log(game);
     return game;
 }
 
@@ -113,8 +114,7 @@ exports.savePeriod = async (gameId, period) => {
         proposed_at: period.proposed_at,
         accepted:   period.accepted,
         decided_at: period.decided_at,
-        signal: period.signal,
-        market_value: period.market_value
+        show_up_2nd_buyer: period.show_up_2nd_buyer
     });
 }
 
@@ -127,9 +127,12 @@ exports.endGame = async (game, period) => {
     if (period.accepted) {
         buyerPayoff = 12 - period.price - cost;
         sellerPayoff = period.price - cost;
+    } else if (game.exists_2nd_buyer) {
+        buyerPayoff =  -cost;
+        sellerPayoff = 17 - cost;
     } else {
         buyerPayoff =  -cost;
-        sellerPayoff = period.market_value - cost;
+        sellerPayoff = -cost;
     }
 
     if (!game.is_warmup) {
@@ -142,32 +145,25 @@ exports.endGame = async (game, period) => {
             where: {id: game.seller_id}
         });
     }
-
-    var signal = await Period.count({
-        where: {game_id: game.id}
-    });
     
-    await Game.update({
+    return Game.update({
         price: period.price,
         buyer_payoff: buyerPayoff,
         seller_payoff: sellerPayoff,
         periods: period.number,
         cost: cost,
-        signal: signal,
-        market_value: period.market_value,
         is_done: true
     }, {
         where: {id: game.id}
-    });
-
-    return {
-        price: period.price,
-        cost: cost,
-        marketValue: period.market_value,
-        buyerProfit: buyerPayoff,
-        sellerProfit: sellerPayoff
-    }
-
+    }).then((result) => {
+        return {
+            price: period.price,
+            cost: cost,
+            exists2ndBuyer: game.exists_2nd_buyer,
+            buyerProfit: buyerPayoff,
+            sellerProfit: sellerPayoff
+        }
+    })
 }
 
 
@@ -195,7 +191,7 @@ exports.getSummary = async (id) => {
             return {
                 price: g.price,
                 cost: g.cost,
-                marketValue: g.market_value,
+                exists2ndBuyer: g.exists_2nd_buyer,
                 selfProfit: g.buyer_id == id
                     ? g.buyer_payoff
                     : g.seller_payoff,

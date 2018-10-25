@@ -28,7 +28,7 @@
           <th></th>
           <th>Price</th>
           <th>Cost</th>
-          <th>Market Value</th>
+          <th>2nd Buyer</th>
           <th>Op's Profit</th>
           <th>Your Profit</th>
         </thead>
@@ -40,7 +40,7 @@
               <td><%= summary.indexOf(s) + 1 %></td>
               <%- checkCell(s.price) %>
               <td><%= s.cost %></td>
-              <td><%= s.marketValue %></td>
+              <%- checkCell(s.exists2ndBuyer) %>
               <td><%= s.opponentProfit %></td>
               <td><%= s.selfProfit %></td>
             </tr>

@@ -290,7 +290,6 @@ table.progress {
     font-family: "Roboto", sans-serif;
     font-weight: 300;
     width: 100%;
-    table-layout: fixed;
 }
 
 table.progress td>div {
@@ -311,11 +310,6 @@ table.progress td:nth-child(2) {
 
 table.progress td>div.done {
     background: #159287;
-}
-
-table.progress #signal-bar .red, table.progress #signal-bar .green {
-    width: 0;
-    padding: 0;
 }
 
 .flexbox {
@@ -454,7 +448,7 @@ table.timer.red .time-bar-container {
     box-shadow: 0 0 5px 1px #159287;
 }
 
-.proposal.leave {
+.proposal.second {
     color: #f80;
     box-shadow: 0 0 5px 1px #f80;
 }
@@ -492,10 +486,6 @@ button.alt:active {
     border: 1px solid #ddd;
 }
 
-/* button#leave {
-    background: #eee;
-} */
-
 button.disable {
     color: #ccc;
     background: #f4f4f4;
@@ -523,7 +513,12 @@ button.disable:hover {
     border-radius: 0 0 100% 0;
     color: #fff;
     font-size: 20px;
+    cursor: pointer;
     transition: all 0.3s ease;
+}
+
+.help:hover {
+    background: #11746b
 }
 
 .top-right {

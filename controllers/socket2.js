@@ -46,83 +46,92 @@ Supervisor.prototype.resumeAll = function () {
 }
 
 
-function Dealer(self, opponent, io) {
-    this.self = self;
-    this.opponent = opponent;
+function Dealer(buyer, seller, io) {
+    this.buyer = buyer;
+    this.seller = seller;
     this.io = io;
-    this.game = games_in_progress[self] || null;
-    this.period = periods_in_progress[self] || null;
-    // console.log(this.game);
-    // console.log(this.period);
-}
-
-Dealer.prototype.backupGame = function (game) {
-    // games_in_progress[this.self] = game;
-    // games_in_progress[this.opponent] = game;
-}
-
-Dealer.prototype.backupPeriod = function (period) {
-    // periods_in_progress[this.self] = period;
-    // periods_in_progress[this.opponent] = period;
+    this.game = null;
+    this.period = null;
+    this.ready = false;
 }
 
 Dealer.prototype.toBuyer = function (event, data) {
-    this.io.to(this.game.buyer_id).emit(event, data);
+    this.io.to(this.buyer).emit(event, data);
 }
 
 Dealer.prototype.toSeller = function (event, data) {
-    this.io.to(this.game.seller_id).emit(event, data);
+    this.io.to(this.seller).emit(event, data);
 }
 
 Dealer.prototype.toBoth = function (event, data) {
-    this.io.to(this.self).emit(event, data);
-    this.io.to(this.opponent).emit(event, data);
-    // this.toBuyer(event, data);
-    // this.toSeller(event, data);
+    this.toBuyer(event, data);
+    this.toSeller(event, data);
+}
+
+Dealer.prototype.toOpponent = function (self, event, data) {
+    var opponent = self == this.buyer ? this.seller : this.buyer;
+    if (this.io.sockets.adapter.rooms[opponent]) {
+        this.io.to(opponent).emit(event, data);
+    } 
 }
 
 // get a new game
 Dealer.prototype.newGame = async function () {
-    var game = await Assistant.getNewGame(this.self);
+    var game = await Assistant.getNewGame(this.buyer);
     if (!game) {
         this.toBoth(EVENT.COMPLETE, "You have finished all the games.");
     } else {
-        console.log(this.self + " New Game");
+        console.log("New Game: " + this.buyer + " " + this.seller);
         this.game = game;
-        this.backupGame(game);
-        await Assistant.deletePeriods(this.game.id);
-        this.io.to(this.opponent).emit(EVENT.SYNC_GAME, this.game);
+        this.ready = false;
+        Assistant.deletePeriods(this.game.id);
+        var gamesLeft = await Assistant.countUnfinishedGames(this.buyer) - 1;
+        this.toBuyer(EVENT.NEW_GAME, {
+            // alpha: this.game.alpha,
+            // beta: this.game.beta,
+            // gamma: this.game.gamma,
+            // t: this.game.t,
+            // w: this.game.w,
+            game: this.game,
+            role: 'buyer',
+            gamesLeft: gamesLeft
+        });
+        this.toSeller(EVENT.NEW_GAME, {
+            game: this.game,
+            role: 'seller',
+            gamesLeft: gamesLeft
+        });
+        this.nextPeriod(true);
     }
 }
 
-Dealer.prototype.syncGame = function (game) {
-    this.game = game;
+Dealer.prototype.getReady = function () {
+    const bothReady = () => {
+        return (this.io.sockets.adapter.rooms[this.buyer] 
+            && this.io.sockets.adapter.rooms[this.seller]);
+    }
+
+    if (this.ready) {
+        return;
+    }
+    this.ready = true;
+
+    if (bothReady()) {
+        setTimeout(() => {
+            if (bothReady()){
+                this.newGame();
+            } else {
+                this.ready = false;
+            }
+        }, 5000);
+    } else {
+        this.ready = false;
+    }
+    
 }
 
 Dealer.prototype.syncPeriod = function (period) {
     this.period = period;
-    this.backupPeriod(period);
-}
-
-// start the game
-Dealer.prototype.startGame = async function () {
-    var gamesLeft = await Assistant.countUnfinishedGames(this.self) - 1;
-    this.toBuyer(EVENT.NEW_GAME, {
-        // alpha: this.game.alpha,
-        // beta: this.game.beta,
-        // gamma: this.game.gamma,
-        // t: this.game.t,
-        // w: this.game.w,
-        game: this.game,
-        role: 'buyer',
-        gamesLeft: gamesLeft
-    });
-    this.toSeller(EVENT.NEW_GAME, {
-        game: this.game,
-        role: 'seller',
-        gamesLeft: gamesLeft
-    });
-    this.nextPeriod(true);
 }
 
 // enter the next period
@@ -151,7 +160,6 @@ Dealer.prototype.nextPeriod = function (initial = false) {
         decided_at: null,
         show_up_2nd_buyer: this.game.exists_2nd_buyer && Math.random() < this.game.alpha
     }
-    this.backupPeriod(this.period);
 
     this.toBoth(EVENT.NEW_PERIOD, this.period)
     return true;
@@ -169,7 +177,6 @@ Dealer.prototype.endPeriod = async function () {
     if (this.period.show_up_2nd_buyer || this.period.accepted || !this.nextPeriod()) {
         this.endGame();
     }
-    this.backupPeriod(null);
 }
 
 // end one game
@@ -190,7 +197,6 @@ Dealer.prototype.endGame = async function () {
         opponentProfit: result.buyerProfit
     });
     this.game.is_done = true;
-    this.backupGame(null);
 }
 
 
@@ -200,9 +206,26 @@ exports.listen = (server) => {
 
     var loggedIn = {};
 
-    io.sockets.on('connection', (socket) => {
+    var dealers = {};
 
-        var self, opponent, dealer, instructor;
+    var dealerKey = {}
+
+    const initDealers = async () => {
+        var pairs = await Instructor.getPairs();
+        for (let i in pairs) {
+            var buyer = pairs[i].buyer;
+            var seller = pairs[i].seller;
+            dealerKey[buyer] = i;
+            dealerKey[seller] = i
+            var dealer = new Dealer(buyer, seller, io);
+            dealers[i] = dealer;
+        }
+        io.sockets.on('connection', initSocket);
+    }
+
+    initDealers();
+
+    const initSocket = (socket) => {
 
         // initialization triggered once login
         socket.emit(COMMAND.AUTH, 'What is your ID?', async (data) => {
@@ -220,12 +243,7 @@ exports.listen = (server) => {
                     socket.emit(EVENT.COMPLETE);
                 } else {
                     loggedIn[id] = true;
-                    await initDealer(id);
-                    if (data.inGame) {
-                        socket.join(id);
-                        dealer.game = data.game;
-                        dealer.period = data.period;
-                    }
+                    sitDown(data);
                 }
             }
         });
@@ -245,16 +263,15 @@ exports.listen = (server) => {
         }
 
         
-        const initDealer = async (id) => {
+        const sitDown = (data) => {
 
-            self = id;
-            var result = await Assistant.getOpponent(self);
-            if (result && result.opponent) {
-                opponent = result.opponent;
-                dealer = new Dealer(self, opponent, io);
+            const id = data.id;
+            var dealer = dealers[dealerKey[id]];
+            if (data.inGame) {
+                socket.join(id);
+                dealer.game = data.game;
+                dealer.syncPeriod(data.period);
             }
-            // socket.emit(EVENT.TEST, "Welcome! " + self + ". Your opponent is " + opponent);
-
 
             // received the proposal from the proposer
             socket.on(EVENT.PROPOSE, (period) => {
@@ -262,32 +279,16 @@ exports.listen = (server) => {
                 dealer.propose();
             });
 
-            // check if the opponent is online
-            const opponentIsOnline = () => {
-                return opponent && io.sockets.adapter.rooms[opponent];
-            }
-
             // notified that the participant is ready to start the game
             socket.on(EVENT.READY, () => {
                 socket.emit(EVENT.WAIT, "Looking for your opponent...");
-                dealer.syncGame(null);
-                socket.join(self);
-                if (opponentIsOnline()) {
-                    setTimeout(() => {
-                        dealer.newGame();
-                    }, 5000);
-                }
+                socket.join(id);
+                dealer.getReady();
             });
 
             socket.on(EVENT.REJOIN, () => {
-                socket.join(self);
-                console.log("REJOIN " + self)
-            });
-
-            // sync the game from the opponent dealer
-            socket.on(EVENT.SYNC_GAME, (game) => {
-                dealer.syncGame(game);
-                dealer.startGame();
+                socket.join(id);
+                console.log("REJOIN " + id)
             });
 
             // received when decision is made or time is out
@@ -297,18 +298,21 @@ exports.listen = (server) => {
             });
 
             socket.on(EVENT.LEAVE_ROOM, () => {
-                socket.leave(self);
+                socket.leave(id);
                 console.log("LEAVE!!!!!!!")
             });
 
             socket.on('disconnect', () => {
                 loggedIn[id] = false;
-                // if (opponentIsOnline()) {
-                //     io.to(opponent).emit(EVENT.OP_LOST, "Your opponent is lost!");
-                // }
+                setTimeout(() => {
+                    if (!loggedIn[id]) {
+                        dealer.toOpponent(id, EVENT.OP_LOST, "Your opponent is lost!")
+                    }
+                 }, 5000);
+ 
             });
         }
-    });
+    };
 
     return io;
 }

@@ -68,7 +68,8 @@ const assignMasterGameToAll = async (master) => {
             id: generateGameId(i),
             master_game: master.id,
             buyer_id: pairs[i].buyer,
-            seller_id: pairs[i].seller
+            seller_id: pairs[i].seller,
+            exists_2nd_buyer: !master.is_warmup && Math.random() < master.gamma
         });
     }
 }
@@ -104,7 +105,8 @@ const assignMasterGamesToPair = async (masterGames, buyer, seller) => {
             id: generateGameId(i),
             master_game: master.id,
             buyer_id: buyer,
-            seller_id: seller
+            seller_id: seller,
+            exists_2nd_buyer: !master.is_warmup && Math.random() < master.gamma
         });
     }
 }
@@ -113,7 +115,7 @@ exports.addPairs = async (n) => {
     var masterGames = await MasterGame.findAll({
         raw: true
     });
-    // testID = ['xxxx', '0000', '1984', '0001'];
+    // testID = ['xxxx', '0000'];
     for (var i = 0; i < 2 * n; ) {
         var randomID = generateParticipantId();
         // randomID = testID[i];
@@ -171,7 +173,7 @@ exports.getPairs = getPairs;
 exports.getGamesByParticipant = async (id) => {
     var games = await Game.findAll({
         attributes: ['id', 'buyer_id', 'seller_id', 
-            'master_game', 'signal', 'is_done'], 
+            'master_game', 'exists_2nd_buyer', 'is_done'], 
         where: {
             $or: [{buyer_id: id},
                 {seller_id: id}]

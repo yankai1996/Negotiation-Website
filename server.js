@@ -14,7 +14,7 @@ var express = require('express')
 
 var app = express()
   , server = require('http').createServer(app)
-  , io = require('./controllers/socket').listen(server)
+  , io = require('./controllers/socket2').listen(server)
   ;
 
 app.set('views', path.join(__dirname, 'views'));

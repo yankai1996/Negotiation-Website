@@ -235,7 +235,6 @@ table.pair td, table.pair th {
 
 table.pair td:nth-child(6) {
     border-left: 1px solid #ccc;
-    text-align: center;
 }
 
 table.pair td:last-child {

@@ -120,11 +120,9 @@ var Game = sequelize.define('game', {
         },
         allowNull: false
     },
-    signal: Sequelize.INTEGER(2),
-    market_value: {
-        type: Sequelize.FLOAT(6,2),
-        allowNull: false,
-        defaultValue: 17
+    exists_2nd_buyer: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false
     },
     price: Sequelize.FLOAT(6,2),
     buyer_payoff: Sequelize.FLOAT(6,2),
@@ -175,13 +173,9 @@ var Period = sequelize.define('period', {
         allowNull: false
     },
     decided_at: Sequelize.INTEGER(2),
-    signal: {
+    show_up_2nd_buyer: {
         type: Sequelize.BOOLEAN,
         allowNull: false
-    },
-    market_value: {
-        type: Sequelize.FLOAT(6,2),
-        allowNull: false,
     }
 }, {
     timestamps: false,

@@ -19,17 +19,11 @@ const EVENT = {
     OP_LOST: 'opponent lost',
     PROPOSE: 'propose',
     READY: 'ready',
-    REJOIN: 'rejoin',
     RESULT: 'result',
     SYNC_GAME: 'sync game',
     TEST: 'test',
     WAIT: 'wait opponent',
 }
-
-// backup for auto reconnection
-var games_in_progress = {}
-var periods_in_progress = {}
-
 
 function Supervisor(io) {
     this.io = io;
@@ -83,7 +77,6 @@ Dealer.prototype.newGame = async function () {
     } else {
         console.log("New Game: " + this.buyer + " " + this.seller);
         this.game = game;
-        this.ready = false;
         Assistant.deletePeriods(this.game.id);
         var gamesLeft = await Assistant.countUnfinishedGames(this.buyer) - 1;
         this.toBuyer(EVENT.NEW_GAME, {
@@ -101,24 +94,25 @@ Dealer.prototype.newGame = async function () {
             role: 'seller',
             gamesLeft: gamesLeft
         });
+        this.ready = false;
         this.nextPeriod(true);
     }
 }
 
-Dealer.prototype.getReady = function () {
-    const bothReady = () => {
-        return (this.io.sockets.adapter.rooms[this.buyer] 
-            && this.io.sockets.adapter.rooms[this.seller]);
-    }
+Dealer.prototype.bothReady = function () {
+    return (this.io.sockets.adapter.rooms[this.buyer] 
+        && this.io.sockets.adapter.rooms[this.seller]);
+}
 
+Dealer.prototype.getReady = function () {
     if (this.ready) {
         return;
     }
     this.ready = true;
 
-    if (bothReady()) {
+    if (this.bothReady()) {
         setTimeout(() => {
-            if (bothReady()){
+            if (this.bothReady()){
                 this.newGame();
             } else {
                 this.ready = false;
@@ -167,7 +161,9 @@ Dealer.prototype.nextPeriod = function (initial = false) {
 
 // send proposal to opponent
 Dealer.prototype.propose = function () {
-    this.toBoth(EVENT.PROPOSE, this.period);
+    if (this.bothReady()) {
+        this.toBoth(EVENT.PROPOSE, this.period);
+    }
 }
 
 // end one period
@@ -238,11 +234,11 @@ exports.listen = (server) => {
             if (loggedIn[id]) {
                 socket.emit(COMMAND.AUTH_FAILED, "You have logged in somewhere else!");
             } else {
+                loggedIn[id] = true;
                 var incomplete = await Assistant.existUnfinishedGames(id);
                 if (!incomplete) {
                     socket.emit(EVENT.COMPLETE);
                 } else {
-                    loggedIn[id] = true;
                     sitDown(data);
                 }
             }
@@ -267,7 +263,11 @@ exports.listen = (server) => {
 
             const id = data.id;
             var dealer = dealers[dealerKey[id]];
-            if (data.inGame) {
+
+            if (data.waiting) {
+                socket.join(id);
+                dealer.getReady();
+            } else if (data.inGame) {
                 socket.join(id);
                 dealer.game = data.game;
                 dealer.syncPeriod(data.period);
@@ -275,6 +275,10 @@ exports.listen = (server) => {
 
             // received the proposal from the proposer
             socket.on(EVENT.PROPOSE, (period) => {
+                var price = period.price;
+                if (isNaN(price) || price <= 0 || price > 12) {
+                    return;
+                }
                 dealer.syncPeriod(period);
                 dealer.propose();
             });
@@ -286,15 +290,12 @@ exports.listen = (server) => {
                 dealer.getReady();
             });
 
-            socket.on(EVENT.REJOIN, () => {
-                socket.join(id);
-                console.log("REJOIN " + id)
-            });
-
             // received when decision is made or time is out
             socket.on(EVENT.END_PERIOD, (period) => {
                 dealer.syncPeriod(period);
-                dealer.endPeriod();
+                if (dealer.bothReady()) {
+                    dealer.endPeriod();
+                }
             });
 
             socket.on(EVENT.LEAVE_ROOM, () => {
@@ -305,7 +306,7 @@ exports.listen = (server) => {
             socket.on('disconnect', () => {
                 loggedIn[id] = false;
                 setTimeout(() => {
-                    if (!loggedIn[id]) {
+                    if (!io.sockets.adapter.rooms[id]) {
                         dealer.toOpponent(id, EVENT.OP_LOST, "Your opponent is lost!")
                     }
                  }, 5000);

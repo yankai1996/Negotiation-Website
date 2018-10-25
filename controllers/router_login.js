@@ -1,4 +1,5 @@
 const express = require('express');
+const browser = require('browser-detect');
 const getRouter = express.Router();
 const postRouter = express.Router();
 const auth = require('./auth');
@@ -9,7 +10,14 @@ getRouter.get('/', (req, res) => {
 });
 
 getRouter.get('/login', (req, res) => {
-    res.render('login', {flag: 0});
+    const result = browser(req.headers['user-agent']);
+    var name = result.name;
+    if (name != 'chrome' && name != 'safari' && name != 'firefox' && name != 'opera') {
+        console.log(name);
+        res.send("This website is not supported by your browser!");
+    } else {
+        res.render('login', {flag: 0});
+    }
 });
 
 postRouter.post('/login', auth.authenticate);

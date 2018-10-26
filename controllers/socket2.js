@@ -20,7 +20,6 @@ const EVENT = {
     PROPOSE: 'propose',
     READY: 'ready',
     RESULT: 'result',
-    SYNC_GAME: 'sync game',
     TEST: 'test',
     WAIT: 'wait opponent',
 }
@@ -80,11 +79,6 @@ Dealer.prototype.newGame = async function () {
         Assistant.deletePeriods(this.game.id);
         var gamesLeft = await Assistant.countUnfinishedGames(this.buyer) - 1;
         this.toBuyer(EVENT.NEW_GAME, {
-            // alpha: this.game.alpha,
-            // beta: this.game.beta,
-            // gamma: this.game.gamma,
-            // t: this.game.t,
-            // w: this.game.w,
             game: this.game,
             role: 'buyer',
             gamesLeft: gamesLeft
@@ -94,7 +88,6 @@ Dealer.prototype.newGame = async function () {
             role: 'seller',
             gamesLeft: gamesLeft
         });
-        this.ready = false;
         this.nextPeriod(true);
     }
 }
@@ -156,6 +149,7 @@ Dealer.prototype.nextPeriod = function (initial = false) {
     }
 
     this.toBoth(EVENT.NEW_PERIOD, this.period)
+    this.ready = false;
     return true;
 }
 
@@ -225,7 +219,7 @@ exports.listen = (server) => {
 
         // initialization triggered once login
         socket.emit(COMMAND.AUTH, 'What is your ID?', async (data) => {
-            console.log(data);
+            // console.log(data);
             if (!id && auth.isInstructor(socket.request.headers.cookie)) {
                 initInstructor();
                 return;
@@ -261,6 +255,10 @@ exports.listen = (server) => {
         
         const sitDown = (data) => {
 
+            if (!data || !data.id || !(data.id in dealerKey)) {
+                return;
+            }
+
             const id = data.id;
             var dealer = dealers[dealerKey[id]];
 
@@ -269,8 +267,8 @@ exports.listen = (server) => {
                 dealer.getReady();
             } else if (data.inGame) {
                 socket.join(id);
-                dealer.game = data.game;
-                dealer.syncPeriod(data.period);
+                dealer.game = dealer.game || data.game;
+                dealer.period = dealer.period || data.period;
             }
 
             // received the proposal from the proposer

@@ -18,7 +18,6 @@ const EVENT = {
     PROPOSE: 'propose',
     READY: 'ready',
     RESULT: 'result',
-    SYNC_GAME: 'sync game',
     TEST: 'test',
     WAIT: 'wait opponent',
 }
@@ -48,6 +47,7 @@ var gPlaying = false;
 
 // whether the player is waiting for opponent
 var gWaitingOpponent;
+var gWaitingInterval;
 
 // whether paused
 var gPaused;
@@ -298,9 +298,6 @@ const dealer = new function() {
 	this.propose = (price) => {
 		this.period.price = price;
 		this.period.proposed_at = timer.lap();
-		// timer.stop();
-		// disableButton($propose);
-		// showProposal("Your proposal: $" + this.period.price);
 		socket.emit(EVENT.PROPOSE, this.period);
 	}
 
@@ -324,7 +321,6 @@ const dealer = new function() {
 		this.period.accepted = accepted;
 		this.period.decided_at = timer.lap();
 		this.endPeriod();
-		// timer.stop();
 	}
 
 	this.onDecision = (period) => {
@@ -358,6 +354,14 @@ const waiting = (info) => {
 	$waiting.show();
 }
 
+const getReady = () => {
+	socket.emit(EVENT.READY);
+	gWaitingInterval = setInterval(() => {
+		console.log("Looking for your opponent...")
+		socket.emit(EVENT.READY);
+	}, 10000)
+}
+
 
 socket.on(EVENT.COMPLETE, () => {
 	location.href = "/play/complete";
@@ -372,7 +376,7 @@ socket.on(EVENT.OP_LOST, (info) => {
 	} else {
 		socket.emit(EVENT.LEAVE_ROOM);
 		setTimeout(() => {
-			socket.emit(EVENT.READY);
+			getReady();
 		}, 5000);
 		if (!gWaitingOpponent) {
 			waiting(info);
@@ -388,6 +392,8 @@ socket.on(EVENT.OP_LOST, (info) => {
 socket.on(EVENT.NEW_GAME, (data) => {
 
 	dealer.game = data.game;
+
+	clearInterval(gWaitingInterval);
 
 	timer.reset();
 	preparation.reset();
@@ -469,11 +475,6 @@ socket.on(EVENT.RESULT, (result) => {
 	}, 1000);
 });
 
-socket.on(EVENT.SYNC_GAME, (game) => {
-	// console.log(game);
-	socket.emit(EVENT.SYNC_GAME, game);
-});
-
 socket.on(EVENT.TEST, (data) => {
 	console.log(data);
 });
@@ -508,12 +509,12 @@ socket.on(COMMAND.RESUME, () => {
 		waiting("Your opponent is lost!");
 		setTimeout(() => {
 			waiting("Looking for another opponent...");
-			socket.emit(EVENT.READY);
+			getReady();
 			gWaitingOpponent = true;
 			gOpponentLost = false;
 		}, 2000);
 	} else if (gWaitingOpponent) {
-		socket.emit(EVENT.READY);
+		getReady();
 		gOpponentLost = false;
 	} else if (gPlaying) {
 		timer.start();
@@ -552,7 +553,7 @@ $ready.click((event) => {
 		location.href = "/play/complete";
 	} else if (!$(event.currentTarget).hasClass("warmed-up")) {
 		$backdrops.hide();
-		socket.emit(EVENT.READY);
+		getReady();
 		gWaitingOpponent = true;
 		gOpponentLost = false;
 	} else {
@@ -608,8 +609,10 @@ $description.load("/html/description.html");
 
 $reconnect.click(() => {
 	socket.disconnect();
-	setTimeout(socket.connect(), 1000);
-	
+	console.log("Try reconnecting...")
+	setTimeout(() => {
+		socket.connect();
+	}, 1000);
 });
 
 

@@ -45,7 +45,12 @@ function Dealer(buyer, seller, io) {
     this.io = io;
     this.game = null;
     this.period = null;
+
     this.ready = false;
+
+    this.keepSendingInterval = null;
+    this.buyerReceived = false;
+    this.sellerReceived = false;
 }
 
 Dealer.prototype.toBuyer = function (event, data) {
@@ -68,6 +73,27 @@ Dealer.prototype.toOpponent = function (self, event, data) {
     } 
 }
 
+Dealer.prototype.keepSending = function (sendingFn, time) {
+    this.buyerReceived = false;
+    this.sellerReceived = false;
+    sendingFn()
+    this.keepSendingInterval = setInterval(() => {
+        if (this.buyerReceived && this.sellerReceived) {
+            clearInterval(this.keepSendingInterval)
+        } else {
+            sendingFn()
+        }
+    }, time)
+}
+
+Dealer.prototype.ackReceived = function (id) {
+    if (this.buyer == id) {
+        this.buyerReceived = true;
+    } else if (this.seller == id) {
+        this.sellerReceived = true;
+    }
+}
+
 // get a new game
 Dealer.prototype.newGame = async function () {
     var game = await Assistant.getNewGame(this.buyer);
@@ -78,17 +104,28 @@ Dealer.prototype.newGame = async function () {
         this.game = game;
         Assistant.deletePeriods(this.game.id);
         var gamesLeft = await Assistant.countUnfinishedGames(this.buyer) - 1;
-        this.toBuyer(EVENT.NEW_GAME, {
-            game: this.game,
-            role: 'buyer',
-            gamesLeft: gamesLeft
-        });
-        this.toSeller(EVENT.NEW_GAME, {
-            game: this.game,
-            role: 'seller',
-            gamesLeft: gamesLeft
-        });
-        this.nextPeriod(true);
+        var tempInterval;
+        const startGame = () => {
+            if (!this.bothReady()) {
+                return;
+            } else {
+                this.toBuyer(EVENT.NEW_GAME, {
+                    game: this.game,
+                    role: 'buyer',
+                    gamesLeft: gamesLeft
+                });
+                this.toSeller(EVENT.NEW_GAME, {
+                    game: this.game,
+                    role: 'seller',
+                    gamesLeft: gamesLeft
+                });
+                this.nextPeriod(true);
+                clearInterval(tempInterval);
+            }
+        };
+        tempInterval = setInterval(startGame, 1000);
+        startGame();
+        
     }
 }
 
@@ -118,7 +155,15 @@ Dealer.prototype.getReady = function () {
 }
 
 Dealer.prototype.syncPeriod = function (period) {
-    this.period = period;
+    if (!this.period) {
+        this.period = period;
+    } else {
+        for (i in this.period) {
+            if (i != 'number' && i in period) {
+                this.period[i] = period[i];
+            }
+        }
+    }
 }
 
 // enter the next period
@@ -171,22 +216,32 @@ Dealer.prototype.endPeriod = async function () {
 
 // end one game
 Dealer.prototype.endGame = async function () {
-    var result = await Assistant.endGame(this.game, this.period);
-    this.toBuyer(EVENT.RESULT, {
-        price: result.price,
-        exists2ndBuyer: result.exists2ndBuyer,
-        cost: result.cost,
-        selfProfit: result.buyerProfit,
-        opponentProfit: result.sellerProfit
-    });
-    this.toSeller(EVENT.RESULT, {
-        price: result.price,
-        exists2ndBuyer: result.exists2ndBuyer,
-        cost: result.cost,
-        selfProfit: result.sellerProfit,
-        opponentProfit: result.buyerProfit
-    });
     this.game.is_done = true;
+    var result = await Assistant.endGame(this.game, this.period);
+    
+    const sendResult = () => {
+        console.log("Send Result")
+        if (!this.bothReady()) {
+            return;
+        }
+        this.toBuyer(EVENT.RESULT, {
+            price: result.price,
+            exists2ndBuyer: result.exists2ndBuyer,
+            cost: result.cost,
+            selfProfit: result.buyerProfit,
+            opponentProfit: result.sellerProfit
+        });
+        this.toSeller(EVENT.RESULT, {
+            price: result.price,
+            exists2ndBuyer: result.exists2ndBuyer,
+            cost: result.cost,
+            selfProfit: result.sellerProfit,
+            opponentProfit: result.buyerProfit
+        });
+    }
+
+    this.keepSending(sendResult, 3000);
+
 }
 
 
@@ -224,6 +279,7 @@ exports.listen = (server) => {
                 initInstructor();
                 return;
             }
+
             var id = data.id;
             if (loggedIn[id]) {
                 socket.emit(COMMAND.AUTH_FAILED, "You have logged in somewhere else!");
@@ -241,7 +297,7 @@ exports.listen = (server) => {
 
         const initInstructor = async () => {
 
-            instructor = new Supervisor(io);
+            var instructor = new Supervisor(io);
 
             socket.on(COMMAND.PAUSE, () => {
                 instructor.pauseAll();
@@ -268,8 +324,15 @@ exports.listen = (server) => {
             } else if (data.inGame) {
                 socket.join(id);
                 dealer.game = dealer.game || data.game;
-                dealer.period = dealer.period || data.period;
+                dealer.syncPeriod(data.period);
             }
+
+            // notified that the participant is ready to start the game
+            socket.on(EVENT.READY, () => {
+                socket.emit(EVENT.WAIT, "Looking for your opponent...");
+                socket.join(id);
+                dealer.getReady();
+            });
 
             // received the proposal from the proposer
             socket.on(EVENT.PROPOSE, (period) => {
@@ -281,12 +344,6 @@ exports.listen = (server) => {
                 dealer.propose();
             });
 
-            // notified that the participant is ready to start the game
-            socket.on(EVENT.READY, () => {
-                socket.emit(EVENT.WAIT, "Looking for your opponent...");
-                socket.join(id);
-                dealer.getReady();
-            });
 
             // received when decision is made or time is out
             socket.on(EVENT.END_PERIOD, (period) => {
@@ -295,6 +352,11 @@ exports.listen = (server) => {
                     dealer.endPeriod();
                 }
             });
+
+            socket.on(EVENT.RESULT, () => {
+                socket.leave(id);
+                dealer.ackReceived(id);
+            })
 
             socket.on(EVENT.LEAVE_ROOM, () => {
                 socket.leave(id);
@@ -307,7 +369,7 @@ exports.listen = (server) => {
                     if (!io.sockets.adapter.rooms[id]) {
                         dealer.toOpponent(id, EVENT.OP_LOST, "Your opponent is lost!")
                     }
-                 }, 5000);
+                 }, 10000);
  
             });
         }

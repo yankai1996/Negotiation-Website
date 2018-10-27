@@ -120,6 +120,9 @@ const timer = new function() {
 		$timeBar.animate({width: '0%'}, count * 1000);
 
 		this.interval = setInterval(() => {
+			if (count % 20 == 0) {
+				socket.emit(EVENT.TEST);
+			}
 			count--;
 			$timeClock.html(('0' + count).slice(-2)); 
 			if (count == 10) {
@@ -350,6 +353,7 @@ const dealer = new function() {
 
 const waiting = (info) => {
 	info = info || "Looking for your opponent...";
+	$backdrops.hide();
 	$waitingInfo.html(info)
 	$waiting.show();
 }
@@ -393,12 +397,12 @@ socket.on(EVENT.NEW_GAME, (data) => {
 
 	dealer.game = data.game;
 
-	clearInterval(gWaitingInterval);
-
 	timer.reset();
 	preparation.reset();
 
 	$waiting.hide();
+	clearInterval(gWaitingInterval);
+
 	$secondBuyer.hide();
 	$operation.hide();
 	$questionMark.html("");
@@ -449,9 +453,8 @@ socket.on(EVENT.PROPOSE, dealer.onProposal);
 
 socket.on(EVENT.RESULT, (result) => {
 	dealer.game = {};
-
 	gPlaying = false;
-	socket.emit(EVENT.LEAVE_ROOM);
+	socket.emit(EVENT.RESULT);
 	for (let i in result) {
 		let $cell = $("#" + i);
 		$cell.removeClass();
@@ -552,11 +555,12 @@ $ready.click((event) => {
 	if ($gamesLeft.html() == '0') {
 		location.href = "/play/complete";
 	} else if (!$(event.currentTarget).hasClass("warmed-up")) {
-		$backdrops.hide();
 		getReady();
 		gWaitingOpponent = true;
 		gOpponentLost = false;
 	} else {
+		// finish the warm-up
+
 		$("#game").hide();
 		$("#welcome-page").show();
 		$("#welcome").hide();
@@ -612,7 +616,7 @@ $reconnect.click(() => {
 	console.log("Try reconnecting...")
 	setTimeout(() => {
 		socket.connect();
-	}, 1000);
+	}, 3000);
 });
 
 

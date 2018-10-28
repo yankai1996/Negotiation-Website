@@ -220,7 +220,7 @@ Dealer.prototype.endGame = async function () {
     var result = await Assistant.endGame(this.game, this.period);
     
     const sendResult = () => {
-        console.log("Send Result")
+        // console.log("Send Result")
         if (!this.bothReady()) {
             return;
         }
@@ -360,7 +360,7 @@ exports.listen = (server) => {
 
             socket.on(EVENT.LEAVE_ROOM, () => {
                 socket.leave(id);
-                console.log("LEAVE!!!!!!!")
+                // console.log("LEAVE!!!!!!!")
             });
 
             socket.on('disconnect', () => {

@@ -553,6 +553,7 @@ btnListenr.reject = () => {
 
 $ready.click((event) => {
 	if (!socket.connected) {
+		console.log("Try reconnecting...")
 		socket.connect();
 	}
 
@@ -607,21 +608,22 @@ $quit.click(() => {
 	location.href = "/logout";
 });
 
-// $(window).bind('beforeunload', function() {
-// 	if (gPlaying || gWaitingOpponent || preparation.preparing) {
-// 		return 'Are you sure you want to leave?';
-// 	}
-// });
+$(window).bind('beforeunload', function() {
+	if (gPlaying || gWaitingOpponent || preparation.preparing) {
+		return 'Are you sure you want to leave?';
+	}
+});
 
 $description.load("/html/description.html");
 
-$reconnect.click(() => {
-	socket.disconnect();
-	console.log("Try reconnecting...")
-	setTimeout(() => {
-		socket.connect();
-	}, 3000);
-});
+// // for test
+// $reconnect.click(() => {
+// 	socket.disconnect();
+// 	console.log("Try reconnecting...")
+// 	setTimeout(() => {
+// 		socket.connect();
+// 	}, 3000);
+// });
 
 
 });

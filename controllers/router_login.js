@@ -9,12 +9,33 @@ getRouter.get('/', (req, res) => {
     res.redirect('/login');
 });
 
+const compatibleBrowser = (info) => {
+    switch (info && info.name) {
+        case 'chrome':
+            if (info.versionNumber > 16) {
+                return true;
+            }
+        case 'safari':
+            if (info.versionNumber > 7) {
+                return true;
+            }
+        case 'firefox':
+            if (info.versionNumber > 11) {
+                return true;
+            }
+        case 'opera':
+            if (info.versionNumber > 12.1) {
+                return true;
+            }
+    }
+    return false;
+}
+
 getRouter.get('/login', (req, res) => {
-    const result = browser(req.headers['user-agent']);
-    var name = result.name;
-    if (name != 'chrome' && name != 'safari' && name != 'firefox' && name != 'opera') {
-        console.log(name);
-        res.send("This website is not supported by your browser!");
+    const info = browser(req.headers['user-agent']);
+    if (!compatibleBrowser(info)) {
+        res.send("<p>This website is not supported by your browser!</p>" + 
+            "<p>Please use the latest Chrome/Safari/Firefox/Opera.</p>");
     } else {
         res.render('login', {flag: 0});
     }

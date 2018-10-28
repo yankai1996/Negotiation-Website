@@ -552,6 +552,10 @@ btnListenr.reject = () => {
 
 
 $ready.click((event) => {
+	if (!socket.connected) {
+		socket.connect();
+	}
+
 	if ($gamesLeft.html() == '0') {
 		location.href = "/play/complete";
 	} else if (!$(event.currentTarget).hasClass("warmed-up")) {

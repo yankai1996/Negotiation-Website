@@ -346,7 +346,8 @@ exports.listen = (server) => {
 
 
             // received when decision is made or time is out
-            socket.on(EVENT.END_PERIOD, (period) => {
+            socket.on(EVENT.END_PERIOD, (period, repsond) => {
+                repsond(true);
                 dealer.syncPeriod(period);
                 if (dealer.bothReady()) {
                     dealer.endPeriod();

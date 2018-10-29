@@ -104,6 +104,13 @@ socket.on(COMMAND.AUTH, (data, respond) => {
 	respond(info);
 });
 
+const ensureConnection = () => {
+	if (!socket.connected) {
+		console.log("Try reconnecting...")
+		socket.connect();
+	}
+}
+
 // timer for proposal and decision
 const timer = new function() {
 
@@ -269,6 +276,7 @@ const dealer = new function() {
 		var t = $progressLabel.html().split('/')[1];
 		$progressLabel.html(this.period.number + "/" + t);
 
+		$backdrops.hide();
 		$operation.show();
 		$input.hide();
 		$proposal.hide();
@@ -343,10 +351,27 @@ const dealer = new function() {
 		this.period = {};
 	}
 
+	this.ending = false;
 	this.endPeriod = () => {
-		if (isMyTurn()) {
-			socket.emit(EVENT.END_PERIOD, this.period);
+		if (!isMyTurn() || this.ending) {
+			return;
 		}
+		this.ending = true;
+
+		ensureConnection();
+
+		var keepSending;
+		const sendEndPeriod = () => {
+			socket.emit(EVENT.END_PERIOD, this.period, (ack) => {
+				console.log("end period: " + ack);
+				if (ack) {
+					clearInterval(keepSending);
+					this.ending = false;
+				}
+			});
+		}
+		sendEndPeriod()
+		keepSending = setInterval(sendEndPeriod, 3000);
 	}
 
 }
@@ -447,6 +472,8 @@ socket.on(EVENT.NEW_PERIOD, (period) => {
 			dealer.initPeriod();
 		}, 1000);
 	}
+
+	clearInterval(gWaitingInterval);
 });
 
 socket.on(EVENT.PROPOSE, dealer.onProposal);
@@ -530,6 +557,7 @@ socket.on(COMMAND.RESUME, () => {
 var btnListenr = {}
 
 btnListenr.propose = () => {
+	ensureConnection();
 	var price = +parseFloat($input.val()).toFixed(2);
 	if (isNaN(price) || price <= 0 || price > 12) {
 		$input.animate({
@@ -543,19 +571,18 @@ btnListenr.propose = () => {
 }
 
 btnListenr.accept = () => {
+	ensureConnection();
 	dealer.decide(true);
 }
 
 btnListenr.reject = () => {
+	ensureConnection();
 	dealer.decide(false);
 }
 
 
 $ready.click((event) => {
-	if (!socket.connected) {
-		console.log("Try reconnecting...")
-		socket.connect();
-	}
+	ensureConnection();
 
 	if ($gamesLeft.html() == '0') {
 		location.href = "/play/complete";

@@ -16,7 +16,7 @@ const compatibleBrowser = (info) => {
                 return true;
             }
         case 'safari':
-            if (info.versionNumber > 7) {
+            if (info.versionNumber > 7 && info.os.startsWith("OS X")) {
                 return true;
             }
         case 'firefox':

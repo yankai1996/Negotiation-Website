@@ -275,7 +275,7 @@ exports.listen = (server) => {
         // initialization triggered once login
         socket.emit(COMMAND.AUTH, 'What is your ID?', async (data) => {
             // console.log(data);
-            if (!id && auth.isInstructor(socket.request.headers.cookie)) {
+            if (!data && auth.isInstructor(socket.request.headers.cookie)) {
                 initInstructor();
                 return;
             }

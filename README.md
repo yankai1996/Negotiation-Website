@@ -1,7 +1,6 @@
 # RA-Website
 
-A web app for experiment on negotiation in supply chains.
-The *version 2* is under development...
+A web app for business experiment on negotiation in supply chains.
 
 ## Requirements
 
@@ -19,6 +18,7 @@ The website is based on
 * morgan 
 * socket.io - For real-time bi-directional communication between client and server
 * socket.io-cookie
+* browser-detect
 * highcharts.js
 
 ## Functions 
@@ -44,8 +44,3 @@ The following functions have been implemented:
 * in each period, have 60s to propose a price and another 60s to decide to accept/reject the proposal
 * view outcome after each game
 * view summary at the end of the experiment
-
-## Remaining Problems
-
-* Safari dropping web socket connection when page not in focus for a while
-* One account logging in at the same time

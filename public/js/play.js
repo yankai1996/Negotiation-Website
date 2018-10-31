@@ -648,14 +648,14 @@ $(window).bind('beforeunload', function() {
 
 $description.load("/html/description.html");
 
-// for test
-$reconnect.click(() => {
-	socket.disconnect();
-	console.log("Try reconnecting...")
-	setTimeout(() => {
-		socket.connect();
-	}, 3000);
-});
+// // for test
+// $reconnect.click(() => {
+// 	socket.disconnect();
+// 	console.log("Try reconnecting...")
+// 	setTimeout(() => {
+// 		socket.connect();
+// 	}, 3000);
+// });
 
 
 });

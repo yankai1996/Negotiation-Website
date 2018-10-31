@@ -47,7 +47,6 @@ var gPlaying = false;
 
 // whether the player is waiting for opponent
 var gWaitingOpponent;
-var gWaitingInterval;
 
 // whether paused
 var gPaused;
@@ -377,18 +376,13 @@ const dealer = new function() {
 }
 
 const waiting = (info) => {
-	info = info || "Looking for your opponent...";
-	$backdrops.hide();
+	info = gPaused ? "Paused" : info || "Looking for your opponent...";
 	$waitingInfo.html(info)
 	$waiting.show();
 }
 
 const getReady = () => {
 	socket.emit(EVENT.READY);
-	gWaitingInterval = setInterval(() => {
-		console.log("Looking for your opponent...")
-		socket.emit(EVENT.READY);
-	}, 10000)
 }
 
 
@@ -426,7 +420,6 @@ socket.on(EVENT.NEW_GAME, (data) => {
 	preparation.reset();
 
 	$waiting.hide();
-	clearInterval(gWaitingInterval);
 
 	$secondBuyer.hide();
 	$operation.hide();
@@ -473,7 +466,6 @@ socket.on(EVENT.NEW_PERIOD, (period) => {
 		}, 1000);
 	}
 
-	clearInterval(gWaitingInterval);
 });
 
 socket.on(EVENT.PROPOSE, dealer.onProposal);
@@ -509,7 +501,10 @@ socket.on(EVENT.TEST, (data) => {
 	console.log(data);
 });
 
-socket.on(EVENT.WAIT, waiting);
+socket.on(EVENT.WAIT, (data) => {
+	$backdrops.hide();
+	waiting(data);
+});
 
 
 socket.on(COMMAND.AUTH_FAILED, (info) => {
@@ -553,6 +548,16 @@ socket.on(COMMAND.RESUME, () => {
 	}
 })
 
+socket.on("disconnect", () => {
+	if (gWaitingOpponent && !gPaused) {
+		gWaitingOpponent = false;
+		$waiting.hide();
+		if ($game.is(":visible")) {
+			$result.show();
+		}
+		socket.emit(EVENT.LEAVE_ROOM);
+	}
+})
 
 var btnListenr = {}
 
@@ -643,14 +648,14 @@ $(window).bind('beforeunload', function() {
 
 $description.load("/html/description.html");
 
-// // for test
-// $reconnect.click(() => {
-// 	socket.disconnect();
-// 	console.log("Try reconnecting...")
-// 	setTimeout(() => {
-// 		socket.connect();
-// 	}, 3000);
-// });
+// for test
+$reconnect.click(() => {
+	socket.disconnect();
+	console.log("Try reconnecting...")
+	setTimeout(() => {
+		socket.connect();
+	}, 3000);
+});
 
 
 });

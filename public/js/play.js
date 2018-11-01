@@ -141,6 +141,7 @@ const timer = new function() {
 			}
 			if (count == 0) {
 				this.stop();
+				ensureConnection();
 				dealer.endPeriod();
 			}
 		}, 1000);

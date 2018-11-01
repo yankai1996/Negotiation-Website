@@ -1,6 +1,6 @@
 // custom your MySQL config here
 var dbConfig = {
-    database: 'ra_website_v1',
+    database: 'ra_website_v2',
     username: 'root',
     password: 'admin@0225',
     host: 'localhost',

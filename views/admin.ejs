@@ -39,9 +39,7 @@
 					<thead>
 						<th>&alpha;</th>
 						<th>&beta;</th>
-						<th>&gamma;</th>
 						<th>T</th>
-						<th>w</th>
 						<th></th>
 					</thead>
 
@@ -53,9 +51,7 @@
 						<tr id="<%= game.id %>">
 							<td class="alpha"><%= game.alpha %></td>
 							<td class="beta"> <%= game.beta  %></td>
-							<td class="gamma"><%= game.gamma %></td>
 							<td class="t">	  <%= game.t 	 %></td>
-							<td class="w">    <%= game.w 	 %></td>
 							<td class="no-wrap">
 								Warm-Up
 								<div class="delete">Delete</div>
@@ -71,12 +67,9 @@
 						<tr id="<%= game.id %>">
 							<td class="alpha"><%= game.alpha %></td>
 							<td class="beta"> <%= game.beta  %></td>
-							<td class="gamma"><%= game.gamma %></td>
 							<td class="t">	  <%= game.t 	 %></td>
-							<td class="w">    <%= game.w 	 %></td>
 							<td class="no-wrap">
-									<div class="delete">Delete</div>
-								</div>
+								<div class="delete">Delete</div>
 							</td>
 						</tr>
 
@@ -85,11 +78,9 @@
 					</tbody>
 					
 					<tfoot>
-						<td><input class="param float-only" type="text" id="alpha" placeholder="0.3"></td>
+						<td><input class="param float-only" type="text" id="alpha" placeholder="0.2"></td>
 						<td><input class="param float-only" type="text" id="beta" placeholder="0.6"></td>
-						<td><input class="param float-only" type="text" id="gamma" placeholder="0.2"></td>
 						<td><input class="param int-only" type="text" id="t" 	placeholder="10"></td>
-						<td><input class="param float-only" type="text" id="w" placeholder="17"></td>
 						<td>
 							<button class="alt small add-games">Add</button>
 						</td>
@@ -152,16 +143,13 @@
 								<thead>
 									<th>&alpha;</th>
 									<th>&beta;</th>
-									<th>&gamma;</th>
 									<th>T</th>
-									<th>w</th>
-									<th>2nd</th>
 									<th colspan="2"></th>
 								</thead>
 								<tbody id="pair-table-body">
 								</tbody>
 								<tfoot>
-									<td colspan="8">Total: 0</td>
+									<td colspan="5">Total: 0</td>
 								</tfoot>
 							</table>
 

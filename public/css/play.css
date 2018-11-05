@@ -583,4 +583,20 @@ table td.green {
 
 table td.red {
     color: #d00
+<<<<<<< HEAD
+}
+
+table.price {
+    margin: 20px auto;
+    border: solid 1px #000;
+    border-collapse: collapse;
+}
+
+table.price th, table.price td {
+    width: 180px;
+    padding: 3px;
+    border: solid 1px #000;
+    text-align: center;
+=======
+>>>>>>> 9e777c9713dfe60a1f046b9a34ffdee7c3bd6b4e
 }

@@ -24,6 +24,19 @@ const EVENT = {
     WAIT: 'wait opponent',
 }
 
+<<<<<<< HEAD
+const TABLE = {
+    10: [1.00, 5.00, 8.00, 10.26, 12.12, 13.74,
+        15.22, 16.59, 17.90, 19.16, 20.37],
+    5: [5.00, 8.00, 10.26, 12.12, 13.74, 15.22],
+    15: [0.00, 1.00, 5.00, 8.00, 10.26, 12.12,
+        13.74, 15.22, 16.59, 17.90, 19.16,
+        20.37, 21.56, 22.72, 23.87, 24.99]
+}
+
+
+=======
+>>>>>>> 9e777c9713dfe60a1f046b9a34ffdee7c3bd6b4e
 function Supervisor(io) {
     this.io = io;
 }
@@ -173,11 +186,20 @@ Dealer.prototype.nextPeriod = function (initial = false) {
         return false;
     }
 
+<<<<<<< HEAD
+    var proposerId = Math.random() < this.game.beta
+        ? this.game.buyer_id 
+        : this.game.seller_id;
+    var show_up_external_buyer = Math.random() < this.game.alpha;
+    var external_buyers = initial ? 0 : this.period.external_buyers;
+    
+=======
     var random = Math.random();
     var proposerId = random < this.game.beta
         ? this.game.buyer_id 
         : this.game.seller_id;
 
+>>>>>>> 9e777c9713dfe60a1f046b9a34ffdee7c3bd6b4e
     this.period = {
         number: initial 
             ? 1
@@ -190,7 +212,15 @@ Dealer.prototype.nextPeriod = function (initial = false) {
         proposed_at: null,
         accepted: false,
         decided_at: null,
+<<<<<<< HEAD
+        show_up_2nd_buyer: show_up_external_buyer,
+        external_buyers: show_up_external_buyer
+            ? external_buyers + 1
+            : external_buyers,
+        highest_price: TABLE[this.game.t][external_buyers]
+=======
         show_up_2nd_buyer: this.game.exists_2nd_buyer && Math.random() < this.game.alpha
+>>>>>>> 9e777c9713dfe60a1f046b9a34ffdee7c3bd6b4e
     }
 
     this.toBoth(EVENT.NEW_PERIOD, this.period)
@@ -226,14 +256,24 @@ Dealer.prototype.endGame = async function () {
         }
         this.toBuyer(EVENT.RESULT, {
             price: result.price,
+<<<<<<< HEAD
+            externalBuyers: result.externalBuyers,
+            highestPrice: result.highestPrice,
+=======
             exists2ndBuyer: result.exists2ndBuyer,
+>>>>>>> 9e777c9713dfe60a1f046b9a34ffdee7c3bd6b4e
             cost: result.cost,
             selfProfit: result.buyerProfit,
             opponentProfit: result.sellerProfit
         });
         this.toSeller(EVENT.RESULT, {
             price: result.price,
+<<<<<<< HEAD
+            externalBuyers: result.externalBuyers,
+            highestPrice: result.highestPrice,
+=======
             exists2ndBuyer: result.exists2ndBuyer,
+>>>>>>> 9e777c9713dfe60a1f046b9a34ffdee7c3bd6b4e
             cost: result.cost,
             selfProfit: result.sellerProfit,
             opponentProfit: result.buyerProfit

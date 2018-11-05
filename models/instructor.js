@@ -51,9 +51,13 @@ exports.addMasterGame = async (params) => {
         id:     masterGameId,
         alpha:  params.alpha,
         beta:   params.beta,
+<<<<<<< HEAD
+        t:      params.t,
+=======
         gamma:  params.gamma,
         t:      params.t,
         w:      params.w,
+>>>>>>> 9e777c9713dfe60a1f046b9a34ffdee7c3bd6b4e
         is_warmup: noWarmup
     }).then((result) => {
         return result.get({plain: true});
@@ -69,7 +73,10 @@ const assignMasterGameToAll = async (master) => {
             master_game: master.id,
             buyer_id: pairs[i].buyer,
             seller_id: pairs[i].seller,
+<<<<<<< HEAD
+=======
             exists_2nd_buyer: !master.is_warmup && Math.random() < master.gamma
+>>>>>>> 9e777c9713dfe60a1f046b9a34ffdee7c3bd6b4e
         });
     }
 }
@@ -105,8 +112,12 @@ const assignMasterGamesToPair = async (masterGames, buyer, seller) => {
             id: generateGameId(i),
             master_game: master.id,
             buyer_id: buyer,
+<<<<<<< HEAD
+            seller_id: seller
+=======
             seller_id: seller,
             exists_2nd_buyer: !master.is_warmup && Math.random() < master.gamma
+>>>>>>> 9e777c9713dfe60a1f046b9a34ffdee7c3bd6b4e
         });
     }
 }
@@ -172,8 +183,12 @@ exports.getPairs = getPairs;
 // get games by one participant id
 exports.getGamesByParticipant = async (id) => {
     var games = await Game.findAll({
+<<<<<<< HEAD
+        attributes: ['id', 'buyer_id', 'seller_id', 'master_game', 'is_done'], 
+=======
         attributes: ['id', 'buyer_id', 'seller_id', 
             'master_game', 'exists_2nd_buyer', 'is_done'], 
+>>>>>>> 9e777c9713dfe60a1f046b9a34ffdee7c3bd6b4e
         where: {
             $or: [{buyer_id: id},
                 {seller_id: id}]
@@ -183,8 +198,12 @@ exports.getGamesByParticipant = async (id) => {
     for (var i = 0; i < games.length; i++) {
         var g = games[i];
         var masterGame = await MasterGame.findOne({
+<<<<<<< HEAD
+            attributes: ['alpha', 'beta', 't', 'is_warmup'],
+=======
             attributes: ['alpha', 'beta', 'gamma', 't', 
                 'w', 'is_warmup'],
+>>>>>>> 9e777c9713dfe60a1f046b9a34ffdee7c3bd6b4e
             where: {
                 id: g.master_game
             },
@@ -237,6 +256,11 @@ exports.resetPair = async (buyer, seller) => {
     });
     await Game.update({
         price: null,
+<<<<<<< HEAD
+        external_buyers: 0,
+        highest_price: 0,
+=======
+>>>>>>> 9e777c9713dfe60a1f046b9a34ffdee7c3bd6b4e
         buyer_payoff: null,
         seller_payoff: null,
         periods: null,

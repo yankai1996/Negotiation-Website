@@ -86,7 +86,11 @@ exports.getNewGame = async (participantId) => {
             return null;
         }
         masterGame = await MasterGame.findOne({
+<<<<<<< HEAD
+            attributes:['alpha', 'beta', 't', 'is_warmup'],
+=======
             attributes:['alpha', 'beta', 'gamma', 't', 'w', 'is_warmup'],
+>>>>>>> 9e777c9713dfe60a1f046b9a34ffdee7c3bd6b4e
             where: {
                 id: game.master_game
             },
@@ -114,7 +118,13 @@ exports.savePeriod = async (gameId, period) => {
         proposed_at: period.proposed_at,
         accepted:   period.accepted,
         decided_at: period.decided_at,
+<<<<<<< HEAD
+        show_up_external_buyer: period.show_up_external_buyer,
+        external_buyers: period.external_buyers,
+        highest_price: period.highest_price
+=======
         show_up_2nd_buyer: period.show_up_2nd_buyer
+>>>>>>> 9e777c9713dfe60a1f046b9a34ffdee7c3bd6b4e
     });
 }
 
@@ -127,12 +137,18 @@ exports.endGame = async (game, period) => {
     if (period.accepted) {
         buyerPayoff = 12 - period.price - cost;
         sellerPayoff = period.price - cost;
+<<<<<<< HEAD
+    } else {
+        buyerPayoff =  -cost;
+        sellerPayoff = period.highest_price - cost;
+=======
     } else if (game.exists_2nd_buyer) {
         buyerPayoff =  -cost;
         sellerPayoff = 17 - cost;
     } else {
         buyerPayoff =  -cost;
         sellerPayoff = -cost;
+>>>>>>> 9e777c9713dfe60a1f046b9a34ffdee7c3bd6b4e
     }
 
     if (!game.is_warmup) {
@@ -148,6 +164,11 @@ exports.endGame = async (game, period) => {
     
     return Game.update({
         price: period.price,
+<<<<<<< HEAD
+        external_buyers: period.external_buyers,
+        highest_price: period.highest_price,
+=======
+>>>>>>> 9e777c9713dfe60a1f046b9a34ffdee7c3bd6b4e
         buyer_payoff: buyerPayoff,
         seller_payoff: sellerPayoff,
         periods: period.number,
@@ -158,8 +179,14 @@ exports.endGame = async (game, period) => {
     }).then((result) => {
         return {
             price: period.price,
+<<<<<<< HEAD
+            externalBuyers: period.external_buyers,
+            highestPrice: period.highest_price,
+            cost: cost,
+=======
             cost: cost,
             exists2ndBuyer: game.exists_2nd_buyer,
+>>>>>>> 9e777c9713dfe60a1f046b9a34ffdee7c3bd6b4e
             buyerProfit: buyerPayoff,
             sellerProfit: sellerPayoff
         }
@@ -191,7 +218,12 @@ exports.getSummary = async (id) => {
             return {
                 price: g.price,
                 cost: g.cost,
+<<<<<<< HEAD
+                externalBuyers: g.external_buyers,
+                highestPrice: g.highest_price,
+=======
                 exists2ndBuyer: g.exists_2nd_buyer,
+>>>>>>> 9e777c9713dfe60a1f046b9a34ffdee7c3bd6b4e
                 selfProfit: g.buyer_id == id
                     ? g.buyer_payoff
                     : g.seller_payoff,

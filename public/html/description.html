@@ -5,37 +5,17 @@
     <h3>Parameters</h3>
     <table class="params-description">
         <tr>
-<<<<<<< HEAD
           <td>&alpha; = 0.2</td>
           <td>the probability that an external buyer shows in each period</td>
-=======
-          <td>&alpha; = 0.3</td>
-          <td>the probability that the second buyer, if exists, will show up in each period</td>
->>>>>>> 9e777c9713dfe60a1f046b9a34ffdee7c3bd6b4e
         </tr>
         <tr>
           <td>&beta; = 0.6</td>
           <td>the probability that the buyer proposes the price in each period</td>
         </tr>
-<<<<<<< HEAD
-=======
-        <tr>
-          <td>&gamma; = 0.2</td>
-          <td>the probability the second buyer exists</td>
-        </tr>
-        <tr>
->>>>>>> 9e777c9713dfe60a1f046b9a34ffdee7c3bd6b4e
           <td>T = 10</td>
           <td>the maximum number of negotiation periods</td>
         </tr>
         <tr>
-<<<<<<< HEAD
-=======
-          <td>w = 17</td>
-          <td>the price that the second buyer will pay</td>
-        </tr>
-        <tr>
->>>>>>> 9e777c9713dfe60a1f046b9a34ffdee7c3bd6b4e
           <td colspan="2">Reselling price = $12</td>
         </tr>
         <tr>
@@ -50,7 +30,6 @@
         You are buying a unique product that you can resell for <b>$12</b> in the market. The seller cannot access the market. The market will be available for <b>T = 10</b> periods from now. In each period, either you or the seller will propose a price for this product and the other party will decide whether to accept or to reject the price. If the price is accepted, the negotiation ends; otherwise, the negotiation enters the next period. In each period when you negotiate, you will incur a fixed negotiation cost of <b>$0.1</b>. If an agreement is not reached after T = 10 periods, you will have nothing to sell.
     </p>
     <p>
-<<<<<<< HEAD
         There are two uncertainties in this process. First, the party that proposes the price in any period is random. The probability that you will get to propose a price is <b>&beta; = 60%</b> (i.e., 40% chance the seller will get to propose the price). Second, there might be other external buyers who show interest in buying the product. According to experience, the highest price (guaranteed) at which the seller can sell to the external buyers is increasing in the total number of external buyers who show up in the T periods. The relationship is summarized in Table 1. In each period there is a chance of <b>&alpha; = 20%</b> that an external buyer shows up. If the product is not sold to you, the seller will sell it to external buyers at the highest guaranteed price.</b>.
     </p>
     <table class="price">
@@ -94,13 +73,6 @@
     </table>
     <p>
         Your goal is to maximize your profit by deciding what price to offer if you are asked to propose the price, and deciding whether you want to accept the price proposed by the seller.
-=======
-        There are two uncertainties in this process. First, the party that proposes the price in any period is random. The probability that you will get to propose a price is <b>&beta; = 60%</b> (i.e., 40% chance the seller will get to propose the price). Second, there might be another buyer that will offer to buy the product at the price <b>w = $17</b>. If such a buyer exists, then in each period there is a probability of <b>&alpha; = 30%</b> she will show up. If she shows up before you reach an agreement with the seller, she will get the product and your negotiation will end. The probability that another buyer exists is <b>&gamma; = 20%</b>.
-    </p>
-    <p>
-        Your goal is to maximize your profit by deciding what price to offer if you are asked to propose the price, and deciding whether you want to accept the price proposed by the seller.
-
->>>>>>> 9e777c9713dfe60a1f046b9a34ffdee7c3bd6b4e
     </p>
 </div>
 
@@ -110,7 +82,6 @@
         You are selling a unique product to a buyer. If the buyer buys the product, he can resell it for <b>$12</b> in a market, which you cannot access. The market will be available to the buyer only for <b>T = 10</b> periods from now. In each period, either you or the buyer will propose a price for this product and the other party will decide whether to accept or to reject the price. If the price is accepted, the negotiation ends; otherwise, the negotiation enters the next period. In each period when you negotiate, you will incur a fixed negotiation cost of <b>$0.1</b>. If an agreement is not reached after T = 10 periods, this buyer will leave.
     </p>
     <p>
-<<<<<<< HEAD
         There are two uncertainties in this process. First, the party that proposes the price in any period is random. The probability that the buyer will get to propose a price is <b>&beta; = 60%</b> (i.e., 40% chance you will get to propose the price). Second, there might be other external buyers who show interest in buying the product. According to experience, the expected price at which you can sell to the external buyers is increasing in the total number of external buyers who show up in the T periods. The expected price levels are given in Table 1. In each period there is a probability of <b>&alpha; = 20%</b> that an external buyer shows up. If the product is not sold to the first buyer, you will sell it to external buyers at the highest guaranteed price.
     </p>
     <table class="price">
@@ -152,11 +123,90 @@
         <td>10</td><td>20.37</td>
       </tr>
     </table>
-=======
-        There are two uncertainties in this process. First, the party that proposes the price in any period is random. The probability that the buyer will get to propose a price is <b>&beta; = 60%</b> (i.e., 40% chance you will get to propose the price). Second, there might be another buyer that will offer to buy the product at the price <b>w = $17</b>. If such a buyer exists, then in each period there is a probability of <b>&alpha; = 30%</b> she will show up. If the second buyer shows up before you reach an agreement with the first buyer, the second buyer will get the product and your negotiation with the first buyer will end. The second buyer may show up after T = 10 periods. The probability that the second buyer exists is <b>&gamma; = 20%</b>. If the product is not sold to the first buyer and the second buyer does not exist, you have to discard the product.
-    </p>
->>>>>>> 9e777c9713dfe60a1f046b9a34ffdee7c3bd6b4e
     <p>
         Your goal is to maximize your profit by deciding what price to offer if you are asked to propose the price, and deciding whether you want to accept the price proposed by the buyer.
     </p>
+</div>
+
+<div class="problem-description">
+  <p>If there are in total 5 periods, then the highest price from external buyers are given the following table:</p>
+  <table class="price">
+    <tr>
+      <td>Total Number of External buyers in 5 periods</td>
+      <td>Highest Price from External buyers</td>
+    </tr>
+    <tr>
+      <td>0</td><td>5.00</td>
+    </tr>
+    <tr>
+      <td>1</td><td>8.00</td>
+    </tr>
+    <tr>
+      <td>2</td><td>10.26</td>
+    </tr>
+    <tr>
+      <td>3</td><td>12.12</td>
+    </tr>
+    <tr>
+      <td>4</td><td>13.74</td>
+    </tr>
+    <tr>
+      <td>5</td><td>15.22</td>
+    </tr>
+  </table>
+  <p>If there are in total 15 periods, then the highest price from external buyers are given the following table:</p>
+  <table class="price">
+    <tr>
+      <td>Total Number of External buyers in 15 periods</td>
+      <td>Highest Price from External buyers</td>
+    </tr>
+    <tr>
+      <td>0</td><td>0.00</td>
+    </tr>
+    <tr>
+      <td>1</td><td>1.00</td>
+    </tr>
+    <tr>
+      <td>2</td><td>5.00</td>
+    </tr>
+    <tr>
+      <td>3</td><td>8.00</td>
+    </tr>
+    <tr>
+      <td>4</td><td>10.26</td>
+    </tr>
+    <tr>
+      <td>5</td><td>12.12</td>
+    </tr>
+    <tr>
+      <td>6</td><td>13.74</td>
+    </tr>
+    <tr>
+      <td>7</td><td>15.22</td>
+    </tr>
+    <tr>
+      <td>8</td><td>16.59</td>
+    </tr>
+    <tr>
+      <td>9</td><td>17.90</td>
+    </tr>
+    <tr>
+      <td>10</td><td>19.16</td>
+    </tr>
+    <tr>
+      <td>11</td><td>20.37</td>
+    </tr>
+    <tr>
+      <td>12</td><td>21.56</td>
+    </tr>
+    <tr>
+      <td>13</td><td>22.72</td>
+    </tr>
+    <tr>
+      <td>14</td><td>23.87</td>
+    </tr>
+    <tr>
+      <td>15</td><td>24.99</td>
+    </tr>
+  </table>
 </div>

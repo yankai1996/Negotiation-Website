@@ -28,7 +28,7 @@
           <th></th>
           <th>Price</th>
           <th>Cost</th>
-          <th>2nd Buyer</th>
+          <th>External Buyer's Price</th>
           <th>Op's Profit</th>
           <th>Your Profit</th>
         </thead>
@@ -40,12 +40,7 @@
               <td><%= summary.indexOf(s) + 1 %></td>
               <%- checkCell(s.price) %>
               <td><%= s.cost %></td>
-<<<<<<< HEAD
-              <td><%= s.externalBuyers %></td>
               <td><%= s.highestPrice %></td>
-=======
-              <%- checkCell(s.exists2ndBuyer) %>
->>>>>>> 9e777c9713dfe60a1f046b9a34ffdee7c3bd6b4e
               <td><%= s.opponentProfit %></td>
               <td><%= s.selfProfit %></td>
             </tr>

@@ -66,23 +66,9 @@
           <td class="beta"></td>
         </tr>
         <tr>
-<<<<<<< HEAD
           <td>T =</td>
           <td class="t"></td>
         </tr>
-=======
-          <td>&gamma; =</td>
-          <td class="gamma"></td>
-        </tr>
-        <tr>
-          <td>T =</td>
-          <td class="t"></td>
-        </tr>
-        <tr>
-          <td>w =</td>
-          <td class="w"></td>
-        </tr>
->>>>>>> 9e777c9713dfe60a1f046b9a34ffdee7c3bd6b4e
       </table>
       <div class="preparation-time reconnect"></div>
     </div>
@@ -97,17 +83,12 @@
           <td id="price"></td>
         </tr>
         <tr>
-<<<<<<< HEAD
           <td>External Buyers: </td>
           <td id="externalBuyers"></td>
         </tr>
         <tr>
           <td>Highest Price: </td>
           <td id="highestPrice"></td>
-=======
-          <td>2nd Buyer Exists: </td>
-          <td id="exists2ndBuyer"></td>
->>>>>>> 9e777c9713dfe60a1f046b9a34ffdee7c3bd6b4e
         </tr>
         <tr>
           <td>Cost: </td>
@@ -153,33 +134,38 @@
           <td>the probability that the buyer proposes the price in each period</td>
         </tr>
         <tr>
-<<<<<<< HEAD
-=======
-          <td>&gamma; =</td>
-          <td class="gamma"></td>
-          <td>the probability the second buyer exists</td>
-        </tr>
-        <tr>
->>>>>>> 9e777c9713dfe60a1f046b9a34ffdee7c3bd6b4e
           <td>T =</td>
           <td class="t"></td>
           <td>the maximum number of negotiation periods</td>
         </tr>
         <tr>
-<<<<<<< HEAD
-=======
-          <td>w =</td>
-          <td class="w"></td>
-          <td>the price that the second buyer will pay</td>
-        </tr>
-        <tr>
->>>>>>> 9e777c9713dfe60a1f046b9a34ffdee7c3bd6b4e
           <td colspan="3">
             <label>Reselling price = $12</label>
             <label>Negotiation cost = $0.1/period</label>
           </td>
         </tr>
       </table>
+      <% const TABLE = {
+          10: [1.00, 5.00, 8.00, 10.26, 12.12, 13.74,
+              15.22, 16.59, 17.90, 19.16, 20.37],
+          5: [5.00, 8.00, 10.26, 12.12, 13.74, 15.22],
+          15: [0.00, 1.00, 5.00, 8.00, 10.26, 12.12,
+              13.74, 15.22, 16.59, 17.90, 19.16,
+              20.37, 21.56, 22.72, 23.87, 24.99]
+      } %> 
+      <% for (key in TABLE) { %>
+        <table id="table<%= key %>" class="price">
+          <tr>
+            <td>Total Number of External buyers in <%= key %> periods</td>
+            <td>Highest Price from External buyers</td>
+          </tr>
+          <% for (var i = 0; i <= key; i++) { %>
+          <tr>
+            <td><%= i %></td><td><%= TABLE[key][i].toFixed(2) %></td>
+          </tr>
+          <% } %>
+        </table>
+      <% } %>
 
       <div class="line"></div>
 
@@ -202,19 +188,11 @@
 
       <div class="flexbox">
         <div class="panel left">
-<<<<<<< HEAD
           <p>External Buyers: </p>
-          <p id="external-buyers">0</p>
-          <p></p>
+          <p id="external-buyers" class="number">0</p>
           <p>Highest Price:</p>
-          <p id="highest-price">$0.00</p>
-=======
-          <p>2nd Buyer</p>
-          <div class="question-mark"></div>
-          <div id="2nd-buyer" class="img-box hide">
-            <img src="/image/buyer.png"  alt="2nd buyer" />
-          </div>
->>>>>>> 9e777c9713dfe60a1f046b9a34ffdee7c3bd6b4e
+          <p id="highest-price" class="number">$0.00</p>
+          <button id="leave" class="alt">Leave</button>
         </div>
 
         <div class="panel right">
@@ -237,10 +215,6 @@
               <button id="propose" class="alt">Propose</button>
               <button id="accept" class="alt">Accept</button>
               <button id="reject" class="alt">Reject</button>
-<<<<<<< HEAD
-              <button id="leave" class="alt">Leave</button>
-=======
->>>>>>> 9e777c9713dfe60a1f046b9a34ffdee7c3bd6b4e
             </div>
           </div>
 

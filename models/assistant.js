@@ -113,6 +113,7 @@ exports.savePeriod = async (gameId, period) => {
         price:      period.price,
         proposed_at: period.proposed_at,
         accepted:   period.accepted,
+        leave:      period.leave,
         decided_at: period.decided_at,
         show_up_external_buyer: period.show_up_external_buyer,
         external_buyers: period.external_buyers,

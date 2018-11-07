@@ -162,6 +162,10 @@ var Period = sequelize.define('period', {
         type: Sequelize.BOOLEAN,
         allowNull: false
     },
+    leave: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false
+    },
     decided_at: Sequelize.INTEGER(2),
     show_up_external_buyer: {
         type: Sequelize.BOOLEAN,

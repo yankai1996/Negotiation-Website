@@ -200,6 +200,7 @@ Dealer.prototype.nextPeriod = function (initial = false) {
         price: null,
         proposed_at: null,
         accepted: false,
+        leave: false,
         decided_at: null,
         show_up_external_buyer: show_up_external_buyer,
         external_buyers: show_up_external_buyer

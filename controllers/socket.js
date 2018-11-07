@@ -61,6 +61,8 @@ function Dealer(buyer, seller, io) {
     this.keepSendingInterval = null;
     this.buyerReceived = false;
     this.sellerReceived = false;
+
+    this.ending = false;
 }
 
 Dealer.prototype.toBuyer = function (event, data) {
@@ -164,7 +166,10 @@ Dealer.prototype.getReady = function () {
     
 }
 
-Dealer.prototype.syncPeriod = function (period) {
+Dealer.prototype.syncPeriod = function (period, force=false) {
+    if (this.ending && !force) {
+        return false;
+    }
     if (!this.period) {
         this.period = period;
     } else {
@@ -174,6 +179,7 @@ Dealer.prototype.syncPeriod = function (period) {
             }
         }
     }
+    return true;
 }
 
 // enter the next period
@@ -209,7 +215,8 @@ Dealer.prototype.nextPeriod = function (initial = false) {
         highest_price: TABLE[this.game.t][external_buyers]
     }
 
-    this.toBoth(EVENT.NEW_PERIOD, this.period)
+    this.toBoth(EVENT.NEW_PERIOD, this.period);
+    this.ending = false;
     this.ready = false;
     return true;
 }
@@ -223,9 +230,13 @@ Dealer.prototype.propose = function () {
 
 // end one period
 Dealer.prototype.endPeriod = async function () {
+    if (this.ending) {
+        return;
+    }
+    this.ending = true;
     this.toBoth(EVENT.DECISION, this.period);
     await Assistant.savePeriod(this.game.id, this.period);
-    if (this.period.show_up_2nd_buyer || this.period.accepted || !this.nextPeriod()) {
+    if (this.period.leave || this.period.accepted || !this.nextPeriod()) {
         this.endGame();
     }
 }
@@ -342,7 +353,7 @@ exports.listen = (server) => {
             } else if (data.inGame) {
                 socket.join(id);
                 dealer.game = dealer.game || data.game;
-                dealer.syncPeriod(data.period);
+                dealer.syncPeriod(data.period, true);
             }
 
             // notified that the participant is ready to start the game
@@ -358,16 +369,16 @@ exports.listen = (server) => {
                 if (isNaN(price) || price <= 0 || price > 12) {
                     return;
                 }
-                dealer.syncPeriod(period);
-                dealer.propose();
+                if (dealer.syncPeriod(period)) {
+                    dealer.propose();
+                }
             });
 
 
             // received when decision is made or time is out
             socket.on(EVENT.END_PERIOD, (period, repsond) => {
                 repsond(true);
-                dealer.syncPeriod(period);
-                if (dealer.bothReady()) {
+                if (dealer.syncPeriod(period) && dealer.bothReady()) {
                     dealer.endPeriod();
                 }
             });

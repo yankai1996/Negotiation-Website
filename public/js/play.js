@@ -80,6 +80,10 @@ var $accept = $("button#accept")
   , $reject = $("button#reject")
   , $result = $("#result")
   , $role = $(".role")
+  , $tables = $("table.price")
+  , $table5 = $("table#table5")
+  , $table10 = $("table#table10")
+  , $table15 = $("table#table15")
   , $timeBar = $("td .time-bar")
   , $timeClock = $(".clock")
   , $timer = $(".timer")
@@ -431,13 +435,17 @@ socket.on(EVENT.NEW_GAME, (data) => {
 
 	$gamesLeft.html(data.gamesLeft);
 	$role.html(data.role);
+	
+	if (data.role == 'seller') {
+		$leave.show()
+	} else {
+		$leave.hide()
+	}
 
 	const defaultParams = {
-		alpha: 0.3,
+		alpha: 0.2,
 		beta: 0.6,
-		gamma: 0.2,
-		t: 10,
-		w: 17
+		t: 10
 	};
 
 	var game = data.game;
@@ -449,6 +457,15 @@ socket.on(EVENT.NEW_GAME, (data) => {
 		} else {
 			$param.parent().removeClass(CLASS.HIGHLIGHT);
 		}
+	}
+
+	$tables.hide()
+	if (game.t == 10) {
+		$table10.show()
+	} else if (game.t == 5) {
+		$table5.show()
+	} else {
+		$table15.show()
 	}
 
 	$progressLabel.html("0/" + game.t);
@@ -596,7 +613,6 @@ $ready.click((event) => {
 		gOpponentLost = false;
 	} else {
 		// finish the warm-up
-
 		$("#game").hide();
 		$("#welcome-page").show();
 		$("#welcome").hide();

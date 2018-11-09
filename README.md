@@ -44,3 +44,9 @@ The following functions have been implemented:
 * in each period, have 60s to propose a price and another 60s to decide to accept/reject the proposal
 * view outcome after each game
 * view summary at the end of the experiment
+
+## Installation
+
+* Run `npm install`
+* Open `config.js`, customize the variables you need
+

@@ -86,7 +86,7 @@ exports.getNewGame = async (participantId) => {
             return null;
         }
         masterGame = await MasterGame.findOne({
-            attributes:['alpha', 'beta', 't', 'is_warmup'],
+            attributes:['alpha', 'beta', 'gamma', 't', 'w', 'is_warmup'],
             where: {
                 id: game.master_game
             },
@@ -113,11 +113,8 @@ exports.savePeriod = async (gameId, period) => {
         price:      period.price,
         proposed_at: period.proposed_at,
         accepted:   period.accepted,
-        leave:      period.leave,
         decided_at: period.decided_at,
-        show_up_external_buyer: period.show_up_external_buyer,
-        external_buyers: period.external_buyers,
-        highest_price: period.highest_price
+        show_up_2nd_buyer: period.show_up_2nd_buyer
     });
 }
 
@@ -130,9 +127,12 @@ exports.endGame = async (game, period) => {
     if (period.accepted) {
         buyerPayoff = 12 - period.price - cost;
         sellerPayoff = period.price - cost;
+    } else if (game.exists_2nd_buyer) {
+        buyerPayoff =  -cost;
+        sellerPayoff = 17 - cost;
     } else {
         buyerPayoff =  -cost;
-        sellerPayoff = period.highest_price - cost;
+        sellerPayoff = -cost;
     }
 
     if (!game.is_warmup) {
@@ -148,8 +148,6 @@ exports.endGame = async (game, period) => {
     
     return Game.update({
         price: period.price,
-        external_buyers: period.external_buyers,
-        highest_price: period.highest_price,
         buyer_payoff: buyerPayoff,
         seller_payoff: sellerPayoff,
         periods: period.number,
@@ -160,9 +158,8 @@ exports.endGame = async (game, period) => {
     }).then((result) => {
         return {
             price: period.price,
-            externalBuyers: period.external_buyers,
-            highestPrice: period.highest_price,
             cost: cost,
+            exists2ndBuyer: game.exists_2nd_buyer,
             buyerProfit: buyerPayoff,
             sellerProfit: sellerPayoff
         }
@@ -194,7 +191,7 @@ exports.getSummary = async (id) => {
             return {
                 price: g.price,
                 cost: g.cost,
-                highestPrice: g.highest_price,
+                exists2ndBuyer: g.exists_2nd_buyer,
                 selfProfit: g.buyer_id == id
                     ? g.buyer_payoff
                     : g.seller_payoff,

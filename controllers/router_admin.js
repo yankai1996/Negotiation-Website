@@ -77,7 +77,7 @@ const checkParams = (req, res, next) => {
             res.send("Input " + i + " is NaN!");
             return;
         } 
-        if (i == 'alpha' || i == 'beta') {
+        if (i == 'alpha' || i == 'beta' || i == 'gamma') {
             if (params[i] < 0 || params[i] > 1) {
                 res.send("Input " + i + " should be 0 ~ 1.");
                 return;
@@ -87,7 +87,12 @@ const checkParams = (req, res, next) => {
                 res.send("Input T should be 1 ~ 99.");
                 return;
             }
-        }
+        } else if (i == 'w') {
+            if (params.w < 0 || params.w >= 10000) {
+                res.send("Input T should be 0 ~ 9999.");
+                return;
+            }
+        } 
     }
     // req.param is a built-in function
     req.gameParams = params;

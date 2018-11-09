@@ -1,11 +1,10 @@
 // custom your MySQL config here
 var dbConfig = {
-    database: 'ra_website_v2',
+    database: 'ra_website_v1',
     username: 'root',
     password: 'admin@0225',
     host: 'localhost',
-    port: 3306,
-    init: false
+    port: 3306
 };
 
 // custom your admin username and password here

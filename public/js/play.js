@@ -25,7 +25,7 @@ const INFO = {
 	ACCEPTED: "Proposal Accpeted!",
 	NONE: "No Agreement!",
 	REJECTED: "Proposal Rejected!",
-	LEAVE: "Deal with External Buyer!",
+	SECOND: "2nd Buyer Offered!",
 	WAIT: 'Waiting for proposal...'
 }
 const CLASS = {
@@ -38,7 +38,7 @@ const CLASS = {
 	PROPOSAL: 'proposal',
 	RED: 'red',
 	REJECTED: 'rejected',
-	LEAVE: 'leave',
+	SECOND: 'second',
 	WAIT: 'wait',
 }
 
@@ -62,9 +62,6 @@ var $accept = $("button#accept")
   , $input = $(".input-box input")
   , $game = $("#game")
   , $gamesLeft = $("#games-left")
-  , $labelExternal = $("#external-buyers-label")
-  , $labelHighest = $("#highest-price-label")
-  , $leave = $("button#leave")
   , $loader = $(".loader")
   , $operation = $(".operation")
   , $operationButtons = $(".button-box button")
@@ -74,16 +71,14 @@ var $accept = $("button#accept")
   , $progressLabel = $("#progress-label")
   , $proposal = $(".proposal")
   , $propose = $("button#propose")
+  , $questionMark = $(".question-mark")
   , $quit = $("#quit")
   , $ready = $(".ready")
   , $reconnect = $(".reconnect")
   , $reject = $("button#reject")
   , $result = $("#result")
   , $role = $(".role")
-  , $tables = $("table.price")
-  , $table5 = $("table#table5")
-  , $table10 = $("table#table10")
-  , $table15 = $("table#table15")
+  , $secondBuyer = $("#2nd-buyer")
   , $timeBar = $("td .time-bar")
   , $timeClock = $(".clock")
   , $timer = $(".timer")
@@ -261,18 +256,6 @@ const dealer = new function() {
 		$proposal.show();
 	}
 
-	this.setExternalBuyers = (period) => {
-		if (!period) {
-			$labelExternal.html('0');
-			$labelHighest.html('$0.00');
-			return
-		} 
-		if (period.show_up_external_buyer) {
-			$labelExternal.html(period.external_buyers);
-			$labelHighest.html('$' + highest_price.toFixed(2))
-		}
-	}
-
 	this.syncPeriod = (period) => {
 		this.period = period;
 	}
@@ -302,9 +285,16 @@ const dealer = new function() {
 
 		timer.reset();
 
-		this.setExternalBuyers(this.period);
+		if (!this.period.show_up_2nd_buyer) {
+			$questionMark.append('?').show();
+		} else {
+			$questionMark.html('').hide();
+		}
 
-		if (this.period.proposer_id == ID) {
+		if (this.period.show_up_2nd_buyer) {
+			this.endPeriod();
+			return;
+		} else if (this.period.proposer_id == ID) {
 			$input.val('').show();
 			enableButton($propose, btnListenr.propose);
 		} else {
@@ -348,8 +338,9 @@ const dealer = new function() {
 		this.period = period;
 		timer.stop();
 		disableButton($operationButtons);
-		if (this.period.leave) {
-			showProposal('LEAVE');
+		if (this.period.show_up_2nd_buyer) {
+			showProposal('SECOND');
+			$secondBuyer.show();
 		} else if (this.period.accepted) {
 			showProposal('ACCEPTED');
 		} else if (this.period.decided_at) {
@@ -431,21 +422,19 @@ socket.on(EVENT.NEW_GAME, (data) => {
 
 	$waiting.hide();
 
+	$secondBuyer.hide();
 	$operation.hide();
+	$questionMark.html("");
 
 	$gamesLeft.html(data.gamesLeft);
 	$role.html(data.role);
-	
-	if (data.role == 'seller') {
-		$leave.show()
-	} else {
-		$leave.hide()
-	}
 
 	const defaultParams = {
-		alpha: 0.2,
+		alpha: 0.3,
 		beta: 0.6,
-		t: 10
+		gamma: 0.2,
+		t: 10,
+		w: 17
 	};
 
 	var game = data.game;
@@ -459,22 +448,12 @@ socket.on(EVENT.NEW_GAME, (data) => {
 		}
 	}
 
-	$tables.hide()
-	if (game.t == 10) {
-		$table10.show()
-	} else if (game.t == 5) {
-		$table5.show()
-	} else {
-		$table15.show()
-	}
-
 	$progressLabel.html("0/" + game.t);
 	$progressRow.children().slice(2).detach();
 	for (let i = 0; i < game.t; i++) {
 		$progressRow.append("<td><div></div></td>");
 	}
 
-	dealer.setExternalBuyers();
 });
 
 socket.on(EVENT.NEW_PERIOD, (period) => {
@@ -499,7 +478,13 @@ socket.on(EVENT.RESULT, (result) => {
 	for (let i in result) {
 		let $cell = $("#" + i);
 		$cell.removeClass();
-		if (result[i] == null) {
+		if (i == "exists2ndBuyer" && result[i]) {
+			$cell.html("&#10004");
+			$cell.addClass(CLASS.GREEN);
+		} else if (i == "exists2ndBuyer" && !result[i]) {
+			$cell.html("&#10007");
+			$cell.addClass(CLASS.RED);
+		} else if (result[i] == null) {
 			$cell.html("&#10007");
 			$cell.addClass(CLASS.RED);
 		} else if (result[i] < 0) {
@@ -613,6 +598,7 @@ $ready.click((event) => {
 		gOpponentLost = false;
 	} else {
 		// finish the warm-up
+
 		$("#game").hide();
 		$("#welcome-page").show();
 		$("#welcome").hide();
@@ -662,9 +648,6 @@ $(window).bind('beforeunload', function() {
 });
 
 $description.load("/html/description.html");
-
-$boxes.hide()
-$game.show()
 
 // // for test
 // $reconnect.click(() => {

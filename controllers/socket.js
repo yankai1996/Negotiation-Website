@@ -24,16 +24,6 @@ const EVENT = {
     WAIT: 'wait opponent',
 }
 
-const TABLE = {
-    10: [1.00, 5.00, 8.00, 10.26, 12.12, 13.74,
-        15.22, 16.59, 17.90, 19.16, 20.37],
-    5: [5.00, 8.00, 10.26, 12.12, 13.74, 15.22],
-    15: [0.00, 1.00, 5.00, 8.00, 10.26, 12.12,
-        13.74, 15.22, 16.59, 17.90, 19.16,
-        20.37, 21.56, 22.72, 23.87, 24.99]
-}
-
-
 function Supervisor(io) {
     this.io = io;
 }
@@ -61,8 +51,6 @@ function Dealer(buyer, seller, io) {
     this.keepSendingInterval = null;
     this.buyerReceived = false;
     this.sellerReceived = false;
-
-    this.ending = false;
 }
 
 Dealer.prototype.toBuyer = function (event, data) {
@@ -166,10 +154,7 @@ Dealer.prototype.getReady = function () {
     
 }
 
-Dealer.prototype.syncPeriod = function (period, force=false) {
-    if (this.ending && !force) {
-        return false;
-    }
+Dealer.prototype.syncPeriod = function (period) {
     if (!this.period) {
         this.period = period;
     } else {
@@ -179,7 +164,6 @@ Dealer.prototype.syncPeriod = function (period, force=false) {
             }
         }
     }
-    return true;
 }
 
 // enter the next period
@@ -189,12 +173,11 @@ Dealer.prototype.nextPeriod = function (initial = false) {
         return false;
     }
 
-    var proposerId = Math.random() < this.game.beta
+    var random = Math.random();
+    var proposerId = random < this.game.beta
         ? this.game.buyer_id 
         : this.game.seller_id;
-    var show_up_external_buyer = Math.random() < this.game.alpha;
-    var external_buyers = initial ? 0 : this.period.external_buyers;
-    
+
     this.period = {
         number: initial 
             ? 1
@@ -206,17 +189,11 @@ Dealer.prototype.nextPeriod = function (initial = false) {
         price: null,
         proposed_at: null,
         accepted: false,
-        leave: false,
         decided_at: null,
-        show_up_external_buyer: show_up_external_buyer,
-        external_buyers: show_up_external_buyer
-            ? external_buyers + 1
-            : external_buyers,
-        highest_price: TABLE[this.game.t][external_buyers]
+        show_up_2nd_buyer: this.game.exists_2nd_buyer && Math.random() < this.game.alpha
     }
 
-    this.toBoth(EVENT.NEW_PERIOD, this.period);
-    this.ending = false;
+    this.toBoth(EVENT.NEW_PERIOD, this.period)
     this.ready = false;
     return true;
 }
@@ -230,13 +207,9 @@ Dealer.prototype.propose = function () {
 
 // end one period
 Dealer.prototype.endPeriod = async function () {
-    if (this.ending) {
-        return;
-    }
-    this.ending = true;
     this.toBoth(EVENT.DECISION, this.period);
     await Assistant.savePeriod(this.game.id, this.period);
-    if (this.period.leave || this.period.accepted || !this.nextPeriod()) {
+    if (this.period.show_up_2nd_buyer || this.period.accepted || !this.nextPeriod()) {
         this.endGame();
     }
 }
@@ -253,16 +226,14 @@ Dealer.prototype.endGame = async function () {
         }
         this.toBuyer(EVENT.RESULT, {
             price: result.price,
-            externalBuyers: result.externalBuyers,
-            highestPrice: result.highestPrice,
+            exists2ndBuyer: result.exists2ndBuyer,
             cost: result.cost,
             selfProfit: result.buyerProfit,
             opponentProfit: result.sellerProfit
         });
         this.toSeller(EVENT.RESULT, {
             price: result.price,
-            externalBuyers: result.externalBuyers,
-            highestPrice: result.highestPrice,
+            exists2ndBuyer: result.exists2ndBuyer,
             cost: result.cost,
             selfProfit: result.sellerProfit,
             opponentProfit: result.buyerProfit
@@ -353,7 +324,7 @@ exports.listen = (server) => {
             } else if (data.inGame) {
                 socket.join(id);
                 dealer.game = dealer.game || data.game;
-                dealer.syncPeriod(data.period, true);
+                dealer.syncPeriod(data.period);
             }
 
             // notified that the participant is ready to start the game
@@ -369,16 +340,16 @@ exports.listen = (server) => {
                 if (isNaN(price) || price <= 0 || price > 12) {
                     return;
                 }
-                if (dealer.syncPeriod(period)) {
-                    dealer.propose();
-                }
+                dealer.syncPeriod(period);
+                dealer.propose();
             });
 
 
             // received when decision is made or time is out
             socket.on(EVENT.END_PERIOD, (period, repsond) => {
                 repsond(true);
-                if (dealer.syncPeriod(period) && dealer.bothReady()) {
+                dealer.syncPeriod(period);
+                if (dealer.bothReady()) {
                     dealer.endPeriod();
                 }
             });

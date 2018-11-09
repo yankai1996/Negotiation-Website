@@ -132,12 +132,14 @@ const gameManager = new function() {
 		var params = {
 			alpha: parseFloat($('.param#alpha').val()),
 			beta : parseFloat($('.param#beta') .val()),
-			t 	 : parseInt  ($('.param#t')	.val())
+			gamma: parseFloat($('.param#gamma').val()),
+			t 	 : parseInt  ($('.param#t')	.val()),
+			w	 : parseFloat($('.param#w')	.val())
 		};
 
 		// check if invalid number
 		for (var i in params) {
-			if (i == 'alpha' || i == 'beta') {
+			if (i == 'alpha' || i == 'beta' || i == 'gamma') {
 				if (params[i] < 0 || params[i] > 1) {
 					alert(i + " must be between 0-1!");
 					$('#'+i).val('');
@@ -171,7 +173,9 @@ const gameManager = new function() {
 				"<tr id='" + g.id + "'>" +
 					"<td class='alpha'>" + g.alpha + "</td>" +
 					"<td class='beta'>"  + g.beta  + "</td>" +
+					"<td class='gamma'>" + g.gamma + "</td>" +
 					"<td class='t'>" 	 + g.t 	   + "</td>" +
+					"<td class='w'>" 	 + g.w 	   + "</td>" +
 					"<td class='no-wrap'>" + 
 						(g.is_warmup ? "Warm-Up" : "") +
 						"<div class='delete'>Delete</div>" + 
@@ -207,7 +211,12 @@ const pairManager = new function() {
 				"<tr id='" + g.id + "'>" +
 					"<td>" + g.alpha + "</td>" +
 					"<td>" + g.beta + "</td>" +
+					"<td>" + g.gamma + "</td>" +
 					"<td>" + g.t + "</td>" +
+					"<td>" + g.w + "</td>" +
+					"<td>" + 
+						(g.exists_2nd_buyer ? "Yes" : "No") + 
+					"</td>" +
 					"<td>" +
 						(g.is_warmup ? "Warm-Up" : "") +
 					"</td>" +

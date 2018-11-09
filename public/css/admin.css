@@ -226,8 +226,7 @@ table.pair {
 
 table.pair td, table.pair th {
     display: table-cell;
-    padding: 8px 30px;
-    width: 30px;
+    padding: 8px 10px;
     font-weight: 300;
     text-align: left;
     vertical-align: middle;

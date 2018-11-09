@@ -51,7 +51,9 @@ exports.addMasterGame = async (params) => {
         id:     masterGameId,
         alpha:  params.alpha,
         beta:   params.beta,
+        gamma:  params.gamma,
         t:      params.t,
+        w:      params.w,
         is_warmup: noWarmup
     }).then((result) => {
         return result.get({plain: true});
@@ -67,6 +69,7 @@ const assignMasterGameToAll = async (master) => {
             master_game: master.id,
             buyer_id: pairs[i].buyer,
             seller_id: pairs[i].seller,
+            exists_2nd_buyer: !master.is_warmup && Math.random() < master.gamma
         });
     }
 }
@@ -102,7 +105,8 @@ const assignMasterGamesToPair = async (masterGames, buyer, seller) => {
             id: generateGameId(i),
             master_game: master.id,
             buyer_id: buyer,
-            seller_id: seller
+            seller_id: seller,
+            exists_2nd_buyer: !master.is_warmup && Math.random() < master.gamma
         });
     }
 }
@@ -168,7 +172,8 @@ exports.getPairs = getPairs;
 // get games by one participant id
 exports.getGamesByParticipant = async (id) => {
     var games = await Game.findAll({
-        attributes: ['id', 'buyer_id', 'seller_id', 'master_game', 'is_done'], 
+        attributes: ['id', 'buyer_id', 'seller_id', 
+            'master_game', 'exists_2nd_buyer', 'is_done'], 
         where: {
             $or: [{buyer_id: id},
                 {seller_id: id}]
@@ -178,7 +183,8 @@ exports.getGamesByParticipant = async (id) => {
     for (var i = 0; i < games.length; i++) {
         var g = games[i];
         var masterGame = await MasterGame.findOne({
-            attributes: ['alpha', 'beta', 't', 'is_warmup'],
+            attributes: ['alpha', 'beta', 'gamma', 't', 
+                'w', 'is_warmup'],
             where: {
                 id: g.master_game
             },
@@ -231,8 +237,6 @@ exports.resetPair = async (buyer, seller) => {
     });
     await Game.update({
         price: null,
-        external_buyers: 0,
-        highest_price: 0,
         buyer_payoff: null,
         seller_payoff: null,
         periods: null,

@@ -333,13 +333,23 @@ table.progress td>div.done {
     width: 100%;
 }
 
-p.number {
-    margin-bottom: 31px;
-    line-height: 10px;
+.question-mark {
+    width: 100px;
+    margin: auto;
+    word-wrap: break-word;
+    color: #ccc;
+    font-size: 30px;
     font-family: 'Times New Roman', Times, serif;
-    font-size: 24px;
-    /* font-weight: bold; */
-    color: #888;
+    letter-spacing: 5px;
+}
+
+.img-box {
+    width: 80%;
+    margin: auto;
+}
+
+.img-box img {
+    width: 100%;
 }
 
 /* Timer */
@@ -438,7 +448,7 @@ table.timer.red .time-bar-container {
     box-shadow: 0 0 5px 1px #159287;
 }
 
-.proposal.leave {
+.proposal.second {
     color: #f80;
     box-shadow: 0 0 5px 1px #f80;
 }
@@ -487,13 +497,6 @@ button.disable {
 
 button.disable:hover {
     background: #f4f4f4;
-}
-
-button.alt#leave {
-    width: 90%;
-    margin-left: 0;
-    margin-top: auto;
-    margin-bottom: 0;
 }
 
 .help {
@@ -580,17 +583,4 @@ table td.green {
 
 table td.red {
     color: #d00
-}
-
-table.price {
-    margin: 20px auto;
-    border: solid 1px #000;
-    border-collapse: collapse;
-}
-
-table.price th, table.price td {
-    width: 180px;
-    padding: 3px;
-    border: solid 1px #000;
-    text-align: center;
 }

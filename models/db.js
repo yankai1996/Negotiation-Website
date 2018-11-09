@@ -67,8 +67,16 @@ var MasterGame = sequelize.define('master_game', {
         type: Sequelize.FLOAT(3,2),
         allowNull: false,
     },
+    gamma: {
+        type: Sequelize.FLOAT(3,2),
+        allowNull: false
+    },
     t: {
         type: Sequelize.INTEGER(2),
+        allowNull: false
+    },
+    w: {
+        type: Sequelize.FLOAT(6,2),
         allowNull: false
     },
     is_warmup: {
@@ -112,9 +120,11 @@ var Game = sequelize.define('game', {
         },
         allowNull: false
     },
+    exists_2nd_buyer: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false
+    },
     price: Sequelize.FLOAT(6,2),
-    external_buyers: Sequelize.INTEGER(2),
-    highest_price: Sequelize.FLOAT(4,2),
     buyer_payoff: Sequelize.FLOAT(6,2),
     seller_payoff: Sequelize.FLOAT(6,2),
     periods: Sequelize.INTEGER(2),
@@ -162,24 +172,10 @@ var Period = sequelize.define('period', {
         type: Sequelize.BOOLEAN,
         allowNull: false
     },
-    leave: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false
-    },
     decided_at: Sequelize.INTEGER(2),
-    show_up_external_buyer: {
+    show_up_2nd_buyer: {
         type: Sequelize.BOOLEAN,
         allowNull: false
-    },
-    external_buyers: {
-        type: Sequelize.INTEGER(2),
-        allowNull: false,
-        defaultValue: 0
-    },
-    highest_price: {
-        type: Sequelize.FLOAT(4,2),
-        allowNull: false,
-        defaultValue: 0
     }
 }, {
     timestamps: false,
@@ -196,10 +192,7 @@ const init = async () => {
         Status.create();
     }
 }
-
-if (config.init) {
-    init();
-}
+// init();
 
 exports.MasterGame = MasterGame;
 exports.Game = Game;

@@ -192,7 +192,9 @@ const init = async () => {
         Status.create();
     }
 }
-// init();
+if (config.init) {
+    init();
+}
 
 exports.MasterGame = MasterGame;
 exports.Game = Game;

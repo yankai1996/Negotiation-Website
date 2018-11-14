@@ -253,14 +253,6 @@ table tr.highlight {
     color: #159287;
 }
 
-table.params tr:last-child td {
-    height: 40px;
-    vertical-align: bottom;
-}
-
-table.params tr:last-child td label {
-    margin-right: 30px;
-}
 
 table.params-description {
     font-family: "Roboto", sans-serif;

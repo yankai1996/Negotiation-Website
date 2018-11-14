@@ -2,6 +2,7 @@ const express = require('express');
 const getRouter = express.Router();
 const auth = require('./auth');
 const Assistant = require('../models/assistant');
+const basePayment = require('../config').basePayment;
 
 const getStatus = async (req, res, next) => {
     var id = auth.getParticipantID(req.cookies);
@@ -45,7 +46,8 @@ const complete = async (req, res) => {
         var summary = await Assistant.getSummary(id);
         res.render('play_complete', {
             participantID: id,
-            summary: summary
+            summary: summary,
+            basePayment: basePayment
         })
     }
 }

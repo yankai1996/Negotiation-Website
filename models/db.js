@@ -38,7 +38,7 @@ var Participant = sequelize.define('participant', {
     role: Sequelize.STRING(6),
     payoff: {
         type: Sequelize.FLOAT(5,2),
-        defaultValue: 40
+        allowNull: false
     }, 
     opponent: {
         type: Sequelize.STRING(4),

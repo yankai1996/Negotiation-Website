@@ -3,6 +3,7 @@ const Assistant = require('../models/assistant');
 const Instructor = require('../models/instructor');
 const auth = require('./auth');
 const defaultParams = require('../config').defaultParams;
+const resellingPrice = require('../config').money.resellingPrice;
 
 const COMMAND = {
     AUTH: "cmd auth",
@@ -275,7 +276,7 @@ exports.listen = (server) => {
 
         // initialization triggered once login
         socket.emit(COMMAND.AUTH, defaultParams, async (data) => {
-            console.log(defaultParams);
+            // console.log(defaultParams);
             if (!data && auth.isInstructor(socket.request.headers.cookie)) {
                 initInstructor();
                 return;
@@ -338,7 +339,7 @@ exports.listen = (server) => {
             // received the proposal from the proposer
             socket.on(EVENT.PROPOSE, (period) => {
                 var price = period.price;
-                if (isNaN(price) || price <= 0 || price > 12) {
+                if (isNaN(price) || price <= 0 || price > resellingPrice) {
                     return;
                 }
                 dealer.syncPeriod(period);

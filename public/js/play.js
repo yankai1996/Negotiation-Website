@@ -563,7 +563,7 @@ var btnListenr = {}
 btnListenr.propose = () => {
 	ensureConnection();
 	var price = +parseFloat($input.val()).toFixed(2);
-	if (isNaN(price) || price <= 0 || price > 12) {
+	if (isNaN(price) || price <= 0 || price > parseInt($('#reselling-price').html())) {
 		$input.animate({
 			color: '#f88',
 		}, 300).animate({

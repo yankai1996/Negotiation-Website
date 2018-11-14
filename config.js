@@ -29,10 +29,14 @@ const defaultParams = {
 }
 
 // the base payment
-const basePayment = 40;
+const money = {
+    basePayment: 40,
+    periodCost: 0.1,
+    resellingPrice: 12
+};
 
 exports.dbConfig = dbConfig;
 exports.adminConfig = adminConfig;
 exports.serverConfig = serverConfig;
 exports.defaultParams = defaultParams;
-exports.basePayment = basePayment;
+exports.money = money;

@@ -1,6 +1,6 @@
 const excel = require('excel4node');
 const db = require('./db');
-const basePayment = require('../config').basePayment;
+const basePayment = require('../config').money.basePayment;
 const MasterGame = db.MasterGame;
 const Game = db.Game;
 const Participant = db.Participant;

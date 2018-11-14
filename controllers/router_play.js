@@ -2,7 +2,7 @@ const express = require('express');
 const getRouter = express.Router();
 const auth = require('./auth');
 const Assistant = require('../models/assistant');
-const basePayment = require('../config').basePayment;
+const basePayment = require('../config').money.basePayment;
 
 const getStatus = async (req, res, next) => {
     var id = auth.getParticipantID(req.cookies);

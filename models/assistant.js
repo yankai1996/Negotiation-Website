@@ -4,6 +4,9 @@ const Game = db.Game;
 const Participant = db.Participant;
 const Period = db.Period;
 const Status = db.Status;
+const money = require('../config').money;
+const periodCost = money.periodCost;
+const resellingPrice = money.resellingPrice;
 
 
 exports.getOpponent = (id) => {
@@ -122,14 +125,14 @@ exports.savePeriod = async (gameId, period) => {
 exports.endGame = async (game, period) => {
 
     var buyerPayoff, sellerPayoff;
-    var cost = +(0.1 * period.number).toFixed(2);
+    var cost = +(periodCost * period.number).toFixed(2);
 
     if (period.accepted) {
-        buyerPayoff = 12 - period.price - cost;
+        buyerPayoff = resellingPrice - period.price - cost;
         sellerPayoff = period.price - cost;
     } else if (game.exists_2nd_buyer) {
         buyerPayoff =  -cost;
-        sellerPayoff = 17 - cost;
+        sellerPayoff = game.w - cost;
     } else {
         buyerPayoff =  -cost;
         sellerPayoff = -cost;

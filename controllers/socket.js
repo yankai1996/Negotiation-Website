@@ -2,6 +2,7 @@ const socketio = require('socket.io');
 const Assistant = require('../models/assistant');
 const Instructor = require('../models/instructor');
 const auth = require('./auth');
+const defaultParams = require('../config').defaultParams;
 
 const COMMAND = {
     AUTH: "cmd auth",
@@ -273,8 +274,8 @@ exports.listen = (server) => {
     const initSocket = (socket) => {
 
         // initialization triggered once login
-        socket.emit(COMMAND.AUTH, 'What is your ID?', async (data) => {
-            // console.log(data);
+        socket.emit(COMMAND.AUTH, defaultParams, async (data) => {
+            console.log(defaultParams);
             if (!data && auth.isInstructor(socket.request.headers.cookie)) {
                 initInstructor();
                 return;

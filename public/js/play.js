@@ -89,10 +89,11 @@ var $accept = $("button#accept")
   ,	$warmup = $("#warm-up")
   ;
 
+var DEFAULT_PARAMS;
 
 const socket = io.connect();
-socket.on(COMMAND.AUTH, (data, respond) => {
-	console.log(data);
+socket.on(COMMAND.AUTH, (defaultParams, respond) => {
+	DEFAULT_PARAMS = DEFAULT_PARAMS || defaultParams;
 	var info = {
 		id: ID,
 		waiting: gWaitingOpponent,
@@ -430,13 +431,9 @@ socket.on(EVENT.NEW_GAME, (data) => {
 	$gamesLeft.html(data.gamesLeft);
 	$role.html(data.role);
 
-	const defaultParams = {
-		alpha: 0.3,
-		beta: 0.6,
-		gamma: 0.2,
-		t: 10,
-		w: 17
-	};
+	const defaultParams = DEFAULT_PARAMS;
+	console.log(defaultParams)
+	console.log(DEFAULT_PARAMS)
 
 	var game = data.game;
 	for (let i in defaultParams) {

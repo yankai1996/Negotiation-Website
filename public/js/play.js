@@ -65,6 +65,7 @@ var $accept = $("button#accept")
   , $loader = $(".loader")
   , $operation = $(".operation")
   , $operationButtons = $(".button-box button")
+  , $paramsTable = $("params-table")
   , $preparation = $("#preparation")
   , $preparationTime = $(".preparation-time")
   , $progressRow = $("#progress-row")
@@ -647,7 +648,6 @@ $(window).bind('beforeunload', function() {
 	}
 });
 
-$description.load("/html/description.html");
 
 // // for test
 // $reconnect.click(() => {

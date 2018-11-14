@@ -126,39 +126,7 @@
       </h1>
     </div>
     <div class="content">
-      <table class="params">
-        <tr>
-          <td>&alpha; =</td>
-          <td class="alpha"></td>
-          <td>the probability that the second buyer, if exists, will show up in each period</td>
-        </tr>
-        <tr>
-          <td>&beta; =</td>
-          <td class="beta"></td>
-          <td>the probability that the buyer proposes the price in each period</td>
-        </tr>
-        <tr>
-          <td>&gamma; =</td>
-          <td class="gamma"></td>
-          <td>the probability the second buyer exists</td>
-        </tr>
-        <tr>
-          <td>T =</td>
-          <td class="t"></td>
-          <td>the maximum number of negotiation periods</td>
-        </tr>
-        <tr>
-          <td>w =</td>
-          <td class="w"></td>
-          <td>the price that the second buyer will pay</td>
-        </tr>
-        <tr>
-          <td colspan="3">
-            <label>Reselling price = $12</label>
-            <label>Negotiation cost = $0.1/period</label>
-          </td>
-        </tr>
-      </table>
+      <div id="params-table"></div>
 
       <div class="line"></div>
 
@@ -219,6 +187,10 @@
   </div>
 
 
+  <script type="text/javascript">
+    $("#params-table").load("/html/description.html #params");
+    $("#description").load("/html/description.html");
+  </script>
   <script type="text/javascript" src="/js/play.js"></script>
   <script type="text/javascript">
     var status = <%= flag %>;

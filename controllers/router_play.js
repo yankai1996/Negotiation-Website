@@ -2,7 +2,8 @@ const express = require('express');
 const getRouter = express.Router();
 const auth = require('./auth');
 const Assistant = require('../models/assistant');
-const basePayment = require('../config').money.basePayment;
+const defaultParams = require('../config').defaultParams;
+const money = require('../config').money;
 
 const getStatus = async (req, res, next) => {
     var id = auth.getParticipantID(req.cookies);
@@ -37,6 +38,17 @@ getRouter.get('/play', checkPaused);
 getRouter.get('/play', renderPlay);
 
 
+const renderDescription = (req, res) => {
+    res.render('description', {
+        defaultParams: defaultParams,
+        money: money
+    });
+}
+
+getRouter.get('/play/description', auth.checkAuthParticipant);
+getRouter.get('/play/description', renderDescription);
+
+
 const complete = async (req, res) => {
     var id = auth.getParticipantID(req.cookies);
     var existUnfinished = await Assistant.existUnfinishedGames(id);
@@ -47,7 +59,7 @@ const complete = async (req, res) => {
         res.render('play_complete', {
             participantID: id,
             summary: summary,
-            basePayment: basePayment
+            basePayment: money.basePayment
         })
     }
 }

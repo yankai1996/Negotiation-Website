@@ -65,7 +65,6 @@ var $accept = $("button#accept")
   , $loader = $(".loader")
   , $operation = $(".operation")
   , $operationButtons = $(".button-box button")
-  , $paramsTable = $("params-table")
   , $preparation = $("#preparation")
   , $preparationTime = $(".preparation-time")
   , $progressRow = $("#progress-row")
@@ -432,8 +431,6 @@ socket.on(EVENT.NEW_GAME, (data) => {
 	$role.html(data.role);
 
 	const defaultParams = DEFAULT_PARAMS;
-	console.log(defaultParams)
-	console.log(DEFAULT_PARAMS)
 
 	var game = data.game;
 	for (let i in defaultParams) {

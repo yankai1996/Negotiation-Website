@@ -6,37 +6,37 @@
     <table class="params" id="params">
         <tr>
             <td>&alpha; =</td>
-            <td class="alpha">0.3</td>
+            <td class="alpha"><%= defaultParams.alpha %></td>
             <td>the probability that the second buyer, if exists, will show up in each period</td>
           </tr>
           <tr>
             <td>&beta; =</td>
-            <td class="beta">0.6</td>
+            <td class="beta"><%= defaultParams.beta %></td>
             <td>the probability that the buyer proposes the price in each period</td>
           </tr>
           <tr>
             <td>&gamma; =</td>
-            <td class="gamma">0.2</td>
+            <td class="gamma"><%= defaultParams.gamma %></td>
             <td>the probability the second buyer exists</td>
           </tr>
           <tr>
             <td>T =</td>
-            <td class="t">10</td>
+            <td class="t"><%= defaultParams.t %></td>
             <td>the maximum number of negotiation periods</td>
           </tr>
           <tr>
             <td>w =</td>
-            <td class="w">17</td>
+            <td class="w"><%= defaultParams.w %></td>
             <td>the price that the second buyer will pay</td>
           </tr>
           <tr>
             <td colspan="3">
-                Reselling price = $<label id="reselling-price">12</label>
+                Reselling price = $<label id="reselling-price"><%= money.resellingPrice %></label>
             </td>
           </tr>
           <tr>
             <td colspan="3">
-                Negotiation cost = $<label id="period-cost">0.1</label>/period
+                Negotiation cost = $<label id="period-cost"><%= money.periodCost %></label>/period
             </td>
           </tr>
       </table>

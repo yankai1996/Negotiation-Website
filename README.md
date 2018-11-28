@@ -55,10 +55,10 @@ Your goal is to maximize your profit by deciding what price to offer if you are 
 | T = 10        | the maximum number of negotiation periods                    |
 | w = 17        | the price that the second buyer will pay                     |
 
-| Constant                       |
-| ------------------------------ |
-| Reselling price = $12          |
-| Negotiation cost = $0.1/period |
+| Constant         |             |
+| ---------------- | ----------- |
+| Reselling price  | $12         |
+| Negotiation cost | $0.1/period |
 
 
 

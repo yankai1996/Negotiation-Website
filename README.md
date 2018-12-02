@@ -11,6 +11,18 @@ The website is based on
 * Node.js
 * MySQL
 
+
+
+## Installation
+
+- [Download](https://github.com/yankai1996/RA-Website/archive/master.zip) and unzip the source code.
+- Run `npm install`.
+- Create a new MySQL database.
+- Open `config.js`, customize the variables you need.
+- Run `node server.js` to launch the website.
+
+
+
 ### Modules Dependency
 
 * `express` - The website framework
@@ -60,13 +72,4 @@ Your goal is to maximize your profit by deciding what price to offer if you are 
 | Reselling price  | $12         |
 | Negotiation cost | $0.1/period |
 
-
-
-## Installation
-
-* [Download](https://github.com/yankai1996/RA-Website/archive/master.zip) and unzip the source code.
-* Run `npm install`.
-* Create a new MySQL database.
-* Open `config.js`, customize the variables you need.
-* Run `node server.js` to launch the website.
 

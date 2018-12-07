@@ -55,7 +55,7 @@
           </tr>
           <tr>
             <td colspan="5">Your Payoff: </td>
-            <td id="final-payoff">$<%= +(totalProfit + basePayment).toFixed(2) %></td>
+            <td id="final-payoff">$<%= Math.ceil(totalProfit + basePayment) %></td>
           </tr>
         </tfoot>
       </table>

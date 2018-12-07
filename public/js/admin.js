@@ -1,6 +1,7 @@
 $(function(){
 
 const COMMAND = {
+    ADD: "add",
 	AUTH: "cmd auth",
 	PAUSE: "cmd pause",
 	RESUME: "cmd resume"
@@ -257,6 +258,8 @@ const pairManager = new function() {
 				if (res.success){
 					this.updatePairs(res.pairs, res.count);
 					$rightPanel.animate({width: 'hide'}, 500);
+					socket.emit(COMMAND.ADD);
+					console.log(COMMAND.ADD);
 				} else {
 					alert(res);
 				}

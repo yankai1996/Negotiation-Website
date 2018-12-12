@@ -1,4 +1,4 @@
-# RA-Website
+# Negotiation-Website
 
 A web app for business experiment on negotiation in supply chains.
 

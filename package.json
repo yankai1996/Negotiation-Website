@@ -15,7 +15,7 @@
     "jquery-circle-progress": "^1.2.2",
     "morgan": "^1.9.1",
     "mysql2": "^1.6.5",
-    "sequelize": "^4.43.2",
+    "sequelize": "^5.3.0",
     "socket.io": "^2.2.0",
     "socket.io-cookie": "^0.0.1"
   },
